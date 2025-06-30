@@ -1,0 +1,8 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="1024" fill="#6366F1"/>
+  <circle cx="512" cy="412" r="150" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="512" cy="412" r="100" fill="#6366F1"/>
+  <circle cx="512" cy="412" r="50" fill="#FFFFFF"/>
+  <text x="512" y="600" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="48" font-weight="bold">Gyro App</text>
+  <text x="512" y="650" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="24" opacity="0.8">Tilt to explore</text>
+</svg> 
