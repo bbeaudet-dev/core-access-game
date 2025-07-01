@@ -1,6 +1,6 @@
 import { boolean, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
-import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';
+// import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+// import { z } from 'zod';
 
 // Users table
 export const users = pgTable('users', {
@@ -29,12 +29,12 @@ export const gameProgress = pgTable('game_progress', {
 // Indexes can be added later if needed
 
 // Zod schemas for type safety
-export const insertUserSchema = createInsertSchema(users);
-export const selectUserSchema = createSelectSchema(users);
-export const insertGameProgressSchema = createInsertSchema(gameProgress);
-export const selectGameProgressSchema = createSelectSchema(gameProgress);
+// export const insertUserSchema = createInsertSchema(users);
+// export const selectUserSchema = createSelectSchema(users);
+// export const insertGameProgressSchema = createInsertSchema(gameProgress);
+// export const selectGameProgressSchema = createSelectSchema(gameProgress);
 
-export type User = z.infer<typeof selectUserSchema>;
-export type NewUser = z.infer<typeof insertUserSchema>;
-export type GameProgress = z.infer<typeof selectGameProgressSchema>;
-export type NewGameProgress = z.infer<typeof insertGameProgressSchema>; 
+// export type User = z.infer<typeof selectUserSchema>;
+// export type NewUser = z.infer<typeof insertUserSchema>;
+// export type GameProgress = z.infer<typeof selectGameProgressSchema>;
+// export type NewGameProgress = z.infer<typeof insertGameProgressSchema>; 
