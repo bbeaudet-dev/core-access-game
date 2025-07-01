@@ -333,4 +333,7 @@ export const styles = StyleSheet.create({
     fontFamily: 'monospace',
     fontWeight: 'bold',
   },
-}); 
+});
+
+// Default export to satisfy Expo Router
+export default styles; 
