@@ -1,82 +1,79 @@
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { styles } from '../styles';
 
 interface VaultRoomProps {
-  vaultProgress: number;
-  onInspectVault: () => void;
   onOpenModule: (moduleName: string) => void;
 }
 
 export default function VaultRoom({ 
-  vaultProgress,
-  onInspectVault, 
   onOpenModule 
 }: VaultRoomProps) {
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>EMERGENCY MODE</Text>
-        <Text style={styles.subHeaderText}>System Status: INFECTED</Text>
+    <View className="flex-1 bg-black">
+      <View className="p-5 pt-15 flex-row justify-between items-center">
+        <Text className="text-red-500 text-xl font-bold">EMERGENCY MODE</Text>
+        <Text className="text-red-500 text-xs">System Status: INFECTED</Text>
       </View>
       
-      <View style={styles.vaultRoom}>
-        <Text style={styles.roomTitle}>QUARANTINE VAULT</Text>
-        <Text style={styles.roomSubtitle}>Virus Containment Active</Text>
+      <View className="flex-1 p-5 justify-center">
+        <Text className="text-red-500 text-2xl font-bold text-center mb-1">QUARANTINE VAULT</Text>
+        <Text className="text-red-500 text-sm text-center mb-8">Virus Containment Active</Text>
         
-        <View style={styles.vaultGrid}>
+        <View className="flex-row flex-wrap justify-around mb-8">
           <TouchableOpacity 
-            style={styles.vaultPanel} 
+            className="w-20 h-20 bg-red-500 justify-center items-center m-1 rounded-lg" 
             onPress={() => onOpenModule('logs')}
           >
-            <Text style={styles.panelText}>📋</Text>
-            <Text style={styles.panelLabel}>LOGS</Text>
+            <Text className="text-2xl mb-1">📋</Text>
+            <Text className="text-xs font-bold text-white">LOGS</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
-            style={styles.vaultPanel} 
+            className="w-20 h-20 bg-red-500 justify-center items-center m-1 rounded-lg" 
             onPress={() => onOpenModule('terminal')}
           >
-            <Text style={styles.panelText}>💻</Text>
-            <Text style={styles.panelLabel}>TERMINAL</Text>
+            <Text className="text-2xl mb-1">💻</Text>
+            <Text className="text-xs font-bold text-white">TERMINAL</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
-            style={styles.vaultPanel} 
+            className="w-20 h-20 bg-red-500 justify-center items-center m-1 rounded-lg" 
             onPress={() => onOpenModule('camera')}
           >
-            <Text style={styles.panelText}>📷</Text>
-            <Text style={styles.panelLabel}>CAMERA</Text>
+            <Text className="text-2xl mb-1">📷</Text>
+            <Text className="text-xs font-bold text-white">CAMERA</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
-            style={styles.vaultPanel} 
+            className="w-20 h-20 bg-red-500 justify-center items-center m-1 rounded-lg" 
             onPress={() => onOpenModule('audio')}
           >
-            <Text style={styles.panelText}>🎵</Text>
-            <Text style={styles.panelLabel}>AUDIO</Text>
+            <Text className="text-2xl mb-1">🎵</Text>
+            <Text className="text-xs font-bold text-white">AUDIO</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            className="w-20 h-20 bg-red-500 justify-center items-center m-1 rounded-lg" 
+            onPress={() => onOpenModule('system')}
+          >
+            <Text className="text-2xl mb-1">⚙️</Text>
+            <Text className="text-xs font-bold text-white">SYSTEM</Text>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity 
-          style={styles.centerPanel} 
-          onPress={onInspectVault}
+          className="w-30 h-30 bg-red-500 justify-center items-center self-center rounded-2xl border-3 border-yellow-400" 
+        //   onPress={}
         >
-          <Text style={styles.centerText}>?</Text>
-          <Text style={styles.centerLabel}>INSPECT</Text>
+          <Text className="text-4xl text-white mb-1">?</Text>
+          <Text className="text-xs font-bold text-white">INSPECT</Text>
         </TouchableOpacity>
+      </View>
 
-        {/* {showGlitch && (
-          <View style={styles.alarmOverlay}>
-            <Text style={styles.alarmText}>🚨 UNAUTHORIZED ACCESS 🚨</Text>
-            <Text style={styles.alarmText}>SECURITY PROTOCOLS ACTIVATED</Text>
-          </View>
-        )} */}
-      </View>
+      <TouchableOpacity className="absolute bottom-10 left-1/2 -ml-8 w-16 h-16 rounded-full bg-gray-600 justify-center items-center border-2 border-gray-500 z-10 opacity-50">
+        <Text className="text-white text-xl font-bold">⌂</Text>
+      </TouchableOpacity>
       
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Virus Containment: {vaultProgress * 25}%</Text>
-      </View>
     </View>
   );
 } 

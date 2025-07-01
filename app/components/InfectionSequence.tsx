@@ -1,6 +1,5 @@
 import React from 'react';
 import { Animated, Text, View } from 'react-native';
-import { styles } from '../styles';
 
 interface InfectionSequenceProps {
   glitchLevel: number;
@@ -16,22 +15,17 @@ export default function InfectionSequence({
   const progress = (glitchLevel / 6) * 100;
   
   return (
-    <View style={[styles.container, glitchLevel >= 2 && styles.glitchBackground]}>
-      <Animated.View style={[styles.terminalContainer, { opacity: fadeAnim }]}>
-        <Text style={styles.terminalText}>{terminalText}</Text>
-        {glitchLevel >= 3 && <Text style={styles.cursor}>_</Text>}
+    <View className={`flex-1 bg-black ${glitchLevel >= 2 ? 'bg-red-600' : ''}`}>
+      <Animated.View className="flex-1 p-5 justify-center" style={{ opacity: fadeAnim }}>
+        <Text className="text-green-400 text-base font-mono leading-6">{terminalText}</Text>
+        {glitchLevel >= 3 && <Text className="text-green-400 text-base font-mono">_</Text>}
       </Animated.View>
       
       {glitchLevel >= 4 && (
-        <View style={styles.warningOverlay}>
-          <Text style={styles.warningText}>⚠️ SYSTEM COMPROMISED ⚠️</Text>
+        <View className="absolute inset-0 bg-red-600 bg-opacity-30 justify-center items-center">
+          <Text className="text-white text-2xl font-bold text-center">⚠️ SYSTEM COMPROMISED ⚠️</Text>
         </View>
       )}
-      
-      {/* Optional: Show infection progress */}
-      <View style={styles.progressContainer}>
-        <Text style={styles.progressText}>Infection Progress: {Math.round(progress)}%</Text>
-      </View>
     </View>
   );
 } 
