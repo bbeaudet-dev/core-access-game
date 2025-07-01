@@ -1,10 +1,43 @@
-import { useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Animated, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 
 interface LoginScreenProps {
   onLoginSuccess: () => void;
 }
+
+// Words related to the game - tower defense, cybersecurity, hacking, etc.
+const GAME_WORDS = [
+  { word: 'ACCESS', color: '#10B981' }, // green
+  { word: 'BREACHED', color: '#EF4444' }, // red
+  { word: 'DEFENSE', color: '#8B5CF6' }, // purple
+  { word: 'FIREWALL', color: '#F59E0B' }, // amber
+  { word: 'HACKED', color: '#EF4444' }, // red
+  { word: 'INFECTED', color: '#EF4444' }, // red
+  { word: 'LOCKDOWN', color: '#F59E0B' }, // amber
+  { word: 'QUARANTINED', color: '#06B6D4' }, // cyan
+  { word: 'SECURE', color: '#10B981' }, // green
+  { word: 'SYSTEM', color: '#8B5CF6' }, // purple
+  { word: 'TERMINAL', color: '#8B5CF6' }, // purple
+  { word: 'VIRUS', color: '#EF4444' }, // red
+  { word: 'VAULT', color: '#8B5CF6' }, // purple
+  { word: 'ZEROED', color: '#06B6D4' }, // cyan
+  { word: 'NEUTRALIZED', color: '#06B6D4' }, // cyan
+  { word: 'CONTAINED', color: '#06B6D4' }, // cyan
+  { word: 'DEACTIVATED', color: '#F59E0B' }, // amber
+  { word: 'DELETED', color: '#EF4444' }, // red
+  { word: 'DISABLED', color: '#F59E0B' }, // amber
+  { word: 'DISABLED', color: '#F59E0B' }, // amber
+];
+
+// Generate random guest username
+const generateGuestUsername = () => {
+  const prefixes = ['USER', 'AGENT', 'OPERATOR', 'SYSTEM', 'CORE'];
+  const suffixes = ['001', '007', '1337', '404', '777', '999'];
+  const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+  const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+  return `${prefix}_${suffix}`;
+};
 
 export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const [email, setEmail] = useState('');
@@ -12,9 +45,78 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [name, setName] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState<'none' | 'signup' | 'signin'>('none');
+  const [success, setSuccess] = useState<'none' | 'signup' | 'signin' | 'guest'>('none');
+  const [guestUsername, setGuestUsername] = useState('');
+  
+  // Animation states
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [isGlitching, setIsGlitching] = useState(false);
+  const glitchAnim = useRef(new Animated.Value(0)).current;
+  const textAnim = useRef(new Animated.Value(1)).current;
+  const verticalAnim = useRef(new Animated.Value(0)).current;
   
   const { signIn, signUp, isLoading, completeAuth } = useAuth();
+
+  // Word cycling effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentWordIndex((prev) => (prev + 1) % GAME_WORDS.length);
+      triggerGlitchEffect();
+    }, 1500);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const triggerGlitchEffect = () => {
+    setIsGlitching(true);
+    
+    // Enhanced crackling/glitch animation with vertical translation
+    Animated.sequence([
+      // Quick vertical slide up (new word coming in)
+      Animated.timing(verticalAnim, {
+        toValue: -20,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      // Intense glitch effect
+      Animated.parallel([
+        Animated.timing(glitchAnim, {
+          toValue: 1,
+          duration: 30,
+          useNativeDriver: true,
+        }),
+        Animated.timing(verticalAnim, {
+          toValue: 0,
+          duration: 30,
+          useNativeDriver: true,
+        }),
+      ]),
+      // More glitch effects
+      Animated.timing(glitchAnim, {
+        toValue: 0,
+        duration: 20,
+        useNativeDriver: true,
+      }),
+      Animated.timing(glitchAnim, {
+        toValue: 1,
+        duration: 15,
+        useNativeDriver: true,
+      }),
+      Animated.timing(glitchAnim, {
+        toValue: 0,
+        duration: 15,
+        useNativeDriver: true,
+      }),
+      // Final settling
+      Animated.timing(glitchAnim, {
+        toValue: 0,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setIsGlitching(false);
+    });
+  };
 
   const handleSubmit = async () => {
     setError('');
@@ -35,13 +137,29 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     }
   };
 
+  const handleGuestMode = () => {
+    const username = generateGuestUsername();
+    setGuestUsername(username);
+    setSuccess('guest');
+  };
+
+  const handleContinue = () => {
+    if (success === 'guest') {
+      // For guest mode, we don't call completeAuth since there's no real authentication
+      onLoginSuccess();
+    } else {
+      completeAuth();
+      onLoginSuccess();
+    }
+  };
+
   if (success === 'signup') {
     return (
       <View className="flex-1 bg-black justify-center items-center px-6">
         <Text className="text-green-400 text-2xl mb-4">Successfully signed up!</Text>
         <TouchableOpacity
           className="bg-green-600 p-4 rounded-lg"
-          onPress={() => { completeAuth(); onLoginSuccess(); }}
+          onPress={handleContinue}
         >
           <Text className="text-white font-bold">Continue to Game</Text>
         </TouchableOpacity>
@@ -55,7 +173,22 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         <Text className="text-green-400 text-2xl mb-4">Successfully signed in!</Text>
         <TouchableOpacity
           className="bg-green-600 p-4 rounded-lg"
-          onPress={() => { completeAuth(); onLoginSuccess(); }}
+          onPress={handleContinue}
+        >
+          <Text className="text-white font-bold">Continue to Game</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  if (success === 'guest') {
+    return (
+      <View className="flex-1 bg-black justify-center items-center px-6">
+        <Text className="text-green-400 text-2xl mb-4">Welcome, {guestUsername}!</Text>
+        <Text className="text-gray-400 text-center mb-6">Guest mode - progress will not be saved</Text>
+        <TouchableOpacity
+          className="bg-green-600 p-4 rounded-lg"
+          onPress={handleContinue}
         >
           <Text className="text-white font-bold">Continue to Game</Text>
         </TouchableOpacity>
@@ -74,9 +207,47 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         keyboardShouldPersistTaps="handled"
       >
         <View className="w-full max-w-sm">
-          <Text className="text-3xl font-bold text-green-400 text-center mb-8">
-            CORE ACCESS
-          </Text>
+          {/* Animated Title */}
+          <View className="mb-8">
+            <Animated.Text 
+              className="text-4xl font-bold text-center"
+              style={{
+                transform: [
+                  {
+                    translateX: glitchAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, Math.random() * 8 - 4],
+                    }),
+                  },
+                  {
+                    translateY: Animated.add(
+                      verticalAnim,
+                      glitchAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, Math.random() * 6 - 3],
+                      })
+                    ),
+                  },
+                  {
+                    skewX: glitchAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: ['0deg', '2deg'],
+                    }),
+                  },
+                ],
+                opacity: glitchAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [1, 0.7],
+                }),
+              }}
+            >
+              <Text style={{ color: '#10B981' }}>CORE_</Text>
+              <Text style={{ color: GAME_WORDS[currentWordIndex].color }}>
+                {GAME_WORDS[currentWordIndex].word}
+              </Text>
+            </Animated.Text>
+          </View>
+
           <Text className="text-lg text-gray-400 text-center mb-8">
             {isSignUp ? 'Create Account' : 'Sign In'}
           </Text>
@@ -158,8 +329,23 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
               }
             </Text>
           </TouchableOpacity>
+
+          {/* Guest Mode Button */}
+          <View className="mt-6 pt-6 border-t border-gray-700">
+            <TouchableOpacity
+              className="w-full p-4 rounded-lg bg-gray-700"
+              onPress={handleGuestMode}
+            >
+              <Text className="text-gray-300 text-center font-bold">
+                Continue as Guest
+              </Text>
+            </TouchableOpacity>
+            <Text className="text-gray-500 text-center text-sm mt-2">
+              No account required - progress not saved
+            </Text>
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
-} 
+}

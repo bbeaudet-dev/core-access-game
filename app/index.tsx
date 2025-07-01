@@ -6,6 +6,7 @@ import CameraModule from './components/CameraModule';
 import CompassModule from './components/CompassModule';
 import CoreVitalsScreen from './components/CoreVitalsScreen';
 import FakeGameMenu from './components/FakeGameMenu';
+import GyroModule from './components/GyroModule';
 import InfectionSequence from './components/InfectionSequence';
 import LoginScreen from './components/LoginScreen';
 import LogsModule from './components/LogsModule';
@@ -17,7 +18,7 @@ import { startInfectionSequence } from './utils/infectionSequence';
 
 export default function Index() {
   const { isAuthenticated, isLoading } = useAuth();
-  const [gameState, setGameState] = useState('menu'); // 'menu', 'infected', 'vault', 'logs', 'terminal', 'camera', 'audio', 'system', 'compass', 'about', 'core-vitals'
+  const [gameState, setGameState] = useState('menu'); // 'menu', 'infected', 'vault', 'logs', 'terminal', 'camera', 'audio', 'system', 'compass', 'about', 'core-vitals', 'gyro'
   const [glitchLevel, setGlitchLevel] = useState(0);
   const [vaultProgress, setVaultProgress] = useState(0);
   const [terminalText, setTerminalText] = useState('');
@@ -95,6 +96,10 @@ export default function Index() {
 
   if (gameState === 'compass') {
     return <CompassModule onGoHome={() => navigate('vault')} />;
+  }
+
+  if (gameState === 'gyro') {
+    return <GyroModule onGoHome={() => navigate('vault')} />;
   }
 
   if (gameState === 'system') {
