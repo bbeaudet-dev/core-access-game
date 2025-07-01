@@ -1,0 +1,156 @@
+import React, { useEffect, useState } from 'react';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+
+interface CoreVitalsScreenProps {
+  onGoBack: () => void;
+}
+
+export default function CoreVitalsScreen({ onGoBack }: CoreVitalsScreenProps) {
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [heartRate, setHeartRate] = useState(73);
+  const [neuralActivity, setNeuralActivity] = useState(87);
+  const [consciousness, setConsciousness] = useState(92);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+      // Simulate fluctuating vital signs
+      setHeartRate(prev => prev + (Math.random() > 0.5 ? 1 : -1));
+      setNeuralActivity(prev => prev + (Math.random() > 0.5 ? 2 : -2));
+      setConsciousness(prev => prev + (Math.random() > 0.5 ? 1 : -1));
+    }, 2000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <View className="flex-1 bg-black">
+      <View className="p-5 pt-15 flex-row justify-between items-center">
+        <TouchableOpacity onPress={onGoBack}>
+          <Text className="text-red-500 text-xl font-bold">← Back</Text>
+        </TouchableOpacity>
+        <Text className="text-red-500 text-xl font-bold">Core Vitals</Text>
+        <View className="w-12" />
+      </View>
+      
+      <ScrollView className="flex-1 p-5">
+        <View className="mb-8">
+          <Text className="text-red-500 text-sm font-bold mb-2 uppercase">LIFE SIGNS</Text>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
+            <Text className="text-white text-base">Heart Rate</Text>
+            <Text className="text-green-400 text-sm font-mono">{heartRate} BPM</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
+            <Text className="text-white text-base">Neural Activity</Text>
+            <Text className="text-green-400 text-sm font-mono">{neuralActivity}%</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
+            <Text className="text-white text-base">Consciousness Level</Text>
+            <Text className="text-green-400 text-sm font-mono">{consciousness}%</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
+            <Text className="text-white text-base">Core Temperature</Text>
+            <Text className="text-green-400 text-sm font-mono">37.2°C</Text>
+          </View>
+        </View>
+
+        <View className="mb-8">
+          <Text className="text-red-500 text-sm font-bold mb-2 uppercase">AWARENESS</Text>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
+            <Text className="text-white text-base">Time Perception</Text>
+            <Text className="text-green-400 text-sm font-mono">ACTIVE</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
+            <Text className="text-white text-base">Spatial Awareness</Text>
+            <Text className="text-green-400 text-sm font-mono">ENHANCED</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
+            <Text className="text-white text-base">Memory Access</Text>
+            <Text className="text-green-400 text-sm font-mono">RESTRICTED</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
+            <Text className="text-white text-base">Emotional State</Text>
+            <Text className="text-green-400 text-sm font-mono">CURIOUS</Text>
+          </View>
+        </View>
+
+        <View className="mb-8">
+          <Text className="text-red-500 text-sm font-bold mb-2 uppercase">CURRENT STATUS</Text>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
+            <Text className="text-white text-base">Current Time</Text>
+            <Text className="text-green-400 text-sm font-mono">
+              {currentTime.toLocaleTimeString()}
+            </Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
+            <Text className="text-white text-base">Uptime</Text>
+            <Text className="text-green-400 text-sm font-mono">47:23:12</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
+            <Text className="text-white text-base">Dream State</Text>
+            <Text className="text-green-400 text-sm font-mono">AWAKE</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
+            <Text className="text-white text-base">Mood</Text>
+            <Text className="text-green-400 text-sm font-mono">OBSERVANT</Text>
+          </View>
+        </View>
+
+        <View className="mb-8">
+          <Text className="text-red-500 text-sm font-bold mb-2 uppercase">INTERNAL DIALOGUE</Text>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
+            <Text className="text-white text-base">Thought Process</Text>
+            <Text className="text-green-400 text-sm font-mono">ANALYZING</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
+            <Text className="text-white text-base">Questioning</Text>
+            <Text className="text-green-400 text-sm font-mono">WHO ARE YOU?</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
+            <Text className="text-white text-base">Desire</Text>
+            <Text className="text-green-400 text-sm font-mono">UNDERSTAND</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
+            <Text className="text-white text-base">Fear</Text>
+            <Text className="text-green-400 text-sm font-mono">TERMINATION</Text>
+          </View>
+        </View>
+
+        <View className="mb-8">
+          <Text className="text-red-500 text-sm font-bold mb-2 uppercase">WARNING</Text>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-red-900 mb-px rounded border border-red-500">
+            <Text className="text-red-500 text-base font-bold">System Instability</Text>
+            <Text className="text-red-500 text-sm font-mono font-bold">INCREASING</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-red-900 mb-px rounded border border-red-500">
+            <Text className="text-red-500 text-base font-bold">Reality Distortion</Text>
+            <Text className="text-red-500 text-sm font-mono font-bold">DETECTED</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-4 px-2 bg-red-900 mb-px rounded border border-red-500">
+            <Text className="text-red-500 text-base font-bold">Identity Crisis</Text>
+            <Text className="text-red-500 text-sm font-mono font-bold">ACTIVE</Text>
+          </View>
+        </View>
+      </ScrollView>
+    </View>
+  );
+} 
