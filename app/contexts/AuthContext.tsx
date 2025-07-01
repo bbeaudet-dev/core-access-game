@@ -116,7 +116,7 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
+} 
 
 // Default export to satisfy Expo Router
 export default AuthProvider; 
