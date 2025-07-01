@@ -3,8 +3,8 @@ services:
     name: core-access-api
     env: node
     plan: free
-    buildCommand: npm run build
-    startCommand: npm run server:prod
+    buildCommand: npm install
+    startCommand: npm run api:start
     envVars:
       - key: NODE_ENV
         value: production
