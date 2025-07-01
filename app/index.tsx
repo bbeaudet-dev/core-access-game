@@ -3,6 +3,7 @@ import { Animated } from 'react-native';
 import AboutScreen from './components/AboutScreen';
 import AudioModule from './components/AudioModule';
 import CameraModule from './components/CameraModule';
+import CompassModule from './components/CompassModule';
 import CoreVitalsScreen from './components/CoreVitalsScreen';
 import FakeGameMenu from './components/FakeGameMenu';
 import InfectionSequence from './components/InfectionSequence';
@@ -16,7 +17,7 @@ import { startInfectionSequence } from './utils/infectionSequence';
 
 export default function Index() {
   const { isAuthenticated, isLoading } = useAuth();
-  const [gameState, setGameState] = useState('menu'); // 'menu', 'infected', 'vault', 'logs', 'terminal', 'camera', 'audio', 'system', 'about', 'core-vitals'
+  const [gameState, setGameState] = useState('menu'); // 'menu', 'infected', 'vault', 'logs', 'terminal', 'camera', 'audio', 'system', 'compass', 'about', 'core-vitals'
   const [glitchLevel, setGlitchLevel] = useState(0);
   const [vaultProgress, setVaultProgress] = useState(0);
   const [terminalText, setTerminalText] = useState('');
@@ -90,6 +91,10 @@ export default function Index() {
 
   if (gameState === 'audio') {
     return <AudioModule onGoHome={() => navigate('vault')} />;
+  }
+
+  if (gameState === 'compass') {
+    return <CompassModule onGoHome={() => navigate('vault')} />;
   }
 
   if (gameState === 'system') {

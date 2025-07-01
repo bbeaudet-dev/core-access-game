@@ -59,6 +59,14 @@ export default function VaultRoom({
             <Text style={styles.panelText}>⚙️</Text>
             <Text style={styles.panelLabel}>SYSTEM</Text>
           </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.vaultPanel} 
+            onPress={() => onOpenModule('compass')}
+          >
+            <Text style={styles.panelText}>🧭</Text>
+            <Text style={styles.panelLabel}>COMPASS</Text>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity 
