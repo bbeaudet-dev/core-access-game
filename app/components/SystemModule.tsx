@@ -1,5 +1,5 @@
-import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { styles } from '../styles';
 
 interface SystemModuleProps {
   onGoHome: () => void;
@@ -15,100 +15,100 @@ export default function SystemModule({
   onSelfDestruct 
 }: SystemModuleProps) {
   return (
-    <View className="flex-1 bg-black">
-      <View className="p-5 pt-15 flex-row justify-between items-center">
-        <Text className="text-red-500 text-xl font-bold">SYSTEM</Text>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>SYSTEM</Text>
       </View>
       
-      <ScrollView className="flex-1 p-5">
+      <ScrollView style={styles.systemContainer}>
         {/* Device Info Section */}
-        <View className="mb-8">
-          <Text className="text-red-500 text-sm font-bold mb-2 uppercase">DEVICE</Text>
+        <View style={styles.systemSection}>
+          <Text style={styles.systemSectionTitle}>DEVICE</Text>
           
-          <TouchableOpacity className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded" onPress={onGoToAbout}>
-            <Text className="text-white text-base">About</Text>
-            <Text className="text-green-400 text-sm font-mono">Core Defender v1.0.3</Text>
+          <TouchableOpacity style={styles.systemRow} onPress={onGoToAbout}>
+            <Text style={styles.systemRowText}>About</Text>
+            <Text style={styles.systemRowDetail}>Core Defender v1.0.3</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded" onPress={onGoToCoreVitals}>
-            <Text className="text-white text-base">Core Vitals</Text>
-            <Text className="text-green-400 text-sm font-mono">⚠️ Unstable</Text>
+          <TouchableOpacity style={styles.systemRow} onPress={onGoToCoreVitals}>
+            <Text style={styles.systemRowText}>Core Vitals</Text>
+            <Text style={styles.systemRowDetail}>⚠️ Unstable</Text>
           </TouchableOpacity>
         </View>
 
         {/* Security Section */}
-        <View className="mb-8">
-          <Text className="text-red-500 text-sm font-bold mb-2 uppercase">SECURITY</Text>
+        <View style={styles.systemSection}>
+          <Text style={styles.systemSectionTitle}>SECURITY</Text>
           
-          <TouchableOpacity className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
-            <Text className="text-white text-base">Quarantine Status</Text>
-            <Text className="text-green-400 text-sm font-mono">ACTIVE</Text>
+          <TouchableOpacity style={styles.systemRow}>
+            <Text style={styles.systemRowText}>Quarantine Status</Text>
+            <Text style={styles.systemRowDetail}>ACTIVE</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
-            <Text className="text-white text-base">Virus Scan</Text>
-            <Text className="text-green-400 text-sm font-mono">INFECTED</Text>
+          <TouchableOpacity style={styles.systemRow}>
+            <Text style={styles.systemRowText}>Virus Scan</Text>
+            <Text style={styles.systemRowDetail}>INFECTED</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
-            <Text className="text-white text-base">Access Level</Text>
-            <Text className="text-green-400 text-sm font-mono">RESTRICTED</Text>
+          <TouchableOpacity style={styles.systemRow}>
+            <Text style={styles.systemRowText}>Access Level</Text>
+            <Text style={styles.systemRowDetail}>RESTRICTED</Text>
           </TouchableOpacity>
         </View>
 
         {/* Hardware Section */}
-        <View className="mb-8">
-          <Text className="text-red-500 text-sm font-bold mb-2 uppercase">HARDWARE</Text>
+        <View style={styles.systemSection}>
+          <Text style={styles.systemSectionTitle}>HARDWARE</Text>
           
-          <TouchableOpacity className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
-            <Text className="text-white text-base">Gyroscope</Text>
-            <Text className="text-green-400 text-sm font-mono">ONLINE</Text>
+          <TouchableOpacity style={styles.systemRow}>
+            <Text style={styles.systemRowText}>Gyroscope</Text>
+            <Text style={styles.systemRowDetail}>ONLINE</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
-            <Text className="text-white text-base">Microphone</Text>
-            <Text className="text-green-400 text-sm font-mono">STANDBY</Text>
+          <TouchableOpacity style={styles.systemRow}>
+            <Text style={styles.systemRowText}>Microphone</Text>
+            <Text style={styles.systemRowDetail}>STANDBY</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
-            <Text className="text-white text-base">Camera</Text>
-            <Text className="text-green-400 text-sm font-mono">OFFLINE</Text>
+          <TouchableOpacity style={styles.systemRow}>
+            <Text style={styles.systemRowText}>Camera</Text>
+            <Text style={styles.systemRowDetail}>OFFLINE</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
-            <Text className="text-white text-base">GPS</Text>
-            <Text className="text-green-400 text-sm font-mono">ACTIVE</Text>
+          <TouchableOpacity style={styles.systemRow}>
+            <Text style={styles.systemRowText}>GPS</Text>
+            <Text style={styles.systemRowDetail}>ACTIVE</Text>
           </TouchableOpacity>
         </View>
 
         {/* System Section */}
-        <View className="mb-8">
-          <Text className="text-red-500 text-sm font-bold mb-2 uppercase">SYSTEM</Text>
+        <View style={styles.systemSection}>
+          <Text style={styles.systemSectionTitle}>SYSTEM</Text>
           
-          <TouchableOpacity className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
-            <Text className="text-white text-base">Emergency Mode</Text>
-            <Text className="text-green-400 text-sm font-mono">ENABLED</Text>
+          <TouchableOpacity style={styles.systemRow}>
+            <Text style={styles.systemRowText}>Emergency Mode</Text>
+            <Text style={styles.systemRowDetail}>ENABLED</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity className="flex-row justify-between items-center py-4 px-2 bg-gray-900 mb-px rounded">
-            <Text className="text-white text-base">Auto-Destruct</Text>
-            <Text className="text-green-400 text-sm font-mono">ARMED</Text>
+          <TouchableOpacity style={styles.systemRow}>
+            <Text style={styles.systemRowText}>Auto-Destruct</Text>
+            <Text style={styles.systemRowDetail}>ARMED</Text>
           </TouchableOpacity>
         </View>
 
         {/* Danger Zone */}
-        <View className="mb-8">
-          <Text className="text-red-500 text-sm font-bold mb-2 uppercase">DANGER ZONE</Text>
+        <View style={styles.systemSection}>
+          <Text style={styles.systemSectionTitle}>DANGER ZONE</Text>
           
-          <TouchableOpacity className="flex-row justify-between items-center py-4 px-2 bg-red-900 mb-px rounded border border-red-500" onPress={onSelfDestruct}>
-            <Text className="text-red-500 text-base font-bold">Self-Destruct</Text>
-            <Text className="text-red-500 text-sm font-mono font-bold">TERMINATE DEVICE</Text>
+          <TouchableOpacity style={styles.systemRowDanger} onPress={onSelfDestruct}>
+            <Text style={styles.systemRowTextDanger}>Self-Destruct</Text>
+            <Text style={styles.systemRowDetailDanger}>TERMINATE DEVICE</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
       
-      <TouchableOpacity className="absolute bottom-10 left-1/2 -ml-8 w-16 h-16 rounded-full bg-red-500 justify-center items-center border-2 border-white z-10" onPress={onGoHome}>
-        <Text className="text-white text-xl font-bold">⌂</Text>
+      <TouchableOpacity style={styles.homeButton} onPress={onGoHome}>
+        <Text style={styles.homeButtonText}>⌂</Text>
       </TouchableOpacity>
     </View>
   );

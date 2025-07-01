@@ -1,5 +1,5 @@
-import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { styles } from '../styles';
 
 interface VaultRoomProps {
   onOpenModule: (moduleName: string) => void;
@@ -9,69 +9,69 @@ export default function VaultRoom({
   onOpenModule 
 }: VaultRoomProps) {
   return (
-    <View className="flex-1 bg-black">
-      <View className="p-5 pt-15 flex-row justify-between items-center">
-        <Text className="text-red-500 text-xl font-bold">EMERGENCY MODE</Text>
-        <Text className="text-red-500 text-xs">System Status: INFECTED</Text>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>EMERGENCY MODE</Text>
+        <Text style={styles.subHeaderText}>System Status: INFECTED</Text>
       </View>
       
-      <View className="flex-1 p-5 justify-center">
-        <Text className="text-red-500 text-2xl font-bold text-center mb-1">QUARANTINE VAULT</Text>
-        <Text className="text-red-500 text-sm text-center mb-8">Virus Containment Active</Text>
+      <View style={styles.vaultRoom}>
+        <Text style={styles.roomTitle}>QUARANTINE VAULT</Text>
+        <Text style={styles.roomSubtitle}>Virus Containment Active</Text>
         
-        <View className="flex-row flex-wrap justify-around mb-8">
+        <View style={styles.vaultGrid}>
           <TouchableOpacity 
-            className="w-20 h-20 bg-red-500 justify-center items-center m-1 rounded-lg" 
+            style={styles.vaultPanel} 
             onPress={() => onOpenModule('logs')}
           >
-            <Text className="text-2xl mb-1">📋</Text>
-            <Text className="text-xs font-bold text-white">LOGS</Text>
+            <Text style={styles.panelText}>📋</Text>
+            <Text style={styles.panelLabel}>LOGS</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
-            className="w-20 h-20 bg-red-500 justify-center items-center m-1 rounded-lg" 
+            style={styles.vaultPanel} 
             onPress={() => onOpenModule('terminal')}
           >
-            <Text className="text-2xl mb-1">💻</Text>
-            <Text className="text-xs font-bold text-white">TERMINAL</Text>
+            <Text style={styles.panelText}>💻</Text>
+            <Text style={styles.panelLabel}>TERMINAL</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
-            className="w-20 h-20 bg-red-500 justify-center items-center m-1 rounded-lg" 
+            style={styles.vaultPanel} 
             onPress={() => onOpenModule('camera')}
           >
-            <Text className="text-2xl mb-1">📷</Text>
-            <Text className="text-xs font-bold text-white">CAMERA</Text>
+            <Text style={styles.panelText}>📷</Text>
+            <Text style={styles.panelLabel}>CAMERA</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
-            className="w-20 h-20 bg-red-500 justify-center items-center m-1 rounded-lg" 
+            style={styles.vaultPanel} 
             onPress={() => onOpenModule('audio')}
           >
-            <Text className="text-2xl mb-1">🎵</Text>
-            <Text className="text-xs font-bold text-white">AUDIO</Text>
+            <Text style={styles.panelText}>🎵</Text>
+            <Text style={styles.panelLabel}>AUDIO</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
-            className="w-20 h-20 bg-red-500 justify-center items-center m-1 rounded-lg" 
+            style={styles.vaultPanel} 
             onPress={() => onOpenModule('system')}
           >
-            <Text className="text-2xl mb-1">⚙️</Text>
-            <Text className="text-xs font-bold text-white">SYSTEM</Text>
+            <Text style={styles.panelText}>⚙️</Text>
+            <Text style={styles.panelLabel}>SYSTEM</Text>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity 
-          className="w-30 h-30 bg-red-500 justify-center items-center self-center rounded-2xl border-3 border-yellow-400" 
+          style={styles.centerPanel} 
         //   onPress={}
         >
-          <Text className="text-4xl text-white mb-1">?</Text>
-          <Text className="text-xs font-bold text-white">INSPECT</Text>
+          <Text style={styles.centerText}>?</Text>
+          <Text style={styles.centerLabel}>INSPECT</Text>
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity className="absolute bottom-10 left-1/2 -ml-8 w-16 h-16 rounded-full bg-gray-600 justify-center items-center border-2 border-gray-500 z-10 opacity-50">
-        <Text className="text-white text-xl font-bold">⌂</Text>
+      <TouchableOpacity style={styles.homeButtonDisabled}>
+        <Text style={styles.homeButtonText}>⌂</Text>
       </TouchableOpacity>
       
     </View>
