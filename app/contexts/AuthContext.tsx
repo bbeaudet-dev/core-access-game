@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { authApi } from '../lib/auth';
 
 // Basic user type - we'll expand this later
 export interface User {
@@ -48,17 +49,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signIn = async (email: string, password: string) => {
     setAuthState(prev => ({ ...prev, isLoading: true }));
     try {
-      const response = await fetch('http://localhost:3001/api/auth/signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setAuthState(prev => ({ ...prev, isLoading: false, user: null }));
-        throw new Error(data.error || 'Sign in failed');
-      }
-      setAuthState({ user: data.user, isLoading: false, isAuthenticated: false });
+      const user = await authApi.signin(email, password);
+      setAuthState({ user, isLoading: false, isAuthenticated: false });
     } catch (error) {
       setAuthState(prev => ({ ...prev, isLoading: false, user: null }));
       throw error;
@@ -69,17 +61,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signUp = async (email: string, password: string, name?: string) => {
     setAuthState(prev => ({ ...prev, isLoading: true }));
     try {
-      const response = await fetch('http://localhost:3001/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setAuthState(prev => ({ ...prev, isLoading: false, user: null }));
-        throw new Error(data.error || 'Sign up failed');
-      }
-      setAuthState({ user: data.user, isLoading: false, isAuthenticated: false });
+      const user = await authApi.signup(email, password, name);
+      setAuthState({ user, isLoading: false, isAuthenticated: false });
     } catch (error) {
       setAuthState(prev => ({ ...prev, isLoading: false, user: null }));
       throw error;
@@ -133,4 +116,7 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-} 
+}
+
+// Default export to satisfy Expo Router
+export default AuthProvider; 

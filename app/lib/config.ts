@@ -2,11 +2,11 @@
 export const API_CONFIG = {
   // Development (local)
   development: {
-    baseURL: 'http://localhost:3001',
+    baseURL: 'https://core-access-api.onrender.com', // Use deployed API for now
   },
   // Production (Render)
   production: {
-    baseURL: 'https://core-access-api.onrender.com', // Update this with your actual Render URL
+    baseURL: 'https://core-access-api.onrender.com',
   },
 };
 
@@ -26,4 +26,7 @@ export const API_ENDPOINTS = {
   health: '/health',
   signin: '/api/auth/signin',
   signup: '/api/auth/signup',
-} as const; 
+} as const;
+
+// Default export to satisfy Expo Router
+export default API_ENDPOINTS; 

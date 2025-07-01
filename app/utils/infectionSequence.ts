@@ -65,4 +65,5 @@ export function startInfectionSequence(
   });
 }
 
- 
+// Default export to satisfy Expo Router
+export default INFECTION_STEPS;

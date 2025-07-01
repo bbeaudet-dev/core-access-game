@@ -63,4 +63,7 @@ export const authApi = {
 // TODO: Implement BetterAuth later when we add database
 export const auth = {
   // Placeholder for now
-}; 
+};
+
+// Default export to satisfy Expo Router
+export default auth; 
