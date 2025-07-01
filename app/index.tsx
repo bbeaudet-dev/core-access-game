@@ -6,18 +6,26 @@ import CameraModule from './components/CameraModule';
 import CoreVitalsScreen from './components/CoreVitalsScreen';
 import FakeGameMenu from './components/FakeGameMenu';
 import InfectionSequence from './components/InfectionSequence';
+import LoginScreen from './components/LoginScreen';
 import LogsModule from './components/LogsModule';
 import SystemModule from './components/SystemModule';
 import TerminalModule from './components/TerminalModule';
 import VaultRoom from './components/VaultRoom';
+import { useAuth } from './contexts/AuthContext';
 import { startInfectionSequence } from './utils/infectionSequence';
 
 export default function Index() {
+  const { isAuthenticated, isLoading } = useAuth();
   const [gameState, setGameState] = useState('menu'); // 'menu', 'infected', 'vault', 'logs', 'terminal', 'camera', 'audio', 'system', 'about', 'core-vitals'
   const [glitchLevel, setGlitchLevel] = useState(0);
   const [vaultProgress, setVaultProgress] = useState(0);
   const [terminalText, setTerminalText] = useState('');
   const [fadeAnim] = useState(new Animated.Value(1));
+
+  // Show login screen if not authenticated
+  if (!isAuthenticated) {
+    return <LoginScreen onLoginSuccess={() => setGameState('menu')} />;
+  }
 
   const startFakeGame = () => {
     // Simulate virus infection using utility function

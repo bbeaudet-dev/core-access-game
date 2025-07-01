@@ -33,10 +33,6 @@ export default function FakeGameMenu({ onStartGame }: FakeGameMenuProps) {
           <Text className="text-gray-400 mb-2">🎨 Stunning Graphics</Text>
         </View>
       </View>
-      
-      <TouchableOpacity className="absolute bottom-8 w-16 h-16 bg-gray-600 rounded-full items-center justify-center opacity-50">
-        <Text className="text-white text-2xl">⌂</Text>
-      </TouchableOpacity>
     </View>
   );
 } 
