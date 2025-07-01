@@ -1,16 +1,11 @@
-import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { styles } from '../styles';
 
 interface VaultRoomProps {
-  vaultProgress: number;
-  onInspectVault: () => void;
   onOpenModule: (moduleName: string) => void;
 }
 
 export default function VaultRoom({ 
-  vaultProgress,
-  onInspectVault, 
   onOpenModule 
 }: VaultRoomProps) {
   return (
@@ -56,27 +51,29 @@ export default function VaultRoom({
             <Text style={styles.panelText}>🎵</Text>
             <Text style={styles.panelLabel}>AUDIO</Text>
           </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.vaultPanel} 
+            onPress={() => onOpenModule('system')}
+          >
+            <Text style={styles.panelText}>⚙️</Text>
+            <Text style={styles.panelLabel}>SYSTEM</Text>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity 
           style={styles.centerPanel} 
-          onPress={onInspectVault}
+        //   onPress={}
         >
           <Text style={styles.centerText}>?</Text>
           <Text style={styles.centerLabel}>INSPECT</Text>
         </TouchableOpacity>
+      </View>
 
-        {/* {showGlitch && (
-          <View style={styles.alarmOverlay}>
-            <Text style={styles.alarmText}>🚨 UNAUTHORIZED ACCESS 🚨</Text>
-            <Text style={styles.alarmText}>SECURITY PROTOCOLS ACTIVATED</Text>
-          </View>
-        )} */}
-      </View>
+      <TouchableOpacity style={styles.homeButtonDisabled}>
+        <Text style={styles.homeButtonText}>⌂</Text>
+      </TouchableOpacity>
       
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Virus Containment: {vaultProgress * 25}%</Text>
-      </View>
     </View>
   );
 } 

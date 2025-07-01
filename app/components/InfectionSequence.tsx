@@ -1,4 +1,3 @@
-import React from 'react';
 import { Animated, Text, View } from 'react-native';
 import { styles } from '../styles';
 
@@ -27,11 +26,6 @@ export default function InfectionSequence({
           <Text style={styles.warningText}>⚠️ SYSTEM COMPROMISED ⚠️</Text>
         </View>
       )}
-      
-      {/* Optional: Show infection progress */}
-      <View style={styles.progressContainer}>
-        <Text style={styles.progressText}>Infection Progress: {Math.round(progress)}%</Text>
-      </View>
     </View>
   );
 } 
