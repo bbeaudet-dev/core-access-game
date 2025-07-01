@@ -1,6 +1,7 @@
 import { Camera } from 'expo-camera';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { styles } from '../styles';
 
 interface CameraModuleProps {
   onGoHome: () => void;
@@ -18,15 +19,15 @@ export default function CameraModule({ onGoHome }: CameraModuleProps) {
 
   if (hasPermission === null) {
     return (
-      <View className="flex-1 bg-black">
-        <View className="p-5 pt-15 flex-row justify-between items-center">
-          <Text className="text-red-500 text-xl font-bold">CAMERA</Text>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>CAMERA</Text>
         </View>
-        <View className="flex-1 justify-center items-center">
-          <Text className="text-red-500 text-base mb-2">Requesting camera permission...</Text>
+        <View style={styles.cameraContainer}>
+          <Text style={styles.cameraText}>Requesting camera permission...</Text>
         </View>
-        <TouchableOpacity className="absolute bottom-10 left-1/2 -ml-8 w-16 h-16 rounded-full bg-red-500 justify-center items-center border-2 border-white z-10" onPress={onGoHome}>
-          <Text className="text-white text-xl font-bold">⌂</Text>
+        <TouchableOpacity style={styles.homeButton} onPress={onGoHome}>
+          <Text style={styles.homeButtonText}>⌂</Text>
         </TouchableOpacity>
       </View>
     );
@@ -34,37 +35,37 @@ export default function CameraModule({ onGoHome }: CameraModuleProps) {
 
   if (hasPermission === false) {
     return (
-      <View className="flex-1 bg-black">
-        <View className="p-5 pt-15 flex-row justify-between items-center">
-          <Text className="text-red-500 text-xl font-bold">CAMERA</Text>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>CAMERA</Text>
         </View>
-        <View className="flex-1 justify-center items-center">
-          <Text className="text-red-500 text-base mb-2">No access to camera</Text>
-          <Text className="text-red-500 text-base mb-2">Camera permission is required for this module</Text>
+        <View style={styles.cameraContainer}>
+          <Text style={styles.cameraText}>No access to camera</Text>
+          <Text style={styles.cameraText}>Camera permission is required for this module</Text>
         </View>
-        <TouchableOpacity className="absolute bottom-10 left-1/2 -ml-8 w-16 h-16 rounded-full bg-red-500 justify-center items-center border-2 border-white z-10" onPress={onGoHome}>
-          <Text className="text-white text-xl font-bold">⌂</Text>
+        <TouchableOpacity style={styles.homeButton} onPress={onGoHome}>
+          <Text style={styles.homeButtonText}>⌂</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-black">
-      <View className="p-5 pt-15 flex-row justify-between items-center">
-        <Text className="text-red-500 text-xl font-bold">CAMERA</Text>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>CAMERA</Text>
       </View>
       
-      <View className="flex-1 justify-center items-center">
-        <Text className="text-red-500 text-base mb-2">📷 Camera access granted!</Text>
-        <Text className="text-red-500 text-base mb-2">Module ready for scanning</Text>
-        <Text className="text-red-500 text-base mb-2">HINT: Try tilting your device</Text>
-        <Text className="text-red-500 text-base mb-2">HINT: Point at different objects</Text>
-        <Text className="text-red-500 text-base mb-2">HINT: Check for hidden messages</Text>
+      <View style={styles.cameraContainer}>
+        <Text style={styles.cameraText}>📷 Camera access granted!</Text>
+        <Text style={styles.cameraText}>Module ready for scanning</Text>
+        <Text style={styles.cameraText}>HINT: Try tilting your device</Text>
+        <Text style={styles.cameraText}>HINT: Point at different objects</Text>
+        <Text style={styles.cameraText}>HINT: Check for hidden messages</Text>
       </View>
 
-      <TouchableOpacity className="absolute bottom-10 left-1/2 -ml-8 w-16 h-16 rounded-full bg-red-500 justify-center items-center border-2 border-white z-10" onPress={onGoHome}>
-        <Text className="text-white text-xl font-bold">⌂</Text>
+      <TouchableOpacity style={styles.homeButton} onPress={onGoHome}>
+        <Text style={styles.homeButtonText}>⌂</Text>
       </TouchableOpacity>
     </View>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Animated } from 'react-native';
 import AboutScreen from './components/AboutScreen';
 import AudioModule from './components/AudioModule';
