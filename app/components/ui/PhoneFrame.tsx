@@ -1,11 +1,11 @@
-import React from 'react'
-import { Text, View, ViewStyle } from 'react-native'
+import React from 'react';
+import { Text, View, ViewStyle } from 'react-native';
 
 interface PhoneFrameProps {
-  children: React.ReactNode
-  style?: ViewStyle
-  showNotch?: boolean
-  showHomeIndicator?: boolean
+  children: React.ReactNode;
+  style?: ViewStyle;
+  showNotch?: boolean;
+  showHomeIndicator?: boolean;
 }
 
 export default function PhoneFrame({ 
@@ -54,5 +54,5 @@ export default function PhoneFrame({
         </View>
       </View>
     </View>
-  )
+  );
 } 

@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from 'react-native'
+import { Text, TouchableOpacity, View } from 'react-native';
 
 export default function SecuritySection() {
   return (
@@ -20,5 +20,5 @@ export default function SecuritySection() {
         <Text className="text-gray-400 text-sm">RESTRICTED</Text>
       </TouchableOpacity>
     </View>
-  )
+  );
 } 

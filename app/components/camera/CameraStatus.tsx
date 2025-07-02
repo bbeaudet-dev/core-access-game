@@ -1,8 +1,8 @@
-import { Text, View } from 'react-native'
+import { Text, View } from 'react-native';
 
 interface CameraStatusProps {
-  status: 'loading' | 'error' | 'ready' | 'web'
-  error?: string
+  status: 'loading' | 'error' | 'ready' | 'web';
+  error?: string;
 }
 
 export default function CameraStatus({ status, error }: CameraStatusProps) {
@@ -13,32 +13,32 @@ export default function CameraStatus({ status, error }: CameraStatusProps) {
           title: '📷 Camera Module',
           subtitle: 'Initializing camera...',
           color: 'text-gray-400'
-        }
+        };
       case 'error':
         return {
           title: '📷 Camera Module',
           subtitle: error || 'Camera access denied',
           hint: 'Please grant camera permissions in settings',
           color: 'text-red-400'
-        }
+        };
       case 'web':
         return {
           title: '📷 Camera Module',
           subtitle: 'Camera not available on web',
           hint: 'Try on a mobile device',
           color: 'text-gray-400'
-        }
+        };
       case 'ready':
         return {
           title: '📷 Camera Module',
           subtitle: 'Camera Ready',
           hint: 'Camera functionality coming soon',
           color: 'text-gray-400'
-        }
+        };
     }
-  }
+  };
 
-  const content = getStatusContent()
+  const content = getStatusContent();
 
   return (
     <View className="flex-1 p-5 justify-center items-center">
@@ -52,5 +52,5 @@ export default function CameraStatus({ status, error }: CameraStatusProps) {
         </Text>
       )}
     </View>
-  )
+  );
 } 

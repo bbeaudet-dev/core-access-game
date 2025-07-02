@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from 'react-native'
+import { Text, TouchableOpacity, View } from 'react-native';
 
 export default function HardwareSection() {
   return (
@@ -25,5 +25,5 @@ export default function HardwareSection() {
         <Text className="text-gray-400 text-sm">ACTIVE</Text>
       </TouchableOpacity>
     </View>
-  )
+  );
 } 

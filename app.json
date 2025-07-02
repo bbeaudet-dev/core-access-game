@@ -40,7 +40,7 @@
     },
     "fonts": [
       {
-        "asset": "./public/fonts/OCRA.ttf",
+        "asset": "./assets/fonts/OCRA.ttf",
         "family": "OCR-A"
     }
     ]

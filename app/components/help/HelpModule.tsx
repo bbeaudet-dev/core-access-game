@@ -1,35 +1,35 @@
-import { ScrollView, Text, View } from 'react-native'
-import { useHints } from '../../contexts/HintContext'
-import HomeButton from '../ui/HomeButton'
-import ModuleHeader from '../ui/ModuleHeader'
-import PhoneFrame from '../ui/PhoneFrame'
+import { ScrollView, Text, View } from 'react-native';
+import { useHints } from '../../contexts/HintContext';
+import HomeButton from '../ui/HomeButton';
+import ModuleHeader from '../ui/ModuleHeader';
+import PhoneFrame from '../ui/PhoneFrame';
 
 interface HelpModuleProps {
-  onGoHome: () => void
+  onGoHome: () => void;
 }
 
 export default function HelpModule({ onGoHome }: HelpModuleProps) {
-  const { hints, unlockedHints } = useHints()
+  const { hints, unlockedHints } = useHints();
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'gyro': return 'text-green-400'
-      case 'compass': return 'text-blue-400'
-      case 'camera': return 'text-purple-400'
-      case 'microphone': return 'text-yellow-400'
-      default: return 'text-gray-400'
+      case 'gyro': return 'text-green-400';
+      case 'compass': return 'text-blue-400';
+      case 'camera': return 'text-purple-400';
+      case 'audio': return 'text-yellow-400';
+      default: return 'text-gray-400';
     }
-  }
+  };
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'gyro': return '🔄'
-      case 'compass': return '🧭'
-      case 'camera': return '📷'
-      case 'microphone': return '🎤'
-      default: return '💡'
+      case 'gyro': return '🔄';
+      case 'compass': return '🧭';
+      case 'camera': return '📷';
+      case 'audio': return '🎤';
+      default: return '💡';
     }
-  }
+  };
 
   return (
     <PhoneFrame>
@@ -110,7 +110,7 @@ export default function HelpModule({ onGoHome }: HelpModuleProps) {
                   • Explore the compass and camera modules
                 </Text>
                 <Text className="text-gray-300 text-sm mb-2">
-                  • Monitor audio levels in the microphone module
+                  • Monitor audio levels in the audio module
                 </Text>
                 <Text className="text-gray-300 text-sm">
                   • Complete various achievements across all modules
@@ -122,5 +122,5 @@ export default function HelpModule({ onGoHome }: HelpModuleProps) {
         <HomeButton active={true} onPress={onGoHome} />
       </View>
     </PhoneFrame>
-  )
+  );
 } 

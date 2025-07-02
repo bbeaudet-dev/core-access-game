@@ -1,12 +1,12 @@
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 interface StopwatchProps {
-  isActive: boolean
-  onToggle: () => void
-  onReset: () => void
-  onLap: () => void
-  time: number
-  laps: number[]
+  isActive: boolean;
+  onToggle: () => void;
+  onReset: () => void;
+  onLap: () => void;
+  time: number;
+  laps: number[];
 }
 
 export default function Stopwatch({
@@ -18,11 +18,11 @@ export default function Stopwatch({
   laps
 }: StopwatchProps) {
   const formatTime = (ms: number) => {
-    const minutes = Math.floor(ms / 60000)
-    const seconds = Math.floor((ms % 60000) / 1000)
-    const centiseconds = Math.floor((ms % 1000) / 10)
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${centiseconds.toString().padStart(2, '0')}`
-  }
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    const centiseconds = Math.floor((ms % 1000) / 10);
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${centiseconds.toString().padStart(2, '0')}`;
+  };
 
   return (
     <View className="bg-gray-900 p-3 rounded-lg my-1">
@@ -75,5 +75,5 @@ export default function Stopwatch({
         </View>
       )}
     </View>
-  )
+  );
 } 

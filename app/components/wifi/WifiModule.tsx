@@ -1,17 +1,18 @@
-import * as Network from 'expo-network'
-import { useEffect, useState } from 'react'
-import { Platform, Text, View } from 'react-native'
-import HomeButton from '../ui/HomeButton'
-import ModuleHeader from '../ui/ModuleHeader'
-import PhoneFrame from '../ui/PhoneFrame'
-import ConnectionStatus, { ConnectionStatus as ConnectionStatusType } from './ConnectionStatus'
-import NetworkHints from './NetworkHints'
-import NetworkList, { NetworkInfo } from './NetworkList'
-import NetworkScanner from './NetworkScanner'
-import NetworkStats from './NetworkStats'
+import * as Network from 'expo-network';
+import { useEffect, useState } from 'react';
+import { Platform, Text, View } from 'react-native';
+import HomeButton from '../ui/HomeButton';
+import ModuleHeader from '../ui/ModuleHeader';
+import PhoneFrame from '../ui/PhoneFrame';
+import ConnectionStatus from './ConnectionStatus';
+import NetworkHints from './NetworkHints';
+import NetworkList from './NetworkList';
+import NetworkScanner from './NetworkScanner';
+import NetworkStats from './NetworkStats';
+import { ConnectionStatus as ConnectionStatusType, NetworkInfo } from './types';
 
 interface WifiModuleProps {
-  onGoHome: () => void
+  onGoHome: () => void;
 }
 
 export default function WifiModule({ onGoHome }: WifiModuleProps) {
@@ -20,56 +21,56 @@ export default function WifiModule({ onGoHome }: WifiModuleProps) {
     networkName: '',
     ipAddress: '',
     signalStrength: 0
-  })
-  const [isScanning, setIsScanning] = useState(false)
-  const [availableNetworks, setAvailableNetworks] = useState<NetworkInfo[]>([])
-  const [error, setError] = useState<string | null>(null)
+  });
+  const [isScanning, setIsScanning] = useState(false);
+  const [availableNetworks, setAvailableNetworks] = useState<NetworkInfo[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    checkNetworkStatus()
-  }, [])
+    checkNetworkStatus();
+  }, []);
 
   const checkNetworkStatus = async () => {
     try {
       if (Platform.OS === 'web') {
-        setError('Network info not available on web')
-        return
+        setError('Network info not available on web');
+        return;
       }
 
-      const networkState = await Network.getNetworkStateAsync()
-      const isConnected = networkState.isConnected || false
+      const networkState = await Network.getNetworkStateAsync();
+      const isConnected = networkState.isConnected || false;
       
       if (isConnected) {
-        const ip = await Network.getIpAddressAsync()
-        const networkName = 'CORE_NETWORK_' + Math.floor(Math.random() * 1000)
-        const signalStrength = Math.floor(Math.random() * 40) + 60 // 60-100%
+        const ip = await Network.getIpAddressAsync();
+        const networkName = 'CORE_NETWORK_' + Math.floor(Math.random() * 1000);
+        const signalStrength = Math.floor(Math.random() * 40) + 60; // 60-100%
         
         setConnection({
           isConnected,
           networkName,
           ipAddress: ip,
           signalStrength
-        })
+        });
       } else {
         setConnection({
           isConnected: false,
           networkName: '',
           ipAddress: '',
           signalStrength: 0
-        })
+        });
       }
     } catch (err) {
-      setError('Failed to get network information')
+      setError('Failed to get network information');
     }
-  }
+  };
 
   const scanNetworks = async () => {
-    setIsScanning(true)
-    setError(null)
+    setIsScanning(true);
+    setError(null);
     
     try {
       // Simulate network scanning
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       const mockNetworks: NetworkInfo[] = [
         { name: 'CORE_NETWORK_001', strength: 95, security: 'WPA2', frequency: '2.4GHz', channel: 6 },
@@ -80,15 +81,15 @@ export default function WifiModule({ onGoHome }: WifiModuleProps) {
         { name: 'SYSTEM_MAINT', strength: 45, security: 'Open', frequency: '2.4GHz', channel: 9 },
         { name: 'GUEST_NETWORK', strength: 38, security: 'WPA2', frequency: '2.4GHz', channel: 3 },
         { name: 'HIDDEN_NETWORK', strength: 25, security: 'WPA3', frequency: '5GHz', channel: 44 },
-      ]
+      ];
       
-      setAvailableNetworks(mockNetworks)
+      setAvailableNetworks(mockNetworks);
     } catch (err) {
-      setError('Failed to scan networks')
+      setError('Failed to scan networks');
     } finally {
-      setIsScanning(false)
+      setIsScanning(false);
     }
-  }
+  };
 
   if (error && !connection.isConnected) {
     return (
@@ -108,7 +109,7 @@ export default function WifiModule({ onGoHome }: WifiModuleProps) {
           <HomeButton active={true} onPress={onGoHome} />
         </View>
       </PhoneFrame>
-    )
+    );
   }
 
   return (
@@ -128,5 +129,5 @@ export default function WifiModule({ onGoHome }: WifiModuleProps) {
         <HomeButton active={true} onPress={onGoHome} />
       </View>
     </PhoneFrame>
-  )
+  );
 } 

@@ -1,7 +1,7 @@
-import { Text, TouchableOpacity, View } from 'react-native'
+import { Text, TouchableOpacity, View } from 'react-native';
 
 interface DangerZoneSectionProps {
-  onSelfDestruct: () => void
+  onSelfDestruct: () => void;
 }
 
 export default function DangerZoneSection({ onSelfDestruct }: DangerZoneSectionProps) {
@@ -14,5 +14,5 @@ export default function DangerZoneSection({ onSelfDestruct }: DangerZoneSectionP
         <Text className="text-red-400 text-sm">TERMINATE DEVICE</Text>
       </TouchableOpacity>
     </View>
-  )
+  );
 } 

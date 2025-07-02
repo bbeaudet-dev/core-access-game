@@ -1,5 +1,5 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export type ModuleName = 
   | 'terminal' 
@@ -7,34 +7,36 @@ export type ModuleName =
   | 'clock' 
   | 'gyro' 
   | 'compass' 
-  | 'microphone' 
+  | 'audio' 
   | 'camera' 
   | 'accelerometer'
   | 'wifi'
   | 'logs'
-  | 'help'
+  | 'help';
 
 export interface ModuleUnlock {
-  name: ModuleName
-  displayName: string
-  icon: string
-  color: string
-  unlocked: boolean
-  unlockedAt?: Date
-  requirement: string
-  order: number
+  name: ModuleName;
+  displayName: string;
+  icon: string;
+  color: string;
+  unlocked: boolean;
+  unlockedAt?: Date;
+  requirement: string;
+  order: number;
 }
 
 interface ModuleUnlockContextType {
-  unlockedModules: ModuleName[]
-  allModules: ModuleUnlock[]
-  unlockModule: (moduleName: ModuleName) => void
-  isModuleUnlocked: (moduleName: ModuleName) => boolean
-  getNextUnlockableModule: () => ModuleUnlock | null
-  resetProgress: () => void
+  unlockedModules: ModuleName[];
+  allModules: ModuleUnlock[];
+  unlockModule: (moduleName: ModuleName) => void;
+  isModuleUnlocked: (moduleName: ModuleName) => boolean;
+  getNextUnlockableModule: () => ModuleUnlock | null;
+  resetProgress: () => void;
+  showBugScuttle: boolean;
+  triggerBugScuttle: () => void;
 }
 
-const ModuleUnlockContext = createContext<ModuleUnlockContextType | undefined>(undefined)
+const ModuleUnlockContext = createContext<ModuleUnlockContextType | undefined>(undefined);
 
 const DEFAULT_MODULES: ModuleUnlock[] = [
   {
@@ -83,7 +85,7 @@ const DEFAULT_MODULES: ModuleUnlock[] = [
     order: 5
   },
   {
-    name: 'microphone',
+    name: 'audio',
     displayName: 'AUDIO',
     icon: '🎵',
     color: 'bg-red-500',
@@ -97,7 +99,7 @@ const DEFAULT_MODULES: ModuleUnlock[] = [
     icon: '📷',
     color: 'bg-red-500',
     unlocked: false,
-    requirement: 'Unlock microphone module',
+    requirement: 'Unlock audio module',
     order: 7
   },
   {
@@ -136,14 +138,15 @@ const DEFAULT_MODULES: ModuleUnlock[] = [
     requirement: 'Unlock logs module',
     order: 11
   }
-]
+];
 
 export function ModuleUnlockProvider({ children }: { children: React.ReactNode }) {
-  const [modules, setModules] = useState<ModuleUnlock[]>(DEFAULT_MODULES)
+  const [modules, setModules] = useState<ModuleUnlock[]>(DEFAULT_MODULES);
+  const [showBugScuttle, setShowBugScuttle] = useState(false);
 
   const unlockedModules = modules
     .filter(module => module.unlocked)
-    .map(module => module.name)
+    .map(module => module.name);
 
   const unlockModule = (moduleName: ModuleName) => {
     setModules(prevModules => 
@@ -152,48 +155,55 @@ export function ModuleUnlockProvider({ children }: { children: React.ReactNode }
           ? { ...module, unlocked: true, unlockedAt: new Date() }
           : module
       )
-    )
-  }
+    );
+    // Trigger bug scuttle animation when unlocking a module
+    triggerBugScuttle();
+  };
+
+  const triggerBugScuttle = () => {
+    setShowBugScuttle(true);
+    setTimeout(() => setShowBugScuttle(false), 3000);
+  };
 
   const isModuleUnlocked = (moduleName: ModuleName) => {
-    return unlockedModules.includes(moduleName)
-  }
+    return unlockedModules.includes(moduleName);
+  };
 
   const getNextUnlockableModule = () => {
-    return modules.find(module => !module.unlocked) || null
-  }
+    return modules.find(module => !module.unlocked) || null;
+  };
 
   const resetProgress = () => {
-    setModules(DEFAULT_MODULES)
-  }
+    setModules(DEFAULT_MODULES);
+  };
 
   const loadModules = async () => {
     try {
-      const savedModules = await AsyncStorage.getItem('unlocked_modules')
+      const savedModules = await AsyncStorage.getItem('unlocked_modules');
       if (savedModules) {
-        const parsedModules = JSON.parse(savedModules)
-        setModules(parsedModules)
+        const parsedModules = JSON.parse(savedModules);
+        setModules(parsedModules);
       }
     } catch (error) {
-      console.error('Failed to load unlocked modules:', error)
+      console.error('Failed to load unlocked modules:', error);
     }
-  }
+  };
 
   const saveModules = async () => {
     try {
-      await AsyncStorage.setItem('unlocked_modules', JSON.stringify(modules))
+      await AsyncStorage.setItem('unlocked_modules', JSON.stringify(modules));
     } catch (error) {
-      console.error('Failed to save unlocked modules:', error)
+      console.error('Failed to save unlocked modules:', error);
     }
-  }
+  };
 
   useEffect(() => {
-    loadModules()
-  }, [])
+    loadModules();
+  }, []);
 
   useEffect(() => {
-    saveModules()
-  }, [modules])
+    saveModules();
+  }, [modules]);
 
   return (
     <ModuleUnlockContext.Provider value={{
@@ -202,19 +212,19 @@ export function ModuleUnlockProvider({ children }: { children: React.ReactNode }
       unlockModule,
       isModuleUnlocked,
       getNextUnlockableModule,
-      resetProgress
+      resetProgress,
+      showBugScuttle,
+      triggerBugScuttle
     }}>
       {children}
     </ModuleUnlockContext.Provider>
-  )
+  );
 }
 
 export function useModuleUnlock() {
-  const context = useContext(ModuleUnlockContext)
+  const context = useContext(ModuleUnlockContext);
   if (context === undefined) {
-    throw new Error('useModuleUnlock must be used within a ModuleUnlockProvider')
+    throw new Error('useModuleUnlock must be used within a ModuleUnlockProvider');
   }
-  return context
-}
-
-export default ModuleUnlockProvider 
+  return context;
+} 

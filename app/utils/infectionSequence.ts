@@ -1,8 +1,8 @@
 export interface InfectionStep {
-  glitchLevel: number
-  terminalText: string
-  delay: number
-  action?: 'tower-defense' | 'emergency-mode'
+  glitchLevel: number;
+  terminalText: string;
+  delay: number;
+  action?: 'tower-defense' | 'emergency-mode';
 }
 
 export const INFECTION_STEPS: InfectionStep[] = [
@@ -42,9 +42,9 @@ export const INFECTION_STEPS: InfectionStep[] = [
     delay: 8000,
     action: 'tower-defense'
   }
-]
+];
 
-export const TOTAL_INFECTION_TIME = 8000
+export const TOTAL_INFECTION_TIME = 8000;
 
 export function startInfectionSequence(
   setGlitchLevel: (level: number) => void,
@@ -52,25 +52,25 @@ export function startInfectionSequence(
   onComplete: () => void
 ) {
   // Start infection
-  setGlitchLevel(1)
+  setGlitchLevel(1);
   
   // Schedule each step
   INFECTION_STEPS.forEach((step, index) => {
-    if (index === 0) return // Skip the first step (already set)
+    if (index === 0) return; // Skip the first step (already set)
     
     setTimeout(() => {
-      setGlitchLevel(step.glitchLevel)
-      setTerminalText(step.terminalText)
+      setGlitchLevel(step.glitchLevel);
+      setTerminalText(step.terminalText);
       
       // If this is the last step, schedule completion
       if (index === INFECTION_STEPS.length - 1) {
         setTimeout(() => {
-          onComplete()
-        }, TOTAL_INFECTION_TIME - step.delay)
+          onComplete();
+        }, TOTAL_INFECTION_TIME - step.delay);
       }
-    }, step.delay)
-  })
+    }, step.delay);
+  });
 }
 
 // Default export to satisfy Expo Router
-export default INFECTION_STEPS
+export default INFECTION_STEPS;

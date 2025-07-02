@@ -1,30 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Animated, Text, TouchableOpacity, View } from 'react-native'
-import CircuitBoard, { Bug, Tower } from './CircuitBoard'
+import CircuitBoard from './CircuitBoard'
 import GameControls from './GameControls'
 import GameHeader from './GameHeader'
+import GameOverScreen from './GameOverScreen'
 import TowerSelector from './TowerSelector'
-
-// Import shared coordinate types
-interface Point2D {
-  x: number
-  y: number
-}
-
-interface GameState {
-  level: number
-  lives: number
-  money: number
-  bugs: Bug[]
-  towers: Tower[]
-  wave: number
-  waveInProgress: boolean
-}
-
-export interface CircuitPathPoint {
-  x: number
-  y: number
-}
+import { Bug, GameState } from './types'
 
 interface TowerDefenseGameProps {
   onEmergencyMode: () => void
@@ -39,6 +20,7 @@ export default function TowerDefenseGame({ onEmergencyMode }: TowerDefenseGamePr
     towers: [],
     wave: 1,
     waveInProgress: false,
+    gameOver: false
   })
 
   const [selectedTower, setSelectedTower] = useState<'defender' | null>(null)
@@ -46,10 +28,10 @@ export default function TowerDefenseGame({ onEmergencyMode }: TowerDefenseGamePr
   const [corePulse, setCorePulse] = useState(0)
   const corePulseRef = useRef(0)
   const corePulseAnim = useRef<ReturnType<typeof setInterval> | null>(null)
-  const [lastPlaced, setLastPlaced] = useState<Point2D | null>(null)
+  const [lastPlaced, setLastPlaced] = useState<{ x: number; y: number } | null>(null)
 
   // Tower placement positions
-  const towerPositions: Point2D[] = [
+  const towerPositions = [
     { x: 25, y: 75 },
     { x: 100, y: 25 },
     { x: 200, y: 75 },
@@ -61,7 +43,7 @@ export default function TowerDefenseGame({ onEmergencyMode }: TowerDefenseGamePr
   const TOWER_RANGE = 60
 
   // Circuit board path coordinates (simplified path)
-  const circuitPath: Point2D[] = [
+  const circuitPath = [
     { x: 0, y: 100 },   // Start
     { x: 50, y: 100 },  // Right
     { x: 50, y: 50 },   // Up
@@ -92,7 +74,7 @@ export default function TowerDefenseGame({ onEmergencyMode }: TowerDefenseGamePr
   }, [gameState])
 
   // Projectiles/flash effect state
-  const [projectiles, setProjectiles] = useState<(Point2D & { id: number })[]>([])
+  const [projectiles, setProjectiles] = useState<{x: number, y: number, id: number}[]>([])
 
   const updateGame = () => {
     setGameState(prev => {
@@ -148,7 +130,7 @@ export default function TowerDefenseGame({ onEmergencyMode }: TowerDefenseGamePr
 
       // Check for game over (not used, handled by core breach)
       if (newState.lives <= 0) {
-        // TODO game over?
+        newState.gameOver = true
         if (newState.level === 1) {
           return {
             ...newState,
@@ -159,6 +141,7 @@ export default function TowerDefenseGame({ onEmergencyMode }: TowerDefenseGamePr
             towers: [],
             wave: 1,
             waveInProgress: false,
+            gameOver: false
           }
         } else {
           setTimeout(() => onEmergencyMode(), 1000)
@@ -212,7 +195,7 @@ export default function TowerDefenseGame({ onEmergencyMode }: TowerDefenseGamePr
         }],
         money: prev.money - TOWER_COST
       }))
-      setLastPlaced({ x, y } as Point2D)
+      setLastPlaced({ x, y })
       setTimeout(() => setLastPlaced(null), 400)
       setSelectedTower(null)
     }
@@ -237,6 +220,10 @@ export default function TowerDefenseGame({ onEmergencyMode }: TowerDefenseGamePr
   // Exit button handler
   const handleExit = () => {
     window.location.reload() // For now, reloads to login (can be improved)
+  }
+
+  if (gameState.gameOver) {
+    return <GameOverScreen level={gameState.level} />
   }
 
   return (

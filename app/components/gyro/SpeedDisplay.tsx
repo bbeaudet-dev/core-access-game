@@ -1,8 +1,8 @@
-import { Text, View } from 'react-native'
+import { Text, View } from 'react-native';
 
 interface SpeedDisplayProps {
-  currentSpeed: number
-  maxSpeed: number
+  currentSpeed: number;
+  maxSpeed: number;
 }
 
 export default function SpeedDisplay({ currentSpeed, maxSpeed }: SpeedDisplayProps) {
@@ -24,5 +24,5 @@ export default function SpeedDisplay({ currentSpeed, maxSpeed }: SpeedDisplayPro
         </Text>
       </View>
     </>
-  )
+  );
 } 

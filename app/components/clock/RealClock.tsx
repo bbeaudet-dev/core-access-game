@@ -1,23 +1,23 @@
-import { useEffect, useState } from 'react'
-import { Text, View } from 'react-native'
+import { useEffect, useState } from 'react';
+import { Text, View } from 'react-native';
 
 export default function RealClock() {
-  const [currentTime, setCurrentTime] = useState(new Date())
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 1000)
+      setCurrentTime(new Date());
+    }, 1000);
 
-    return () => clearInterval(timer)
-  }, [])
+    return () => clearInterval(timer);
+  }, []);
 
   const formatTime = (date: Date) => {
-    const hours = date.getHours().toString().padStart(2, '0')
-    const minutes = date.getMinutes().toString().padStart(2, '0')
-    const seconds = date.getSeconds().toString().padStart(2, '0')
-    return `${hours}:${minutes}:${seconds}`
-  }
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+  };
 
   const formatDate = (date: Date) => {
     const options: Intl.DateTimeFormatOptions = {
@@ -25,17 +25,17 @@ export default function RealClock() {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
-    }
-    return date.toLocaleDateString('en-US', options)
-  }
+    };
+    return date.toLocaleDateString('en-US', options);
+  };
 
   const formatTime12Hour = (date: Date) => {
-    const hours = date.getHours()
-    const minutes = date.getMinutes()
-    const ampm = hours >= 12 ? 'PM' : 'AM'
-    const displayHours = hours % 12 || 12
-    return `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`
-  }
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    return `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+  };
 
   return (
     <View className="bg-gray-900 p-3 rounded-lg my-1">
@@ -61,5 +61,5 @@ export default function RealClock() {
         {currentTime.toLocaleTimeString('en-US', { timeZoneName: 'short' })}
       </Text>
     </View>
-  )
+  );
 } 

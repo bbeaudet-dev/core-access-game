@@ -1,9 +1,9 @@
-import { Animated, Text, View } from 'react-native'
+import { Animated, Text, View } from 'react-native';
 
 interface InfectionSequenceProps {
-  glitchLevel: number
-  terminalText: string
-  fadeAnim: Animated.Value
+  glitchLevel: number;
+  terminalText: string;
+  fadeAnim: Animated.Value;
 }
 
 export default function InfectionSequence({ 
@@ -11,7 +11,7 @@ export default function InfectionSequence({
   terminalText, 
   fadeAnim 
 }: InfectionSequenceProps) {
-  const progress = (glitchLevel / 6) * 100
+  const progress = (glitchLevel / 6) * 100;
   
   return (
     <View className={`flex-1 bg-black justify-center items-center ${glitchLevel >= 2 ? 'bg-red-900' : ''}`}>
@@ -26,5 +26,5 @@ export default function InfectionSequence({
         </View>
       )}
     </View>
-  )
+  );
 } 

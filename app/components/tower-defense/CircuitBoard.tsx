@@ -1,48 +1,16 @@
 import { TouchableOpacity, View } from 'react-native'
 import Svg, { Circle, Ellipse, G, Path, Rect } from 'react-native-svg'
-
-// Shared coordinate types
-interface Point2D {
-  x: number
-  y: number
-}
-
-interface Point2DWithAngle {
-  x: number
-  y: number
-  angle?: number
-  scale?: number
-}
-
-export interface Bug {
-  id: number
-  x: number
-  y: number
-  health: number
-  maxHealth: number
-  pathIndex: number
-  speed: number
-}
-
-export interface Tower {
-  id: number
-  x: number
-  y: number
-  type: 'defender'
-  damage: number
-  range: number
-  lastShot: number
-}
+import { Bug, Tower } from './types'
 
 interface CircuitBoardProps {
   bugs: Bug[]
   towers: Tower[]
   selectedTower: 'defender' | null
-  towerPositions: Point2D[]
+  towerPositions: { x: number; y: number }[]
   towerRange: number
   onPlaceTower: (x: number, y: number) => void
   corePulse?: number // 0-1 for animation
-  lastPlaced?: Point2D | null
+  lastPlaced?: { x: number; y: number } | null
 }
 
 // Helper to get angle between two points
@@ -51,7 +19,7 @@ function getAngle(x1: number, y1: number, x2: number, y2: number) {
 }
 
 // Pixel bug SVGs
-function PixelBug1({ x, y, angle = 0, scale = 1.1 }: Point2DWithAngle) {
+function PixelBug1({ x, y, angle = 0, scale = 1.1 }: { x: number; y: number; angle?: number; scale?: number }) {
   return (
     <G x={x} y={y} rotation={angle + 90} scale={scale} originX={0} originY={0}>
       {/* Body */}
@@ -71,7 +39,7 @@ function PixelBug1({ x, y, angle = 0, scale = 1.1 }: Point2DWithAngle) {
     </G>
   )
 }
-function PixelBug2({ x, y, angle = 0, scale = 1.2 }: Point2DWithAngle) {
+function PixelBug2({ x, y, angle = 0, scale = 1.2 }: { x: number; y: number; angle?: number; scale?: number }) {
   return (
     <G x={x} y={y} rotation={angle} scale={scale} originX={0} originY={0}>
       {/* Body */}
@@ -87,7 +55,7 @@ function PixelBug2({ x, y, angle = 0, scale = 1.2 }: Point2DWithAngle) {
     </G>
   )
 }
-function PixelBug3({ x, y, angle = 0, scale = 1.3 }: Point2DWithAngle) {
+function PixelBug3({ x, y, angle = 0, scale = 1.3 }: { x: number; y: number; angle?: number; scale?: number }) {
   return (
     <G x={x} y={y} rotation={angle} scale={scale} originX={0} originY={0}>
       {/* Body */}
@@ -110,7 +78,7 @@ export default function CircuitBoard({
   lastPlaced = null
 }: CircuitBoardProps) {
   // Circuit board path coordinates (simplified path)
-  const circuitPath: Point2D[] = [
+  const circuitPath = [
     { x: 0, y: 100 },   // Start
     { x: 50, y: 100 },  // Right
     { x: 50, y: 50 },   // Up

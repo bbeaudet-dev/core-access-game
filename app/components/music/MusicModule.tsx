@@ -1,13 +1,10 @@
 import { Audio } from 'expo-av'
 import { useEffect, useState } from 'react'
-import { ScrollView, Text, View } from 'react-native'
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import { SOUND_EFFECTS, SoundManager, playBackgroundMusic, setSoundMuted, setSoundVolume, stopBackgroundMusic } from '../../utils/soundManager'
 import HomeButton from '../ui/HomeButton'
 import ModuleHeader from '../ui/ModuleHeader'
 import PhoneFrame from '../ui/PhoneFrame'
-import AmbientSounds from './AmbientSounds'
-import AudioControls from './AudioControls'
-import MusicTracks from './MusicTracks'
 
 interface MusicModuleProps {
   onGoHome: () => void
@@ -122,31 +119,112 @@ export default function MusicModule({ onGoHome }: MusicModuleProps) {
           <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
             <View className="p-5 space-y-6">
               {/* Audio Controls */}
-              <AudioControls
-                isMuted={isMuted}
-                volume={volume}
-                currentTrack={currentTrack}
-                onMuteToggle={handleMuteToggle}
-                onVolumeChange={handleVolumeChange}
-                soundEffects={SOUND_EFFECTS}
-              />
+              <View className="space-y-4">
+                <Text className="text-purple-400 text-lg font-bold">Audio Controls</Text>
+                
+                {/* Mute Toggle */}
+                <TouchableOpacity
+                  onPress={handleMuteToggle}
+                  className={`p-3 rounded-lg border ${isMuted ? 'bg-red-900 border-red-500' : 'bg-green-900 border-green-500'}`}
+                >
+                  <Text className={`text-center font-bold ${isMuted ? 'text-red-400' : 'text-green-400'}`}>
+                    {isMuted ? '🔇 MUTED' : '🔊 UNMUTED'}
+                  </Text>
+                </TouchableOpacity>
+
+                {/* Volume Control */}
+                <View className="space-y-2">
+                  <Text className="text-purple-400 text-sm">Volume: {Math.round(volume * 100)}%</Text>
+                  <View className="flex-row space-x-2">
+                    {[0, 0.25, 0.5, 0.75, 1].map((vol) => (
+                      <TouchableOpacity
+                        key={vol}
+                        onPress={() => handleVolumeChange(vol)}
+                        className={`flex-1 p-2 rounded ${volume >= vol ? 'bg-purple-600' : 'bg-gray-700'}`}
+                      >
+                        <Text className="text-center text-xs text-white">
+                          {Math.round(vol * 100)}%
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                {/* Current Track Display */}
+                {currentTrack && (
+                  <View className="bg-purple-900 p-3 rounded-lg">
+                    <Text className="text-purple-400 text-sm">Now Playing:</Text>
+                    <Text className="text-purple-300 font-bold">
+                      {SOUND_EFFECTS.find(s => s.id === currentTrack)?.name || 'Unknown Track'}
+                    </Text>
+                  </View>
+                )}
+              </View>
 
               {/* Background Music */}
-              <MusicTracks
-                musicTracks={musicTracks}
-                currentTrack={currentTrack}
-                onPlayTrack={handlePlayTrack}
-                onStopMusic={handleStopMusic}
-              />
+              <View className="space-y-4">
+                <Text className="text-purple-400 text-lg font-bold">Background Music</Text>
+                
+                {musicTracks.map((track) => (
+                  <TouchableOpacity
+                    key={track.id}
+                    onPress={() => handlePlayTrack(track)}
+                    className={`p-3 rounded-lg border ${
+                      currentTrack === track.id ? 'bg-purple-600 border-purple-400' : 'bg-gray-800 border-gray-600'
+                    }`}
+                  >
+                    <Text className={`font-bold ${currentTrack === track.id ? 'text-purple-200' : 'text-purple-400'}`}>
+                      🎵 {track.name}
+                    </Text>
+                    <Text className={`text-xs ${currentTrack === track.id ? 'text-purple-300' : 'text-gray-400'}`}>
+                      {track.description}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+
+                {currentTrack && (
+                  <TouchableOpacity
+                    onPress={handleStopMusic}
+                    className="p-3 rounded-lg border bg-red-900 border-red-500"
+                  >
+                    <Text className="text-red-400 text-center font-bold">⏹️ Stop Music</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
 
               {/* Ambient Sounds */}
-              <AmbientSounds
-                ambientSounds={ambientSounds}
-                onPlayTrack={handlePlayTrack}
-              />
+              <View className="space-y-4">
+                <Text className="text-purple-400 text-lg font-bold">Ambient Sounds</Text>
+                
+                {ambientSounds.map((sound) => (
+                  <TouchableOpacity
+                    key={sound.id}
+                    onPress={() => handlePlayTrack(sound)}
+                    className="p-3 rounded-lg border bg-gray-800 border-gray-600"
+                  >
+                    <Text className="text-purple-400 font-bold">
+                      🌫️ {sound.name}
+                    </Text>
+                    <Text className="text-gray-400 text-xs">
+                      {sound.description}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* Sound Info */}
+              <View className="bg-gray-800 p-3 rounded-lg">
+                <Text className="text-gray-400 text-xs text-center">
+                  💡 Add sound files to public/sounds/ to enable spea playback
+                </Text>
+                <Text className="text-gray-400 text-xs text-center mt-1">
+                  Supported formats: MP3, WAV, M4A
+                </Text>
+              </View>
             </View>
           </ScrollView>
         </View>
+        
         <HomeButton active={true} onPress={onGoHome} />
       </View>
     </PhoneFrame>

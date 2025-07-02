@@ -1,10 +1,10 @@
-import { ScrollView, Text, View } from 'react-native'
-import HomeButton from './ui/HomeButton'
-import ModuleHeader from './ui/ModuleHeader'
-import PhoneFrame from './ui/PhoneFrame'
+import { ScrollView, Text, View } from 'react-native';
+import HomeButton from './ui/HomeButton';
+import ModuleHeader from './ui/ModuleHeader';
+import PhoneFrame from './ui/PhoneFrame';
 
 interface TerminalModuleProps {
-  onGoHome: () => void
+  onGoHome: () => void;
 }
 
 export default function TerminalModule({ onGoHome }: TerminalModuleProps) {
@@ -50,5 +50,5 @@ export default function TerminalModule({ onGoHome }: TerminalModuleProps) {
         <HomeButton active={true} onPress={onGoHome} />
       </View>
     </PhoneFrame>
-  )
+  );
 } 

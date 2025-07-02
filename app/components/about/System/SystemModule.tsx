@@ -1,18 +1,18 @@
-import { ScrollView, View } from 'react-native'
-import HomeButton from '../../ui/HomeButton'
-import ModuleHeader from '../../ui/ModuleHeader'
-import PhoneFrame from '../../ui/PhoneFrame'
-import DangerZoneSection from './DangerZoneSection'
-import DeviceSection from './DeviceSection'
-import HardwareSection from './HardwareSection'
-import SecuritySection from './SecuritySection'
-import SystemSection from './SystemSection'
+import { ScrollView, View } from 'react-native';
+import HomeButton from '../../ui/HomeButton';
+import ModuleHeader from '../../ui/ModuleHeader';
+import PhoneFrame from '../../ui/PhoneFrame';
+import DangerZoneSection from './DangerZoneSection';
+import DeviceSection from './DeviceSection';
+import HardwareSection from './HardwareSection';
+import SecuritySection from './SecuritySection';
+import SystemSection from './SystemSection';
 
 interface SystemModuleProps {
-  onGoHome: () => void
-  onGoToAbout: () => void
-  onGoToCoreVitals: () => void
-  onSelfDestruct: () => void
+  onGoHome: () => void;
+  onGoToAbout: () => void;
+  onGoToCoreVitals: () => void;
+  onSelfDestruct: () => void;
 }
 
 export default function SystemModule({ 
@@ -39,5 +39,5 @@ export default function SystemModule({
         <HomeButton active={true} onPress={onGoHome} />
       </View>
     </PhoneFrame>
-  )
+  );
 } 
