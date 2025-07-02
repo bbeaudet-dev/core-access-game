@@ -29,5 +29,8 @@
     "nativewind",
     "neondatabase",
     "NEXTAUTH"
+  ],
+  "cSpell.ignoreWords": [
+    "phonecamera"
   ]
 }

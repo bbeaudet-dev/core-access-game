@@ -37,6 +37,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "fonts": [
+      {
+        "asset": "./assets/fonts/OCRA.ttf",
+        "family": "OCR-A"
     }
+    ]
   }
 }
