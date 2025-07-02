@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
-import { useModuleUnlock } from '../../contexts/ModuleUnlockContext'
 import HomeButton from '../ui/HomeButton'
 import ModuleHeader from '../ui/ModuleHeader'
 import PhoneFrame from '../ui/PhoneFrame'
@@ -13,7 +12,6 @@ interface ClockModuleProps {
 }
 
 export default function ClockModule({ onGoHome }: ClockModuleProps) {
-  const { unlockModule } = useModuleUnlock()
   const [puzzleSolved, setPuzzleSolved] = useState(false)
   
   // Stopwatch state
@@ -32,9 +30,8 @@ export default function ClockModule({ onGoHome }: ClockModuleProps) {
   useEffect(() => {
     if (stopwatchTime >= 30000 && !puzzleSolved) { // 30 seconds
       setPuzzleSolved(true)
-      unlockModule('gyro')
     }
-  }, [stopwatchTime, puzzleSolved, unlockModule])
+  }, [stopwatchTime, puzzleSolved])
 
   // Stopwatch functions
   const toggleStopwatch = () => {
@@ -141,7 +138,7 @@ export default function ClockModule({ onGoHome }: ClockModuleProps) {
                 <View className="bg-gray-900 p-4 rounded-lg">
                   <Text className="text-gray-400 text-sm font-mono mb-2">PUZZLE</Text>
                   <Text className="text-yellow-400 text-lg font-mono mb-2">
-                    Run the stopwatch for 30 seconds to unlock gyroscope
+                    Run the stopwatch for 30 seconds to complete the challenge
                   </Text>
                   <Text className="text-gray-500 text-sm font-mono">
                     Progress: {Math.floor(stopwatchTime / 1000)}/30 seconds
@@ -151,9 +148,9 @@ export default function ClockModule({ onGoHome }: ClockModuleProps) {
 
               {puzzleSolved && (
                 <View className="bg-green-900 p-4 rounded-lg">
-                  <Text className="text-green-400 text-sm font-mono mb-2">PUZZLE SOLVED!</Text>
+                  <Text className="text-green-400 text-sm font-mono mb-2">CHALLENGE COMPLETED!</Text>
                   <Text className="text-green-400 text-lg font-mono">
-                    Gyroscope module unlocked! 🎉
+                    Great job! You've completed the time challenge! 🎉
                   </Text>
                 </View>
               )}

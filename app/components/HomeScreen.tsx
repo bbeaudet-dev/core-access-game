@@ -1,17 +1,29 @@
 import { Text, TouchableOpacity, View } from 'react-native'
-import { ModuleName, useModuleUnlock } from '../contexts/ModuleUnlockContext'
 import AppIcon from './ui/AppIcon'
 import PhoneFrame from './ui/PhoneFrame'
 
 interface HomeScreenProps {
-  onOpenModule: (moduleName: ModuleName) => void
+  onOpenModule: (moduleName: string) => void
 }
 
 export default function HomeScreen({ 
   onOpenModule 
 }: HomeScreenProps) {
-  const { allModules, getNextUnlockableModule } = useModuleUnlock()
-  const nextModule = getNextUnlockableModule()
+  // Define all available modules
+  const allModules = [
+    { name: 'logs', icon: '📋', displayName: 'LOGS', color: 'red' },
+    { name: 'terminal', icon: '💻', displayName: 'TERMINAL', color: 'green' },
+    { name: 'camera', icon: '📷', displayName: 'CAMERA', color: 'blue' },
+    { name: 'microphone', icon: '🎤', displayName: 'MICROPHONE', color: 'purple' },
+    { name: 'music', icon: '🎵', displayName: 'MUSIC', color: 'pink' },
+    { name: 'compass', icon: '🧭', displayName: 'COMPASS', color: 'cyan' },
+    { name: 'gyro', icon: '🎯', displayName: 'GYRO', color: 'orange' },
+    { name: 'help', icon: '❓', displayName: 'HELP', color: 'yellow' },
+    { name: 'clock', icon: '⏰', displayName: 'CLOCK', color: 'white' },
+    { name: 'accelerometer', icon: '📱', displayName: 'ACCEL', color: 'indigo' },
+    { name: 'wifi', icon: '📶', displayName: 'WIFI', color: 'lime' },
+    { name: 'system', icon: '⚙️', displayName: 'SYSTEM', color: 'gray' },
+  ]
 
   return (
     <PhoneFrame>
@@ -22,31 +34,16 @@ export default function HomeScreen({
         
         <View className="flex-1 p-5 justify-center">
           <View className="flex-row flex-wrap justify-center mb-8">
-            {allModules
-              .filter(module => module.unlocked)
-              .map(module => (
-                <AppIcon
-                  key={module.name}
-                  icon={module.icon}
-                  name={module.displayName}
-                  color={module.color}
-                  onPress={() => onOpenModule(module.name)}
-                />
-              ))}
+            {allModules.map(module => (
+              <AppIcon
+                key={module.name}
+                icon={module.icon}
+                name={module.displayName}
+                color={module.color}
+                onPress={() => onOpenModule(module.name)}
+              />
+            ))}
           </View>
-
-          {/* Next Module Hint */}
-          {nextModule && (
-            <View className="bg-gray-900 p-4 rounded-lg mb-6">
-              <Text className="text-gray-400 text-sm font-mono mb-2">NEXT MODULE</Text>
-              <Text className="text-yellow-400 text-lg font-mono mb-1">
-                {nextModule.icon} {nextModule.displayName}
-              </Text>
-              <Text className="text-gray-500 text-xs font-mono">
-                {nextModule.requirement}
-              </Text>
-            </View>
-          )}
 
           <TouchableOpacity 
             className="w-30 h-30 bg-red-500 justify-center items-center self-center rounded-2xl border-3 border-yellow-400" 

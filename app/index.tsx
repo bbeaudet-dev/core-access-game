@@ -20,12 +20,10 @@ import FakeGameMenu from './components/tower-defense/FakeGameMenu'
 import TowerDefenseGame from './components/tower-defense/TowerDefenseGame'
 import WifiModule from './components/wifi/WifiModule'
 import { useAuth } from './contexts/AuthContext'
-import { ModuleName, ModuleUnlockProvider, useModuleUnlock } from './contexts/ModuleUnlockContext'
 import { startInfectionSequence } from './utils/infectionSequence'
 
 function AppContent() {
-  const { isAuthenticated, isLoading } = useAuth()
-  const { unlockModule } = useModuleUnlock()
+  const { isAuthenticated } = useAuth()
   const [gameState, setGameState] = useState('menu') // 'menu', 'infected', 'tower-defense', 'home', 'logs', 'terminal', 'phonecamera', 'microphone', 'system', 'compass', 'gyro', 'help', 'clock', 'about', 'core-vitals', 'accelerometer', 'wifi', 'music'
   const [glitchLevel, setGlitchLevel] = useState(0)
   const [terminalText, setTerminalText] = useState('')
@@ -61,14 +59,7 @@ function AppContent() {
     }
   }
 
-  const handleOpenModule = (moduleName: ModuleName) => {
-    // Handle module unlocking logic here
-    if (moduleName === 'clock') {
-      // TODO: Add clock puzzle logic
-      // For now, unlock gyro when clock is accessed
-      unlockModule('gyro')
-    }
-    
+  const handleOpenModule = (moduleName: string) => {
     navigate(moduleName)
   }
 
@@ -230,9 +221,5 @@ function AppContent() {
 }
 
 export default function Index() {
-  return (
-    <ModuleUnlockProvider>
-      <AppContent />
-    </ModuleUnlockProvider>
-  )
+  return <AppContent />
 }

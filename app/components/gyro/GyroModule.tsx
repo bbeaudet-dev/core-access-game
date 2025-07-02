@@ -1,8 +1,6 @@
 import { Gyroscope } from 'expo-sensors'
 import { useEffect, useState } from 'react'
 import { Platform, Text, View } from 'react-native'
-import { useHints } from '../../contexts/HintContext'
-import { useModuleUnlock } from '../../contexts/ModuleUnlockContext'
 import HomeButton from '../ui/HomeButton'
 import ModuleHeader from '../ui/ModuleHeader'
 import PhoneFrame from '../ui/PhoneFrame'
@@ -23,9 +21,6 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
   const [error, setError] = useState<string | null>(null)
   const [isUnlocked, setIsUnlocked] = useState(false)
   const [speedHistory, setSpeedHistory] = useState<number[]>([]) // For sparkline
-
-  const { checkGyroAchievement } = useHints()
-  const { unlockModule } = useModuleUnlock()
 
   // Speed threshold to unlock (in degrees/second)
   const UNLOCK_THRESHOLD = 50
@@ -83,7 +78,6 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
             // Check if we should unlock
             if (speed >= UNLOCK_THRESHOLD && !isUnlocked) {
               setIsUnlocked(true)
-              unlockModule('compass') // Unlock the next module
             }
             return speed
           }
@@ -112,11 +106,6 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
     setIsUnlocked(false)
     setSpeedHistory([])
   }
-
-  // Check for achievements whenever max speed changes
-  useEffect(() => {
-    checkGyroAchievement(maxSpeed)
-  }, [maxSpeed, checkGyroAchievement])
 
   if (!isAvailable) {
     return (
@@ -152,12 +141,12 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
               </Text>
               {!isUnlocked && (
                 <Text className="text-gray-500 text-sm font-mono mt-2">
-                  Need {UNLOCK_THRESHOLD}°/s to unlock compass
+                  Need {UNLOCK_THRESHOLD}°/s to complete challenge
                 </Text>
               )}
               {isUnlocked && (
                 <Text className="text-green-400 text-sm font-mono mt-2">
-                  Compass module unlocked! 🧭
+                  Challenge completed! 🎉
                 </Text>
               )}
             </View>
