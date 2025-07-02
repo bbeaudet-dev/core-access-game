@@ -1,17 +1,17 @@
-import { Text, TouchableOpacity, View } from 'react-native';
-import { ModuleName, useModuleUnlock } from '../contexts/ModuleUnlockContext';
-import AppIcon from './ui/AppIcon';
-import PhoneFrame from './ui/PhoneFrame';
+import { Text, TouchableOpacity, View } from 'react-native'
+import { ModuleName, useModuleUnlock } from '../contexts/ModuleUnlockContext'
+import AppIcon from './ui/AppIcon'
+import PhoneFrame from './ui/PhoneFrame'
 
 interface HomeScreenProps {
-  onOpenModule: (moduleName: ModuleName) => void;
+  onOpenModule: (moduleName: ModuleName) => void
 }
 
 export default function HomeScreen({ 
   onOpenModule 
 }: HomeScreenProps) {
-  const { allModules, getNextUnlockableModule } = useModuleUnlock();
-  const nextModule = getNextUnlockableModule();
+  const { allModules, getNextUnlockableModule } = useModuleUnlock()
+  const nextModule = getNextUnlockableModule()
 
   return (
     <PhoneFrame>
@@ -58,5 +58,5 @@ export default function HomeScreen({
         </View>
       </View>
     </PhoneFrame>
-  );
+  )
 } 

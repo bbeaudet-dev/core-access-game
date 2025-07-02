@@ -1,10 +1,10 @@
-import { ScrollView, Text, View } from 'react-native';
-import HomeButton from './ui/HomeButton';
-import ModuleHeader from './ui/ModuleHeader';
-import PhoneFrame from './ui/PhoneFrame';
+import { ScrollView, Text, View } from 'react-native'
+import HomeButton from './ui/HomeButton'
+import ModuleHeader from './ui/ModuleHeader'
+import PhoneFrame from './ui/PhoneFrame'
 
 interface LogsModuleProps {
-  onGoHome: () => void;
+  onGoHome: () => void
 }
 
 export default function LogsModule({ onGoHome }: LogsModuleProps) {
@@ -46,5 +46,5 @@ export default function LogsModule({ onGoHome }: LogsModuleProps) {
         <HomeButton active={true} onPress={onGoHome} />
       </View>
     </PhoneFrame>
-  );
+  )
 } 

@@ -1,4 +1,4 @@
-import { Text, View } from 'react-native';
+import { Text, View } from 'react-native'
 
 export default function CameraPlaceholder() {
   return (
@@ -9,5 +9,5 @@ export default function CameraPlaceholder() {
         <Text className="text-gray-500 text-center text-xs mt-1">Placeholder</Text>
       </View>
     </View>
-  );
+  )
 } 

@@ -1,27 +1,27 @@
-import { useEffect, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useState } from 'react'
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
 
 interface CoreVitalsScreenProps {
-  onGoBack: () => void;
+  onGoBack: () => void
 }
 
 export default function CoreVitalsScreen({ onGoBack }: CoreVitalsScreenProps) {
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [heartRate, setHeartRate] = useState(73);
-  const [neuralActivity, setNeuralActivity] = useState(87);
-  const [consciousness, setConsciousness] = useState(92);
+  const [currentTime, setCurrentTime] = useState(new Date())
+  const [heartRate, setHeartRate] = useState(73)
+  const [neuralActivity, setNeuralActivity] = useState(87)
+  const [consciousness, setConsciousness] = useState(92)
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date());
+      setCurrentTime(new Date())
       // Simulate fluctuating vital signs
-      setHeartRate(prev => prev + (Math.random() > 0.5 ? 1 : -1));
-      setNeuralActivity(prev => prev + (Math.random() > 0.5 ? 2 : -2));
-      setConsciousness(prev => prev + (Math.random() > 0.5 ? 1 : -1));
-    }, 2000);
+      setHeartRate(prev => prev + (Math.random() > 0.5 ? 1 : -1))
+      setNeuralActivity(prev => prev + (Math.random() > 0.5 ? 2 : -2))
+      setConsciousness(prev => prev + (Math.random() > 0.5 ? 1 : -1))
+    }, 2000)
 
-    return () => clearInterval(timer);
-  }, []);
+    return () => clearInterval(timer)
+  }, [])
 
   return (
     <View className="flex-1 bg-black">
@@ -152,5 +152,5 @@ export default function CoreVitalsScreen({ onGoBack }: CoreVitalsScreenProps) {
         </View>
       </ScrollView>
     </View>
-  );
+  )
 } 

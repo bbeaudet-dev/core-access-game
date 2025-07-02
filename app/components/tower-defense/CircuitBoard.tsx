@@ -1,25 +1,57 @@
-import { TouchableOpacity, View } from 'react-native';
-import Svg, { Circle, Ellipse, G, Path, Rect } from 'react-native-svg';
-import { Bug, Tower } from './types';
+import { TouchableOpacity, View } from 'react-native'
+import Svg, { Circle, Ellipse, G, Path, Rect } from 'react-native-svg'
+
+// Shared coordinate types
+interface Point2D {
+  x: number
+  y: number
+}
+
+interface Point2DWithAngle {
+  x: number
+  y: number
+  angle?: number
+  scale?: number
+}
+
+export interface Bug {
+  id: number
+  x: number
+  y: number
+  health: number
+  maxHealth: number
+  pathIndex: number
+  speed: number
+}
+
+export interface Tower {
+  id: number
+  x: number
+  y: number
+  type: 'defender'
+  damage: number
+  range: number
+  lastShot: number
+}
 
 interface CircuitBoardProps {
-  bugs: Bug[];
-  towers: Tower[];
-  selectedTower: 'defender' | null;
-  towerPositions: { x: number; y: number }[];
-  towerRange: number;
-  onPlaceTower: (x: number, y: number) => void;
-  corePulse?: number; // 0-1 for animation
-  lastPlaced?: { x: number; y: number } | null;
+  bugs: Bug[]
+  towers: Tower[]
+  selectedTower: 'defender' | null
+  towerPositions: Point2D[]
+  towerRange: number
+  onPlaceTower: (x: number, y: number) => void
+  corePulse?: number // 0-1 for animation
+  lastPlaced?: Point2D | null
 }
 
 // Helper to get angle between two points
 function getAngle(x1: number, y1: number, x2: number, y2: number) {
-  return Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+  return Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI
 }
 
 // Pixel bug SVGs
-function PixelBug1({ x, y, angle = 0, scale = 1.1 }: { x: number; y: number; angle?: number; scale?: number }) {
+function PixelBug1({ x, y, angle = 0, scale = 1.1 }: Point2DWithAngle) {
   return (
     <G x={x} y={y} rotation={angle + 90} scale={scale} originX={0} originY={0}>
       {/* Body */}
@@ -37,9 +69,9 @@ function PixelBug1({ x, y, angle = 0, scale = 1.1 }: { x: number; y: number; ang
       <Rect x={-10} y={6} width={4} height={2} fill="#a52a2a" />
       <Rect x={6} y={6} width={4} height={2} fill="#a52a2a" />
     </G>
-  );
+  )
 }
-function PixelBug2({ x, y, angle = 0, scale = 1.2 }: { x: number; y: number; angle?: number; scale?: number }) {
+function PixelBug2({ x, y, angle = 0, scale = 1.2 }: Point2DWithAngle) {
   return (
     <G x={x} y={y} rotation={angle} scale={scale} originX={0} originY={0}>
       {/* Body */}
@@ -53,9 +85,9 @@ function PixelBug2({ x, y, angle = 0, scale = 1.2 }: { x: number; y: number; ang
       <Ellipse cx={-2} cy={-12} rx={1.2} ry={1.2} fill="#fff" />
       <Ellipse cx={2} cy={-12} rx={1.2} ry={1.2} fill="#fff" />
     </G>
-  );
+  )
 }
-function PixelBug3({ x, y, angle = 0, scale = 1.3 }: { x: number; y: number; angle?: number; scale?: number }) {
+function PixelBug3({ x, y, angle = 0, scale = 1.3 }: Point2DWithAngle) {
   return (
     <G x={x} y={y} rotation={angle} scale={scale} originX={0} originY={0}>
       {/* Body */}
@@ -64,7 +96,7 @@ function PixelBug3({ x, y, angle = 0, scale = 1.3 }: { x: number; y: number; ang
       <Rect x={-4} y={-13} width={2} height={4} fill="#8B5E3C" />
       <Rect x={2} y={-13} width={2} height={4} fill="#8B5E3C" />
     </G>
-  );
+  )
 }
 
 export default function CircuitBoard({
@@ -78,7 +110,7 @@ export default function CircuitBoard({
   lastPlaced = null
 }: CircuitBoardProps) {
   // Circuit board path coordinates (simplified path)
-  const circuitPath = [
+  const circuitPath: Point2D[] = [
     { x: 0, y: 100 },   // Start
     { x: 50, y: 100 },  // Right
     { x: 50, y: 50 },   // Up
@@ -87,29 +119,29 @@ export default function CircuitBoard({
     { x: 250, y: 150 }, // Right
     { x: 250, y: 100 }, // Up
     { x: 300, y: 100 }, // Right (end)
-  ];
+  ]
 
   // For each bug, calculate its angle based on its path segment
   function getBugAngle(bug: Bug) {
-    const idx = Math.floor(bug.pathIndex);
-    const nextIdx = Math.min(idx + 1, circuitPath.length - 1);
-    const p1 = circuitPath[idx];
-    const p2 = circuitPath[nextIdx];
-    return getAngle(p1.x, p1.y, p2.x, p2.y);
+    const idx = Math.floor(bug.pathIndex)
+    const nextIdx = Math.min(idx + 1, circuitPath.length - 1)
+    const p1 = circuitPath[idx]
+    const p2 = circuitPath[nextIdx]
+    return getAngle(p1.x, p1.y, p2.x, p2.y)
   }
 
   // Assign bug types for variety
   function renderBug(bug: Bug, i: number) {
-    const angle = getBugAngle(bug);
-    if (i % 3 === 0) return <PixelBug1 key={bug.id} x={bug.x} y={bug.y} angle={angle} scale={1.1} />;
-    if (i % 3 === 1) return <PixelBug2 key={bug.id} x={bug.x} y={bug.y} angle={angle} scale={1.2} />;
-    return <PixelBug3 key={bug.id} x={bug.x} y={bug.y} angle={angle} scale={1.3} />;
+    const angle = getBugAngle(bug)
+    if (i % 3 === 0) return <PixelBug1 key={bug.id} x={bug.x} y={bug.y} angle={angle} scale={1.1} />
+    if (i % 3 === 1) return <PixelBug2 key={bug.id} x={bug.x} y={bug.y} angle={angle} scale={1.2} />
+    return <PixelBug3 key={bug.id} x={bug.x} y={bug.y} angle={angle} scale={1.3} />
   }
 
   // Pulsating core animation
-  const coreX = circuitPath[circuitPath.length - 1].x;
-  const coreY = circuitPath[circuitPath.length - 1].y;
-  const coreRadius = 18 + 6 * Math.abs(Math.sin(corePulse * Math.PI * 2));
+  const coreX = circuitPath[circuitPath.length - 1].x
+  const coreY = circuitPath[circuitPath.length - 1].y
+  const coreRadius = 18 + 6 * Math.abs(Math.sin(corePulse * Math.PI * 2))
 
   return (
     <View className="flex-1 bg-gray-900 rounded-lg p-4 mb-4 relative">
@@ -212,11 +244,11 @@ export default function CircuitBoard({
           style={{ left: pos.x - 15, top: pos.y - 15, backgroundColor: 'rgba(255,0,0,0.2)', zIndex: 100, borderRadius: 8 }}
           activeOpacity={0.5}
           onPress={() => {
-            console.log('Tower placement overlay clicked at', pos.x, pos.y);
-            onPlaceTower(pos.x, pos.y);
+            console.log('Tower placement overlay clicked at', pos.x, pos.y)
+            onPlaceTower(pos.x, pos.y)
           }}
         />
       ))}
     </View>
-  );
+  )
 } 

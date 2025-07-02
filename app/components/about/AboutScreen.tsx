@@ -1,7 +1,7 @@
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
 
 interface AboutScreenProps {
-  onGoBack: () => void;
+  onGoBack: () => void
 }
 
 export default function AboutScreen({ onGoBack }: AboutScreenProps) {
@@ -137,5 +137,5 @@ export default function AboutScreen({ onGoBack }: AboutScreenProps) {
         </View>
       </ScrollView>
     </View>
-  );
+  )
 } 

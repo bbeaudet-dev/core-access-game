@@ -1,9 +1,9 @@
-import { Text, View } from 'react-native';
+import { Text, View } from 'react-native'
 
 interface GameHeaderProps {
-  lives: number;
-  money: number;
-  level: number;
+  lives: number
+  money: number
+  level: number
 }
 
 export default function GameHeader({ lives, money, level }: GameHeaderProps) {
@@ -16,5 +16,5 @@ export default function GameHeader({ lives, money, level }: GameHeaderProps) {
         <Text className="text-blue-400 text-sm font-mono">Level: {level}</Text>
       </View>
     </View>
-  );
+  )
 } 

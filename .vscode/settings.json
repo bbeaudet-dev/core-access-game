@@ -25,10 +25,14 @@
   },
   "peacock.color": "#215732",
   "cSpell.words": [
+    "bootup",
     "LOCKDOWN",
+    "nativeapp",
     "nativewind",
     "neondatabase",
-    "NEXTAUTH"
+    "NEXTAUTH",
+    "OCRA",
+    "Unlockable"
   ],
   "cSpell.ignoreWords": [
     "phonecamera"

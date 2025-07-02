@@ -1,8 +1,8 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native'
 
 interface NetworkScannerProps {
-  isScanning: boolean;
-  onScan: () => void;
+  isScanning: boolean
+  onScan: () => void
 }
 
 export default function NetworkScanner({ isScanning, onScan }: NetworkScannerProps) {
@@ -19,5 +19,5 @@ export default function NetworkScanner({ isScanning, onScan }: NetworkScannerPro
         </Text>
       </TouchableOpacity>
     </View>
-  );
+  )
 } 

@@ -1,122 +1,122 @@
-import { Gyroscope } from 'expo-sensors';
-import { useEffect, useState } from 'react';
-import { Platform, Text, View } from 'react-native';
-import { useHints } from '../../contexts/HintContext';
-import { useModuleUnlock } from '../../contexts/ModuleUnlockContext';
-import HomeButton from '../ui/HomeButton';
-import ModuleHeader from '../ui/ModuleHeader';
-import PhoneFrame from '../ui/PhoneFrame';
-import GyroControls from './GyroControls';
-import SpeedDisplay from './SpeedDisplay';
-import SpeedPlot from './SpeedPlot';
+import { Gyroscope } from 'expo-sensors'
+import { useEffect, useState } from 'react'
+import { Platform, Text, View } from 'react-native'
+import { useHints } from '../../contexts/HintContext'
+import { useModuleUnlock } from '../../contexts/ModuleUnlockContext'
+import HomeButton from '../ui/HomeButton'
+import ModuleHeader from '../ui/ModuleHeader'
+import PhoneFrame from '../ui/PhoneFrame'
+import GyroControls from './GyroControls'
+import SpeedDisplay from './SpeedDisplay'
+import SpeedPlot from './SpeedPlot'
 
 interface GyroModuleProps {
-  onGoHome: () => void;
+  onGoHome: () => void
 }
 
 export default function GyroModule({ onGoHome }: GyroModuleProps) {
-  const [gyroscopeData, setGyroscopeData] = useState({ x: 0, y: 0, z: 0 });
-  const [currentSpeed, setCurrentSpeed] = useState(0);
-  const [maxSpeed, setMaxSpeed] = useState(0);
-  const [subscription, setSubscription] = useState<any>(null);
-  const [isAvailable, setIsAvailable] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [speedHistory, setSpeedHistory] = useState<number[]>([]); // For sparkline
+  const [gyroscopeData, setGyroscopeData] = useState({ x: 0, y: 0, z: 0 })
+  const [currentSpeed, setCurrentSpeed] = useState(0)
+  const [maxSpeed, setMaxSpeed] = useState(0)
+  const [subscription, setSubscription] = useState<any>(null)
+  const [isAvailable, setIsAvailable] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isUnlocked, setIsUnlocked] = useState(false)
+  const [speedHistory, setSpeedHistory] = useState<number[]>([]) // For sparkline
 
-  const { checkGyroAchievement } = useHints();
-  const { unlockModule } = useModuleUnlock();
+  const { checkGyroAchievement } = useHints()
+  const { unlockModule } = useModuleUnlock()
 
   // Speed threshold to unlock (in degrees/second)
-  const UNLOCK_THRESHOLD = 50;
+  const UNLOCK_THRESHOLD = 50
   // Sparkline settings
-  const HISTORY_LENGTH = 200; // 20 seconds at 10Hz
+  const HISTORY_LENGTH = 200 // 20 seconds at 10Hz
 
   useEffect(() => {
-    checkGyroscopeAvailability();
-    return () => _unsubscribe();
-  }, []);
+    checkGyroscopeAvailability()
+    return () => _unsubscribe()
+  }, [])
 
   const checkGyroscopeAvailability = async () => {
     try {
       if (Platform.OS === 'web') {
         // Web doesn't have gyroscope
-        setIsAvailable(false);
-        setError('Gyroscope not available on web');
-        return;
+        setIsAvailable(false)
+        setError('Gyroscope not available on web')
+        return
       }
 
-      const isAvailable = await Gyroscope.isAvailableAsync();
-      setIsAvailable(isAvailable);
+      const isAvailable = await Gyroscope.isAvailableAsync()
+      setIsAvailable(isAvailable)
       
       if (!isAvailable) {
-        setError('Gyroscope not available on this device');
+        setError('Gyroscope not available on this device')
       }
     } catch (err) {
-      setIsAvailable(false);
-      setError('Failed to check gyroscope availability');
+      setIsAvailable(false)
+      setError('Failed to check gyroscope availability')
     }
-  };
+  }
 
   const _subscribe = () => {
-    if (!isAvailable) return;
+    if (!isAvailable) return
 
     setSubscription(
       Gyroscope.addListener((data) => {
-        setGyroscopeData(data);
+        setGyroscopeData(data)
         
         // Calculate speed magnitude (degrees/second)
         const speed = Math.sqrt(
           data.x * data.x + 
           data.y * data.y + 
           data.z * data.z
-        );
-        setCurrentSpeed(speed);
+        )
+        setCurrentSpeed(speed)
         setSpeedHistory(prev => {
-          const next = [...prev, speed];
+          const next = [...prev, speed]
           // Keep only the last HISTORY_LENGTH samples
-          return next.length > HISTORY_LENGTH ? next.slice(next.length - HISTORY_LENGTH) : next;
-        });
+          return next.length > HISTORY_LENGTH ? next.slice(next.length - HISTORY_LENGTH) : next
+        })
         // Update max speed if current speed is higher
         setMaxSpeed(prevMax => {
           if (speed > prevMax) {
             // Check if we should unlock
             if (speed >= UNLOCK_THRESHOLD && !isUnlocked) {
-              setIsUnlocked(true);
-              unlockModule('compass'); // Unlock the next module
+              setIsUnlocked(true)
+              unlockModule('compass') // Unlock the next module
             }
-            return speed;
+            return speed
           }
-          return prevMax;
-        });
+          return prevMax
+        })
       })
-    );
-    Gyroscope.setUpdateInterval(100); // 10Hz
-  };
+    )
+    Gyroscope.setUpdateInterval(100) // 10Hz
+  }
 
   const _unsubscribe = () => {
-    subscription && subscription.remove();
-    setSubscription(null);
-  };
+    subscription && subscription.remove()
+    setSubscription(null)
+  }
 
   const toggleGyroscope = () => {
     if (subscription) {
-      _unsubscribe();
+      _unsubscribe()
     } else {
-      _subscribe();
+      _subscribe()
     }
-  };
+  }
 
   const resetMaxSpeed = () => {
-    setMaxSpeed(0);
-    setIsUnlocked(false);
-    setSpeedHistory([]);
-  };
+    setMaxSpeed(0)
+    setIsUnlocked(false)
+    setSpeedHistory([])
+  }
 
   // Check for achievements whenever max speed changes
   useEffect(() => {
-    checkGyroAchievement(maxSpeed);
-  }, [maxSpeed, checkGyroAchievement]);
+    checkGyroAchievement(maxSpeed)
+  }, [maxSpeed, checkGyroAchievement])
 
   if (!isAvailable) {
     return (
@@ -135,7 +135,7 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
           </View>
         </View>
       </PhoneFrame>
-    );
+    )
   }
 
   return (
@@ -192,5 +192,5 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
         <HomeButton active={true} onPress={onGoHome} />
       </View>
     </PhoneFrame>
-  );
+  )
 } 

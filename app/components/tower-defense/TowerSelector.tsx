@@ -1,9 +1,9 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native'
 
 interface TowerSelectorProps {
-  selectedTower: 'defender' | null;
-  onSelectTower: (tower: 'defender' | null) => void;
-  towerCost: number;
+  selectedTower: 'defender' | null
+  onSelectTower: (tower: 'defender' | null) => void
+  towerCost: number
 }
 
 export default function TowerSelector({ selectedTower, onSelectTower, towerCost }: TowerSelectorProps) {
@@ -20,5 +20,5 @@ export default function TowerSelector({ selectedTower, onSelectTower, towerCost 
         </TouchableOpacity>
       </View>
     </View>
-  );
+  )
 } 

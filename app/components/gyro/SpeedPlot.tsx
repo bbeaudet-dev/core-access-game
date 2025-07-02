@@ -1,37 +1,37 @@
-import { Text, View } from 'react-native';
-import Svg, { Polyline } from 'react-native-svg';
+import { Text, View } from 'react-native'
+import Svg, { Polyline } from 'react-native-svg'
 
 interface SpeedPlotProps {
-  speedHistory: number[];
-  maxSpeed: number;
-  historyLength: number;
+  speedHistory: number[]
+  maxSpeed: number
+  historyLength: number
 }
 
 export default function SpeedPlot({ speedHistory, maxSpeed, historyLength }: SpeedPlotProps) {
-  if (speedHistory.length < 2) return null;
+  if (speedHistory.length < 2) return null
   
-  const max = Math.max(maxSpeed, 1); // Use current max speed for y-axis
-  const min = 0;
-  const width = 300;
+  const max = Math.max(maxSpeed, 1) // Use current max speed for y-axis
+  const min = 0
+  const width = 300
   // Height grows with max speed: 30px at 0, 200px at 50+, capped at 200
-  const minHeight = 30;
-  const maxHeight = 200;
-  const height = Math.min(minHeight + (max / 50) * (maxHeight - minHeight), maxHeight);
+  const minHeight = 30
+  const maxHeight = 200
+  const height = Math.min(minHeight + (max / 50) * (maxHeight - minHeight), maxHeight)
   // Reverse the speedHistory so newest is on the left
-  const reversed = [...speedHistory].reverse();
+  const reversed = [...speedHistory].reverse()
   const points = reversed.map((s, i) => {
-    const x = (i / (historyLength - 1)) * width;
-    const y = height - ((s - min) / (max - min)) * height;
-    return `${x},${y}`;
-  }).join(' ');
+    const x = (i / (historyLength - 1)) * width
+    const y = height - ((s - min) / (max - min)) * height
+    return `${x},${y}`
+  }).join(' ')
   // Y-axis labels
-  const labels = [0, max / 3, (2 * max) / 3, max];
+  const labels = [0, max / 3, (2 * max) / 3, max]
   // Dynamic color
-  let color = '#ef4444'; // red
-  if (max >= 100) color = '#ec4899'; // pink
-  else if (max >= 50) color = '#34d399'; // green
-  else if (max >= 40) color = '#fde047'; // yellow
-  else if (max >= 25) color = '#f59e42'; // orange
+  let color = '#ef4444' // red
+  if (max >= 100) color = '#ec4899' // pink
+  else if (max >= 50) color = '#34d399' // green
+  else if (max >= 40) color = '#fde047' // yellow
+  else if (max >= 25) color = '#f59e42' // orange
   // else red
   
   return (
@@ -55,5 +55,5 @@ export default function SpeedPlot({ speedHistory, maxSpeed, historyLength }: Spe
         </Svg>
       </View>
     </View>
-  );
+  )
 } 
