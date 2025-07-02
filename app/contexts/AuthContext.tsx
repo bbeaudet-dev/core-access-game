@@ -34,7 +34,7 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
-    isLoading: true,
+    isLoading: false,
     isAuthenticated: false,
   });
 
@@ -50,7 +50,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setAuthState(prev => ({ ...prev, isLoading: true }));
     try {
       const user = await authApi.signin(email, password);
-      setAuthState({ user, isLoading: false, isAuthenticated: false });
+      setAuthState({ user, isLoading: false, isAuthenticated: true });
     } catch (error) {
       setAuthState(prev => ({ ...prev, isLoading: false, user: null }));
       throw error;
@@ -116,7 +116,7 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
+} 
 
 // Default export to satisfy Expo Router
 export default AuthProvider; 

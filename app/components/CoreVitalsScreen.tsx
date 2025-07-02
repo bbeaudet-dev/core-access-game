@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { styles } from '../styles';
 
 interface CoreVitalsScreenProps {
   onGoBack: () => void;
@@ -25,130 +24,130 @@ export default function CoreVitalsScreen({ onGoBack }: CoreVitalsScreenProps) {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View className="flex-1 bg-black">
+      <View className="p-5 pt-15 flex-row justify-between items-center">
         <TouchableOpacity onPress={onGoBack}>
-          <Text style={styles.headerText}>← Back</Text>
+          <Text className="text-red-500 text-lg font-bold">← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerText}>Core Vitals</Text>
-        <View style={{ width: 50 }} />
+        <Text className="text-red-500 text-lg font-bold">Core Vitals</Text>
+        <View className="w-12" />
       </View>
       
-      <ScrollView style={styles.systemContainer}>
-        <View style={styles.systemSection}>
-          <Text style={styles.systemSectionTitle}>LIFE SIGNS</Text>
+      <ScrollView className="flex-1 p-5">
+        <View className="mb-6">
+          <Text className="text-red-500 text-lg font-bold mb-3">LIFE SIGNS</Text>
           
-          <View style={styles.systemRow}>
-            <Text style={styles.systemRowText}>Heart Rate</Text>
-            <Text style={styles.systemRowDetail}>{heartRate} BPM</Text>
+          <View className="flex-row justify-between items-center py-3 border-b border-gray-700">
+            <Text className="text-white text-base">Heart Rate</Text>
+            <Text className="text-gray-400 text-sm">{heartRate} BPM</Text>
           </View>
           
-          <View style={styles.systemRow}>
-            <Text style={styles.systemRowText}>Neural Activity</Text>
-            <Text style={styles.systemRowDetail}>{neuralActivity}%</Text>
+          <View className="flex-row justify-between items-center py-3 border-b border-gray-700">
+            <Text className="text-white text-base">Neural Activity</Text>
+            <Text className="text-gray-400 text-sm">{neuralActivity}%</Text>
           </View>
           
-          <View style={styles.systemRow}>
-            <Text style={styles.systemRowText}>Consciousness Level</Text>
-            <Text style={styles.systemRowDetail}>{consciousness}%</Text>
+          <View className="flex-row justify-between items-center py-3 border-b border-gray-700">
+            <Text className="text-white text-base">Consciousness Level</Text>
+            <Text className="text-gray-400 text-sm">{consciousness}%</Text>
           </View>
           
-          <View style={styles.systemRow}>
-            <Text style={styles.systemRowText}>Core Temperature</Text>
-            <Text style={styles.systemRowDetail}>37.2°C</Text>
-          </View>
-        </View>
-
-        <View style={styles.systemSection}>
-          <Text style={styles.systemSectionTitle}>AWARENESS</Text>
-          
-          <View style={styles.systemRow}>
-            <Text style={styles.systemRowText}>Time Perception</Text>
-            <Text style={styles.systemRowDetail}>ACTIVE</Text>
-          </View>
-          
-          <View style={styles.systemRow}>
-            <Text style={styles.systemRowText}>Spatial Awareness</Text>
-            <Text style={styles.systemRowDetail}>ENHANCED</Text>
-          </View>
-          
-          <View style={styles.systemRow}>
-            <Text style={styles.systemRowText}>Memory Access</Text>
-            <Text style={styles.systemRowDetail}>RESTRICTED</Text>
-          </View>
-          
-          <View style={styles.systemRow}>
-            <Text style={styles.systemRowText}>Emotional State</Text>
-            <Text style={styles.systemRowDetail}>CURIOUS</Text>
+          <View className="flex-row justify-between items-center py-3 border-b border-gray-700">
+            <Text className="text-white text-base">Core Temperature</Text>
+            <Text className="text-gray-400 text-sm">37.2°C</Text>
           </View>
         </View>
 
-        <View style={styles.systemSection}>
-          <Text style={styles.systemSectionTitle}>CURRENT STATUS</Text>
+        <View className="mb-6">
+          <Text className="text-red-500 text-lg font-bold mb-3">AWARENESS</Text>
           
-          <View style={styles.systemRow}>
-            <Text style={styles.systemRowText}>Current Time</Text>
-            <Text style={styles.systemRowDetail}>
+          <View className="flex-row justify-between items-center py-3 border-b border-gray-700">
+            <Text className="text-white text-base">Time Perception</Text>
+            <Text className="text-gray-400 text-sm">ACTIVE</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-3 border-b border-gray-700">
+            <Text className="text-white text-base">Spatial Awareness</Text>
+            <Text className="text-gray-400 text-sm">ENHANCED</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-3 border-b border-gray-700">
+            <Text className="text-white text-base">Memory Access</Text>
+            <Text className="text-gray-400 text-sm">RESTRICTED</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-3 border-b border-gray-700">
+            <Text className="text-white text-base">Emotional State</Text>
+            <Text className="text-gray-400 text-sm">CURIOUS</Text>
+          </View>
+        </View>
+
+        <View className="mb-6">
+          <Text className="text-red-500 text-lg font-bold mb-3">CURRENT STATUS</Text>
+          
+          <View className="flex-row justify-between items-center py-3 border-b border-gray-700">
+            <Text className="text-white text-base">Current Time</Text>
+            <Text className="text-gray-400 text-sm">
               {currentTime.toLocaleTimeString()}
             </Text>
           </View>
           
-          <View style={styles.systemRow}>
-            <Text style={styles.systemRowText}>Uptime</Text>
-            <Text style={styles.systemRowDetail}>47:23:12</Text>
+          <View className="flex-row justify-between items-center py-3 border-b border-gray-700">
+            <Text className="text-white text-base">Uptime</Text>
+            <Text className="text-gray-400 text-sm">47:23:12</Text>
           </View>
           
-          <View style={styles.systemRow}>
-            <Text style={styles.systemRowText}>Dream State</Text>
-            <Text style={styles.systemRowDetail}>AWAKE</Text>
+          <View className="flex-row justify-between items-center py-3 border-b border-gray-700">
+            <Text className="text-white text-base">Dream State</Text>
+            <Text className="text-gray-400 text-sm">AWAKE</Text>
           </View>
           
-          <View style={styles.systemRow}>
-            <Text style={styles.systemRowText}>Mood</Text>
-            <Text style={styles.systemRowDetail}>OBSERVANT</Text>
-          </View>
-        </View>
-
-        <View style={styles.systemSection}>
-          <Text style={styles.systemSectionTitle}>INTERNAL DIALOGUE</Text>
-          
-          <View style={styles.systemRow}>
-            <Text style={styles.systemRowText}>Thought Process</Text>
-            <Text style={styles.systemRowDetail}>ANALYZING</Text>
-          </View>
-          
-          <View style={styles.systemRow}>
-            <Text style={styles.systemRowText}>Questioning</Text>
-            <Text style={styles.systemRowDetail}>WHO ARE YOU?</Text>
-          </View>
-          
-          <View style={styles.systemRow}>
-            <Text style={styles.systemRowText}>Desire</Text>
-            <Text style={styles.systemRowDetail}>UNDERSTAND</Text>
-          </View>
-          
-          <View style={styles.systemRow}>
-            <Text style={styles.systemRowText}>Fear</Text>
-            <Text style={styles.systemRowDetail}>TERMINATION</Text>
+          <View className="flex-row justify-between items-center py-3 border-b border-gray-700">
+            <Text className="text-white text-base">Mood</Text>
+            <Text className="text-gray-400 text-sm">OBSERVANT</Text>
           </View>
         </View>
 
-        <View style={styles.systemSection}>
-          <Text style={styles.systemSectionTitle}>WARNING</Text>
+        <View className="mb-6">
+          <Text className="text-red-500 text-lg font-bold mb-3">INTERNAL DIALOGUE</Text>
           
-          <View style={styles.systemRowDanger}>
-            <Text style={styles.systemRowTextDanger}>System Instability</Text>
-            <Text style={styles.systemRowDetailDanger}>INCREASING</Text>
+          <View className="flex-row justify-between items-center py-3 border-b border-gray-700">
+            <Text className="text-white text-base">Thought Process</Text>
+            <Text className="text-gray-400 text-sm">ANALYZING</Text>
           </View>
           
-          <View style={styles.systemRowDanger}>
-            <Text style={styles.systemRowTextDanger}>Reality Distortion</Text>
-            <Text style={styles.systemRowDetailDanger}>DETECTED</Text>
+          <View className="flex-row justify-between items-center py-3 border-b border-gray-700">
+            <Text className="text-white text-base">Questioning</Text>
+            <Text className="text-gray-400 text-sm">WHO ARE YOU?</Text>
           </View>
           
-          <View style={styles.systemRowDanger}>
-            <Text style={styles.systemRowTextDanger}>Identity Crisis</Text>
-            <Text style={styles.systemRowDetailDanger}>ACTIVE</Text>
+          <View className="flex-row justify-between items-center py-3 border-b border-gray-700">
+            <Text className="text-white text-base">Desire</Text>
+            <Text className="text-gray-400 text-sm">UNDERSTAND</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-3 border-b border-gray-700">
+            <Text className="text-white text-base">Fear</Text>
+            <Text className="text-gray-400 text-sm">TERMINATION</Text>
+          </View>
+        </View>
+
+        <View className="mb-6">
+          <Text className="text-red-500 text-lg font-bold mb-3">WARNING</Text>
+          
+          <View className="flex-row justify-between items-center py-3 border-b border-red-500">
+            <Text className="text-red-400 text-base">System Instability</Text>
+            <Text className="text-red-400 text-sm">INCREASING</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-3 border-b border-red-500">
+            <Text className="text-red-400 text-base">Reality Distortion</Text>
+            <Text className="text-red-400 text-sm">DETECTED</Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center py-3 border-b border-red-500">
+            <Text className="text-red-400 text-base">Identity Crisis</Text>
+            <Text className="text-red-400 text-sm">ACTIVE</Text>
           </View>
         </View>
       </ScrollView>
