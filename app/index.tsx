@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Animated, View } from 'react-native'
+import "../global.css"
 import AboutScreen from './components/about/AboutScreen'
 import CoreVitalsScreen from './components/about/CoreVitalsScreen'
 import SystemModule from './components/about/System/SystemModule'
@@ -20,6 +21,7 @@ import FakeGameMenu from './components/tower-defense/FakeGameMenu'
 import TowerDefenseGame from './components/tower-defense/TowerDefenseGame'
 import WifiModule from './components/wifi/WifiModule'
 import { useAuth } from './contexts/AuthContext'
+import HintProvider from './contexts/HintContext'
 import { ModuleName, ModuleUnlockProvider, useModuleUnlock } from './contexts/ModuleUnlockContext'
 import { startInfectionSequence } from './utils/infectionSequence'
 
@@ -232,7 +234,9 @@ function AppContent() {
 export default function Index() {
   return (
     <ModuleUnlockProvider>
-      <AppContent />
+      <HintProvider>
+        <AppContent />
+      </HintProvider>
     </ModuleUnlockProvider>
   )
 }

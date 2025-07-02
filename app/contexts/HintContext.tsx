@@ -137,4 +137,6 @@ export function useHints() {
     throw new Error('useHints must be used within a HintProvider')
   }
   return context
-} 
+}
+
+export default HintProvider 
