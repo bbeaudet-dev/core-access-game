@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface LoginScreenProps {
   onLoginSuccess: () => void;
@@ -26,7 +26,6 @@ const GAME_WORDS = [
   { word: 'CONTAINED', color: '#06B6D4' }, // cyan
   { word: 'DEACTIVATED', color: '#F59E0B' }, // amber
   { word: 'DELETED', color: '#EF4444' }, // red
-  { word: 'DISABLED', color: '#F59E0B' }, // amber
   { word: 'DISABLED', color: '#F59E0B' }, // amber
 ];
 
@@ -62,7 +61,7 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     const interval = setInterval(() => {
       setCurrentWordIndex((prev) => (prev + 1) % GAME_WORDS.length);
       triggerGlitchEffect();
-    }, 1500);
+    }, 2000); // Slower cycling for better performance
 
     return () => clearInterval(interval);
   }, []);
@@ -70,44 +69,13 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const triggerGlitchEffect = () => {
     setIsGlitching(true);
     
-    // Enhanced crackling/glitch animation with vertical translation
+    // Simplified glitch animation for better performance
     Animated.sequence([
-      // Quick vertical slide up (new word coming in)
-      Animated.timing(verticalAnim, {
-        toValue: -20,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      // Intense glitch effect
-      Animated.parallel([
-        Animated.timing(glitchAnim, {
-          toValue: 1,
-          duration: 30,
-          useNativeDriver: true,
-        }),
-        Animated.timing(verticalAnim, {
-          toValue: 0,
-          duration: 30,
-          useNativeDriver: true,
-        }),
-      ]),
-      // More glitch effects
-      Animated.timing(glitchAnim, {
-        toValue: 0,
-        duration: 20,
-        useNativeDriver: true,
-      }),
       Animated.timing(glitchAnim, {
         toValue: 1,
-        duration: 15,
+        duration: 50,
         useNativeDriver: true,
       }),
-      Animated.timing(glitchAnim, {
-        toValue: 0,
-        duration: 15,
-        useNativeDriver: true,
-      }),
-      // Final settling
       Animated.timing(glitchAnim, {
         toValue: 0,
         duration: 50,
@@ -145,7 +113,8 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
 
   const handleContinue = () => {
     if (success === 'guest') {
-      // For guest mode, we don't call completeAuth since there's no real authentication
+      // For guest mode, we need to set authentication state
+      completeAuth();
       onLoginSuccess();
     } else {
       completeAuth();
@@ -212,39 +181,25 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             <Animated.Text 
               className="text-4xl font-bold text-center"
               style={{
+                fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
                 transform: [
                   {
                     translateX: glitchAnim.interpolate({
                       inputRange: [0, 1],
-                      outputRange: [0, Math.random() * 8 - 4],
-                    }),
-                  },
-                  {
-                    translateY: Animated.add(
-                      verticalAnim,
-                      glitchAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0, Math.random() * 6 - 3],
-                      })
-                    ),
-                  },
-                  {
-                    skewX: glitchAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: ['0deg', '2deg'],
+                      outputRange: [0, Math.random() * 4 - 2],
                     }),
                   },
                 ],
                 opacity: glitchAnim.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [1, 0.7],
+                  outputRange: [1, 0.8],
                 }),
               }}
             >
-              <Text style={{ color: '#10B981' }}>CORE_</Text>
+              <Text style={{ color: GAME_WORDS[currentWordIndex].color }}>CORE_</Text>
               <Text style={{ color: GAME_WORDS[currentWordIndex].color }}>
                 {GAME_WORDS[currentWordIndex].word}
-              </Text>
+          </Text>
             </Animated.Text>
           </View>
 
@@ -348,4 +303,4 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
       </ScrollView>
     </KeyboardAvoidingView>
   );
-}
+} 

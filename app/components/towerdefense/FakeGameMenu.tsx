@@ -8,7 +8,7 @@ export default function FakeGameMenu({ onStartGame }: FakeGameMenuProps) {
   return (
     <View className="flex-1 bg-black justify-center items-center px-6">
       <View className="items-center mb-8">
-        <Text className="text-4xl font-bold text-green-400 mb-2">CORE DEFENDER</Text>
+        <Text style={{ fontFamily: 'OCR-A' }} className="text-4xl font-bold text-green-400 mb-2">CORE DEFENDER</Text>
         <Text className="text-lg text-gray-400">Defend the Digital Realm</Text>
       </View>
       
