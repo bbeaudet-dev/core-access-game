@@ -1,22 +1,22 @@
-import { View } from 'react-native';
+import { View } from 'react-native'
 
-interface AudioWaveformProps {
-  audioLevel: number;
+interface MicrophoneWaveformProps {
+  microphoneLevel: number
 }
 
-export default function AudioWaveform({ audioLevel }: AudioWaveformProps) {
+export default function MicrophoneWaveform({ microphoneLevel }: MicrophoneWaveformProps) {
   // Generate waveform bars based on audio level
   const generateWaveform = () => {
-    const bars = 48;
-    const minBarHeight = 5;
-    const maxBarHeight = 60;
-    const adjustedAudio = Math.max(0, 60 + audioLevel); // 0 (silent) to 60 (loud)
-    const normalized = Math.max(0, Math.min(1, adjustedAudio / 60));
-    const waveform = [];
+    const bars = 48
+    const minBarHeight = 5
+    const maxBarHeight = 60
+    const adjustedMicrophone = Math.max(0, 60 + microphoneLevel) // 0 (silent) to 60 (loud)
+    const normalized = Math.max(0, Math.min(1, adjustedMicrophone / 60))
+    const waveform = []
     
     for (let i = 0; i < bars; i++) {
-      const randomFactor = Math.random() * 0.75 + 0.75;
-      const barHeight = minBarHeight + normalized * (maxBarHeight - minBarHeight) * randomFactor;
+      const randomFactor = Math.random() * 0.75 + 0.75
+      const barHeight = minBarHeight + normalized * (maxBarHeight - minBarHeight) * randomFactor
       waveform.push(
         <View
           key={i}
@@ -32,11 +32,11 @@ export default function AudioWaveform({ audioLevel }: AudioWaveformProps) {
             zIndex: 2,
           }}
         />
-      );
+      )
     }
     
-    return waveform;
-  };
+    return waveform
+  }
 
   return (
     <View className="bg-gray-800 rounded-lg p-4 mb-4">
@@ -44,5 +44,5 @@ export default function AudioWaveform({ audioLevel }: AudioWaveformProps) {
         {generateWaveform()}
       </View>
     </View>
-  );
+  )
 } 

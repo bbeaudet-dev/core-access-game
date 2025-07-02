@@ -1,11 +1,11 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native'
 
 interface GameControlsProps {
-  wave: number;
-  bugsCount: number;
-  waveInProgress: boolean;
-  level: number;
-  onStartWave: () => void;
+  wave: number
+  bugsCount: number
+  waveInProgress: boolean
+  level: number
+  onStartWave: () => void
 }
 
 export default function GameControls({ 
@@ -38,5 +38,5 @@ export default function GameControls({
         }
       </Text>
     </View>
-  );
+  )
 } 

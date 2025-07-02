@@ -1,39 +1,39 @@
-import { useEffect, useState } from 'react';
-import { Platform, Text, View } from 'react-native';
-import HomeButton from '../ui/HomeButton';
-import ModuleHeader from '../ui/ModuleHeader';
-import PhoneFrame from '../ui/PhoneFrame';
-import CameraPlaceholder from './CameraPlaceholder';
-import CameraStatus from './CameraStatus';
+import { useEffect, useState } from 'react'
+import { Platform, Text, View } from 'react-native'
+import HomeButton from '../ui/HomeButton'
+import ModuleHeader from '../ui/ModuleHeader'
+import PhoneFrame from '../ui/PhoneFrame'
+import CameraPlaceholder from './CameraPlaceholder'
+import CameraStatus from './CameraStatus'
 
 interface PhoneCameraModuleProps {
-  onGoHome: () => void;
+  onGoHome: () => void
 }
 
 export default function PhoneCameraModule({ onGoHome }: PhoneCameraModuleProps) {
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const initCamera = async () => {
       try {
         if (Platform.OS === 'web') {
-          setError('Camera not available on web');
-          setHasPermission(false);
-          return;
+          setError('Camera not available on web')
+          setHasPermission(false)
+          return
         }
 
         // Simple permission check without complex imports
-        setHasPermission(true);
+        setHasPermission(true)
       } catch (err) {
-        console.error('Camera initialization failed:', err);
-        setError('Failed to initialize camera');
-        setHasPermission(false);
+        console.error('Camera initialization failed:', err)
+        setError('Failed to initialize camera')
+        setHasPermission(false)
       }
-    };
+    }
 
-    initCamera();
-  }, []);
+    initCamera()
+  }, [])
 
   // Web fallback
   if (Platform.OS === 'web') {
@@ -47,7 +47,7 @@ export default function PhoneCameraModule({ onGoHome }: PhoneCameraModuleProps) 
           <HomeButton active={true} onPress={onGoHome} />
         </View>
       </PhoneFrame>
-    );
+    )
   }
 
   // Loading state
@@ -62,7 +62,7 @@ export default function PhoneCameraModule({ onGoHome }: PhoneCameraModuleProps) 
           <HomeButton active={true} onPress={onGoHome} />
         </View>
       </PhoneFrame>
-    );
+    )
   }
 
   // Permission denied or error
@@ -77,7 +77,7 @@ export default function PhoneCameraModule({ onGoHome }: PhoneCameraModuleProps) 
           <HomeButton active={true} onPress={onGoHome} />
         </View>
       </PhoneFrame>
-    );
+    )
   }
 
   // Camera ready - show placeholder for now
@@ -104,5 +104,5 @@ export default function PhoneCameraModule({ onGoHome }: PhoneCameraModuleProps) 
         <HomeButton active={true} onPress={onGoHome} />
       </View>
     </PhoneFrame>
-  );
+  )
 } 

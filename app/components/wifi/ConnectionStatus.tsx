@@ -1,22 +1,28 @@
-import { Text, View } from 'react-native';
-import { ConnectionStatus as ConnectionStatusType } from './types';
+import { Text, View } from 'react-native'
+
+export interface ConnectionStatus {
+  isConnected: boolean
+  networkName: string
+  ipAddress: string
+  signalStrength: number
+}
 
 interface ConnectionStatusProps {
-  connection: ConnectionStatusType;
+  connection: ConnectionStatus
 }
 
 export default function ConnectionStatus({ connection }: ConnectionStatusProps) {
   const getSignalColor = (strength: number) => {
-    if (strength >= 80) return 'text-green-400';
-    if (strength >= 60) return 'text-yellow-400';
-    if (strength >= 40) return 'text-orange-400';
-    return 'text-red-400';
-  };
+    if (strength >= 80) return 'text-green-400'
+    if (strength >= 60) return 'text-yellow-400'
+    if (strength >= 40) return 'text-orange-400'
+    return 'text-red-400'
+  }
 
   const getSignalBars = (strength: number) => {
-    const bars = Math.floor(strength / 20);
-    return '█'.repeat(bars) + '░'.repeat(5 - bars);
-  };
+    const bars = Math.floor(strength / 20)
+    return '█'.repeat(bars) + '░'.repeat(5 - bars)
+  }
 
   return (
     <View className="bg-gray-900 p-4 rounded-lg">
@@ -34,5 +40,5 @@ export default function ConnectionStatus({ connection }: ConnectionStatusProps) 
         </>
       )}
     </View>
-  );
+  )
 } 

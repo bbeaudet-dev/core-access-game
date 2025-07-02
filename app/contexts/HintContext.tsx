@@ -1,26 +1,26 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 
 export interface Hint {
-  id: string;
-  title: string;
-  description: string;
-  category: 'gyro' | 'compass' | 'camera' | 'audio' | 'general';
-  unlocked: boolean;
-  unlockedAt?: Date;
-  condition: string;
+  id: string
+  title: string
+  description: string
+  category: 'gyro' | 'compass' | 'camera' | 'microphone' | 'general'
+  unlocked: boolean
+  unlockedAt?: Date
+  condition: string
 }
 
 interface HintContextType {
-  hints: Hint[];
-  unlockedHints: Hint[];
-  unlockHint: (hintId: string) => void;
-  checkGyroAchievement: (maxSpeed: number) => void;
-  loadHints: () => Promise<void>;
-  saveHints: () => Promise<void>;
+  hints: Hint[]
+  unlockedHints: Hint[]
+  unlockHint: (hintId: string) => void
+  checkGyroAchievement: (maxSpeed: number) => void
+  loadHints: () => Promise<void>
+  saveHints: () => Promise<void>
 }
 
-const HintContext = createContext<HintContextType | undefined>(undefined);
+const HintContext = createContext<HintContextType | undefined>(undefined)
 
 const DEFAULT_HINTS: Hint[] = [
   {
@@ -56,19 +56,19 @@ const DEFAULT_HINTS: Hint[] = [
     condition: 'Access camera module'
   },
   {
-    id: 'audio-listener',
+    id: 'microphone-listener',
     title: 'Sound Detective',
     description: 'You\'ve been monitoring audio levels. The microphone can detect sound patterns and frequencies.',
-    category: 'audio',
+    category: 'microphone',
     unlocked: false,
     condition: 'Monitor audio for 10+ seconds'
   }
-];
+]
 
 export function HintProvider({ children }: { children: React.ReactNode }) {
-  const [hints, setHints] = useState<Hint[]>(DEFAULT_HINTS);
+  const [hints, setHints] = useState<Hint[]>(DEFAULT_HINTS)
 
-  const unlockedHints = hints.filter(hint => hint.unlocked);
+  const unlockedHints = hints.filter(hint => hint.unlocked)
 
   const unlockHint = (hintId: string) => {
     setHints(prevHints => 
@@ -77,45 +77,45 @@ export function HintProvider({ children }: { children: React.ReactNode }) {
           ? { ...hint, unlocked: true, unlockedAt: new Date() }
           : hint
       )
-    );
-  };
+    )
+  }
 
   const checkGyroAchievement = (maxSpeed: number) => {
     if (maxSpeed >= 75) {
-      unlockHint('gyro-speed-demon');
+      unlockHint('gyro-speed-demon')
     }
     if (maxSpeed >= 50) {
-      unlockHint('gyro-first-unlock');
+      unlockHint('gyro-first-unlock')
     }
-  };
+  }
 
   const loadHints = async () => {
     try {
-      const savedHints = await AsyncStorage.getItem('game_hints');
+      const savedHints = await AsyncStorage.getItem('game_hints')
       if (savedHints) {
-        const parsedHints = JSON.parse(savedHints);
-        setHints(parsedHints);
+        const parsedHints = JSON.parse(savedHints)
+        setHints(parsedHints)
       }
     } catch (error) {
-      console.error('Failed to load hints:', error);
+      console.error('Failed to load hints:', error)
     }
-  };
+  }
 
   const saveHints = async () => {
     try {
-      await AsyncStorage.setItem('game_hints', JSON.stringify(hints));
+      await AsyncStorage.setItem('game_hints', JSON.stringify(hints))
     } catch (error) {
-      console.error('Failed to save hints:', error);
+      console.error('Failed to save hints:', error)
     }
-  };
+  }
 
   useEffect(() => {
-    loadHints();
-  }, []);
+    loadHints()
+  }, [])
 
   useEffect(() => {
-    saveHints();
-  }, [hints]);
+    saveHints()
+  }, [hints])
 
   return (
     <HintContext.Provider value={{
@@ -128,13 +128,13 @@ export function HintProvider({ children }: { children: React.ReactNode }) {
     }}>
       {children}
     </HintContext.Provider>
-  );
+  )
 }
 
 export function useHints() {
-  const context = useContext(HintContext);
+  const context = useContext(HintContext)
   if (context === undefined) {
-    throw new Error('useHints must be used within a HintProvider');
+    throw new Error('useHints must be used within a HintProvider')
   }
-  return context;
+  return context
 } 

@@ -1,9 +1,9 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native'
 
 interface GyroControlsProps {
-  subscription: any;
-  onToggleGyroscope: () => void;
-  onResetMaxSpeed: () => void;
+  subscription: any
+  onToggleGyroscope: () => void
+  onResetMaxSpeed: () => void
 }
 
 export default function GyroControls({ subscription, onToggleGyroscope, onResetMaxSpeed }: GyroControlsProps) {
@@ -25,5 +25,5 @@ export default function GyroControls({ subscription, onToggleGyroscope, onResetM
         <Text className="text-white text-center font-mono">RESET</Text>
       </TouchableOpacity>
     </View>
-  );
+  )
 } 

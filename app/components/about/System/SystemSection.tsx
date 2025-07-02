@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native'
 
 export default function SystemSection() {
   return (
@@ -15,5 +15,5 @@ export default function SystemSection() {
         <Text className="text-gray-400 text-sm">ARMED</Text>
       </TouchableOpacity>
     </View>
-  );
+  )
 } 

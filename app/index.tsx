@@ -4,7 +4,6 @@ import AboutScreen from './components/about/AboutScreen'
 import CoreVitalsScreen from './components/about/CoreVitalsScreen'
 import SystemModule from './components/about/System/SystemModule'
 import AccelerometerModule from './components/accelerometer/AccelerometerModule'
-import AudioModule from './components/audio/AudioModule'
 import PhoneCameraModule from './components/camera/PhoneCameraModule'
 import ClockModule from './components/clock/ClockModule'
 import CompassModule from './components/compass/CompassModule'
@@ -14,20 +13,20 @@ import HomeScreen from './components/HomeScreen'
 import InfectionSequence from './components/InfectionSequence'
 import LoginScreen from './components/login/LoginScreen'
 import LogsModule from './components/LogsModule'
+import MicrophoneModule from './components/microphone/MicrophoneModule'
+import MusicModule from './components/music/MusicModule'
 import TerminalModule from './components/TerminalModule'
 import FakeGameMenu from './components/tower-defense/FakeGameMenu'
 import TowerDefenseGame from './components/tower-defense/TowerDefenseGame'
-import BugScuttleAnimation from './components/ui/BugScuttleAnimation'
 import WifiModule from './components/wifi/WifiModule'
 import { useAuth } from './contexts/AuthContext'
-import { HintProvider } from './contexts/HintContext'
 import { ModuleName, ModuleUnlockProvider, useModuleUnlock } from './contexts/ModuleUnlockContext'
 import { startInfectionSequence } from './utils/infectionSequence'
 
 function AppContent() {
   const { isAuthenticated, isLoading } = useAuth()
-  const { unlockModule, showBugScuttle } = useModuleUnlock()
-  const [gameState, setGameState] = useState('menu') // 'menu', 'infected', 'tower-defense', 'home', 'logs', 'terminal', 'phonecamera', 'audio', 'system', 'compass', 'gyro', 'help', 'clock', 'about', 'core-vitals', 'accelerometer', 'wifi'
+  const { unlockModule } = useModuleUnlock()
+  const [gameState, setGameState] = useState('menu') // 'menu', 'infected', 'tower-defense', 'home', 'logs', 'terminal', 'phonecamera', 'microphone', 'system', 'compass', 'gyro', 'help', 'clock', 'about', 'core-vitals', 'accelerometer', 'wifi', 'music'
   const [glitchLevel, setGlitchLevel] = useState(0)
   const [terminalText, setTerminalText] = useState('')
   const [fadeAnim] = useState(new Animated.Value(1))
@@ -49,7 +48,7 @@ function AppContent() {
         setGlitchLevel(0)
       }
     )
-  };
+  }
 
   const navigate = (destination: string) => {
     if (destination === 'self-destruct') {
@@ -78,7 +77,6 @@ function AppContent() {
     return (
       <View className="flex-1">
         <FakeGameMenu onStartGame={() => setGameState('tower-defense')} />
-        <BugScuttleAnimation visible={showBugScuttle} onComplete={() => {}} />
       </View>
     )
   }
@@ -91,7 +89,6 @@ function AppContent() {
           terminalText={terminalText}
           fadeAnim={fadeAnim}
         />
-        <BugScuttleAnimation visible={showBugScuttle} onComplete={() => {}} />
       </View>
     )
   }
@@ -100,7 +97,6 @@ function AppContent() {
     return (
       <View className="flex-1">
         <TowerDefenseGame onEmergencyMode={handleTowerDefenseComplete} />
-        <BugScuttleAnimation visible={showBugScuttle} onComplete={() => {}} />
       </View>
     )
   }
@@ -109,7 +105,6 @@ function AppContent() {
     return (
       <View className="flex-1">
         <HomeScreen onOpenModule={handleOpenModule} />
-        <BugScuttleAnimation visible={showBugScuttle} onComplete={() => {}} />
       </View>
     )
   }
@@ -118,7 +113,6 @@ function AppContent() {
     return (
       <View className="flex-1">
         <LogsModule onGoHome={() => navigate('home')} />
-        <BugScuttleAnimation visible={showBugScuttle} onComplete={() => {}} />
       </View>
     )
   }
@@ -127,7 +121,6 @@ function AppContent() {
     return (
       <View className="flex-1">
         <TerminalModule onGoHome={() => navigate('home')} />
-        <BugScuttleAnimation visible={showBugScuttle} onComplete={() => {}} />
       </View>
     )
   }
@@ -136,16 +129,22 @@ function AppContent() {
     return (
       <View className="flex-1">
         <PhoneCameraModule onGoHome={() => navigate('home')} />
-        <BugScuttleAnimation visible={showBugScuttle} onComplete={() => {}} />
       </View>
     )
   }
 
-  if (gameState === 'audio') {
+  if (gameState === 'microphone') {
     return (
       <View className="flex-1">
-        <AudioModule onGoHome={() => navigate('home')} />
-        <BugScuttleAnimation visible={showBugScuttle} onComplete={() => {}} />
+        <MicrophoneModule onGoHome={() => navigate('home')} />
+      </View>
+    )
+  }
+
+  if (gameState === 'music') {
+    return (
+      <View className="flex-1">
+        <MusicModule onGoHome={() => navigate('home')} />
       </View>
     )
   }
@@ -154,25 +153,22 @@ function AppContent() {
     return (
       <View className="flex-1">
         <CompassModule onGoHome={() => navigate('home')} />
-        <BugScuttleAnimation visible={showBugScuttle} onComplete={() => {}} />
       </View>
-    );
+    )
   }
 
   if (gameState === 'gyro') {
     return (
       <View className="flex-1">
         <GyroModule onGoHome={() => navigate('home')} />
-        <BugScuttleAnimation visible={showBugScuttle} onComplete={() => {}} />
       </View>
-    );
+    )
   }
 
   if (gameState === 'help') {
     return (
       <View className="flex-1">
         <HelpModule onGoHome={() => navigate('home')} />
-        <BugScuttleAnimation visible={showBugScuttle} onComplete={() => {}} />
       </View>
     )
   }
@@ -181,7 +177,6 @@ function AppContent() {
     return (
       <View className="flex-1">
         <ClockModule onGoHome={() => navigate('home')} />
-        <BugScuttleAnimation visible={showBugScuttle} onComplete={() => {}} />
       </View>
     )
   }
@@ -190,7 +185,6 @@ function AppContent() {
     return (
       <View className="flex-1">
         <AccelerometerModule onGoHome={() => navigate('home')} />
-        <BugScuttleAnimation visible={showBugScuttle} onComplete={() => {}} />
       </View>
     )
   }
@@ -199,7 +193,6 @@ function AppContent() {
     return (
       <View className="flex-1">
         <WifiModule onGoHome={() => navigate('home')} />
-        <BugScuttleAnimation visible={showBugScuttle} onComplete={() => {}} />
       </View>
     )
   }
@@ -213,7 +206,6 @@ function AppContent() {
           onGoToCoreVitals={() => navigate('core-vitals')}
           onSelfDestruct={() => navigate('self-destruct')}
         />
-        <BugScuttleAnimation visible={showBugScuttle} onComplete={() => {}} />
       </View>
     )
   }
@@ -222,7 +214,6 @@ function AppContent() {
     return (
       <View className="flex-1">
         <AboutScreen onGoBack={() => navigate('system')} />
-        <BugScuttleAnimation visible={showBugScuttle} onComplete={() => {}} />
       </View>
     )
   }
@@ -231,7 +222,6 @@ function AppContent() {
     return (
       <View className="flex-1">
         <CoreVitalsScreen onGoBack={() => navigate('system')} />
-        <BugScuttleAnimation visible={showBugScuttle} onComplete={() => {}} />
       </View>
     )
   }
@@ -242,9 +232,7 @@ function AppContent() {
 export default function Index() {
   return (
     <ModuleUnlockProvider>
-      <HintProvider>
-        <AppContent />
-      </HintProvider>
+      <AppContent />
     </ModuleUnlockProvider>
   )
 }

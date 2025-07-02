@@ -1,7 +1,7 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native'
 
 interface FakeGameMenuProps {
-  onStartGame: () => void;
+  onStartGame: () => void
 }
 
 export default function FakeGameMenu({ onStartGame }: FakeGameMenuProps) {
@@ -34,5 +34,5 @@ export default function FakeGameMenu({ onStartGame }: FakeGameMenuProps) {
         </View>
       </View>
     </View>
-  );
+  )
 } 

@@ -1,14 +1,33 @@
-import { useEffect, useRef, useState } from 'react';
-import { Animated, Text, TouchableOpacity, View } from 'react-native';
-import CircuitBoard from './CircuitBoard';
-import GameControls from './GameControls';
-import GameHeader from './GameHeader';
-import GameOverScreen from './GameOverScreen';
-import TowerSelector from './TowerSelector';
-import { Bug, GameState } from './types';
+import { useEffect, useRef, useState } from 'react'
+import { Animated, Text, TouchableOpacity, View } from 'react-native'
+import CircuitBoard, { Bug, Tower } from './CircuitBoard'
+import GameControls from './GameControls'
+import GameHeader from './GameHeader'
+import TowerSelector from './TowerSelector'
+
+// Import shared coordinate types
+interface Point2D {
+  x: number
+  y: number
+}
+
+interface GameState {
+  level: number
+  lives: number
+  money: number
+  bugs: Bug[]
+  towers: Tower[]
+  wave: number
+  waveInProgress: boolean
+}
+
+export interface CircuitPathPoint {
+  x: number
+  y: number
+}
 
 interface TowerDefenseGameProps {
-  onEmergencyMode: () => void;
+  onEmergencyMode: () => void
 }
 
 export default function TowerDefenseGame({ onEmergencyMode }: TowerDefenseGameProps) {
@@ -20,30 +39,29 @@ export default function TowerDefenseGame({ onEmergencyMode }: TowerDefenseGamePr
     towers: [],
     wave: 1,
     waveInProgress: false,
-    gameOver: false
-  });
+  })
 
-  const [selectedTower, setSelectedTower] = useState<'defender' | null>(null);
-  const [gameTime, setGameTime] = useState(0);
-  const [corePulse, setCorePulse] = useState(0);
-  const corePulseRef = useRef(0);
-  const corePulseAnim = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [lastPlaced, setLastPlaced] = useState<{ x: number; y: number } | null>(null);
+  const [selectedTower, setSelectedTower] = useState<'defender' | null>(null)
+  const [gameTime, setGameTime] = useState(0)
+  const [corePulse, setCorePulse] = useState(0)
+  const corePulseRef = useRef(0)
+  const corePulseAnim = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [lastPlaced, setLastPlaced] = useState<Point2D | null>(null)
 
   // Tower placement positions
-  const towerPositions = [
+  const towerPositions: Point2D[] = [
     { x: 25, y: 75 },
     { x: 100, y: 25 },
     { x: 200, y: 75 },
     { x: 275, y: 125 },
-  ];
+  ]
 
-  const TOWER_COST = 50;
-  const TOWER_DAMAGE = 25;
-  const TOWER_RANGE = 60;
+  const TOWER_COST = 50
+  const TOWER_DAMAGE = 25
+  const TOWER_RANGE = 60
 
   // Circuit board path coordinates (simplified path)
-  const circuitPath = [
+  const circuitPath: Point2D[] = [
     { x: 0, y: 100 },   // Start
     { x: 50, y: 100 },  // Right
     { x: 50, y: 50 },   // Up
@@ -52,85 +70,85 @@ export default function TowerDefenseGame({ onEmergencyMode }: TowerDefenseGamePr
     { x: 250, y: 150 }, // Right
     { x: 250, y: 100 }, // Up
     { x: 300, y: 100 }, // Right (end)
-  ];
-  const coreX = circuitPath[circuitPath.length - 1].x;
-  const coreY = circuitPath[circuitPath.length - 1].y;
+  ]
+  const coreX = circuitPath[circuitPath.length - 1].x
+  const coreY = circuitPath[circuitPath.length - 1].y
 
   // Animate core pulse
   useEffect(() => {
     corePulseAnim.current = setInterval(() => {
-      corePulseRef.current += 0.025;
-      setCorePulse(corePulseRef.current % 1);
-    }, 30);
-    return () => { if (corePulseAnim.current) clearInterval(corePulseAnim.current); };
-  }, []);
+      corePulseRef.current += 0.025
+      setCorePulse(corePulseRef.current % 1)
+    }, 30)
+    return () => { if (corePulseAnim.current) clearInterval(corePulseAnim.current) }
+  }, [])
 
   useEffect(() => {
     const gameLoop = setInterval(() => {
-      setGameTime(prev => prev + 1);
-      updateGame();
-    }, 100);
-    return () => clearInterval(gameLoop);
-  }, [gameState]);
+      setGameTime(prev => prev + 1)
+      updateGame()
+    }, 100)
+    return () => clearInterval(gameLoop)
+  }, [gameState])
 
   // Projectiles/flash effect state
-  const [projectiles, setProjectiles] = useState<{x: number, y: number, id: number}[]>([]);
+  const [projectiles, setProjectiles] = useState<(Point2D & { id: number })[]>([])
 
   const updateGame = () => {
     setGameState(prev => {
-      let newState = { ...prev };
+      let newState = { ...prev }
 
       // Update bug positions
       newState.bugs = prev.bugs.map(bug => {
-        const newBug = { ...bug };
-        newBug.pathIndex += bug.speed * 0.018; // SLOWER
+        const newBug = { ...bug }
+        newBug.pathIndex += bug.speed * 0.018 // SLOWER
         
         // Check if bug reached the core
         if (newBug.pathIndex >= circuitPath.length - 1) {
           // Emergency bootup
-          setTimeout(() => onEmergencyMode(), 500);
-          return null;
+          setTimeout(() => onEmergencyMode(), 500)
+          return null
         }
         
         // Update position
-        const currentPoint = circuitPath[Math.floor(newBug.pathIndex)];
-        const nextPoint = circuitPath[Math.floor(newBug.pathIndex) + 1];
-        const progress = newBug.pathIndex - Math.floor(newBug.pathIndex);
+        const currentPoint = circuitPath[Math.floor(newBug.pathIndex)]
+        const nextPoint = circuitPath[Math.floor(newBug.pathIndex) + 1]
+        const progress = newBug.pathIndex - Math.floor(newBug.pathIndex)
         
-        newBug.x = currentPoint.x + (nextPoint.x - currentPoint.x) * progress;
-        newBug.y = currentPoint.y + (nextPoint.y - currentPoint.y) * progress;
+        newBug.x = currentPoint.x + (nextPoint.x - currentPoint.x) * progress
+        newBug.y = currentPoint.y + (nextPoint.y - currentPoint.y) * progress
         
-        return newBug;
-      }).filter(Boolean) as Bug[];
+        return newBug
+      }).filter(Boolean) as Bug[]
 
       // Tower shooting
       newState.towers = prev.towers.map(tower => {
-        const newTower = { ...tower };
+        const newTower = { ...tower }
         // Find bugs in range
         const bugsInRange = newState.bugs.filter(bug => {
           const distance = Math.sqrt(
             Math.pow(bug.x - tower.x, 2) + Math.pow(bug.y - tower.y, 2)
-          );
-          return distance <= TOWER_RANGE;
-        });
+          )
+          return distance <= TOWER_RANGE
+        })
         if (bugsInRange.length > 0 && gameTime - tower.lastShot > 10) {
           // Shoot at closest bug
-          const target = bugsInRange[0];
-          target.health -= TOWER_DAMAGE;
-          newTower.lastShot = gameTime;
+          const target = bugsInRange[0]
+          target.health -= TOWER_DAMAGE
+          newTower.lastShot = gameTime
           // Add projectile/flash effect
-          setProjectiles(prev => [...prev, { x: target.x, y: target.y, id: Date.now() + Math.random() }]);
+          setProjectiles(prev => [...prev, { x: target.x, y: target.y, id: Date.now() + Math.random() }])
           if (target.health <= 0) {
-            newState.money += 10;
-            newState.bugs = newState.bugs.filter(b => b.id !== target.id);
+            newState.money += 10
+            newState.bugs = newState.bugs.filter(b => b.id !== target.id)
           }
         }
-        return newTower;
-      });
+        return newTower
+      })
 
       // Check for game over (not used, handled by core breach)
       if (newState.lives <= 0) {
-        newState.gameOver = true;
+        // TODO game over?
         if (newState.level === 1) {
           return {
             ...newState,
@@ -141,28 +159,27 @@ export default function TowerDefenseGame({ onEmergencyMode }: TowerDefenseGamePr
             towers: [],
             wave: 1,
             waveInProgress: false,
-            gameOver: false
-          };
+          }
         } else {
-          setTimeout(() => onEmergencyMode(), 1000);
+          setTimeout(() => onEmergencyMode(), 1000)
         }
       }
 
       // Spawn waves
       if (!newState.waveInProgress && newState.bugs.length === 0) {
-        spawnWave(newState);
+        spawnWave(newState)
       }
 
-      return newState;
-    });
-  };
+      return newState
+    })
+  }
 
   const spawnWave = (state: GameState) => {
-    const waveSize = state.level === 1 ? 5 : 15;
+    const waveSize = state.level === 1 ? 5 : 15
     // Make bugs even faster
-    const bugSpeed = state.level === 1 ? 2.5 : 5.0;
-    const bugHealth = state.level === 1 ? 50 : 100;
-    const newBugs: Bug[] = [];
+    const bugSpeed = state.level === 1 ? 2.5 : 5.0
+    const bugHealth = state.level === 1 ? 50 : 100
+    const newBugs: Bug[] = []
     for (let i = 0; i < waveSize; i++) {
       newBugs.push({
         id: Date.now() + i,
@@ -172,15 +189,15 @@ export default function TowerDefenseGame({ onEmergencyMode }: TowerDefenseGamePr
         maxHealth: bugHealth,
         pathIndex: 0,
         speed: i === 0 ? bugSpeed * 2 : bugSpeed // First bug is even faster
-      });
+      })
     }
-    state.bugs = newBugs;
-    state.waveInProgress = true;
-    state.wave += 1;
-  };
+    state.bugs = newBugs
+    state.waveInProgress = true
+    state.wave += 1
+  }
 
   const placeTower = (x: number, y: number) => {
-    const spotTaken = gameState.towers.some(tower => tower.x === x && tower.y === y);
+    const spotTaken = gameState.towers.some(tower => tower.x === x && tower.y === y)
     if (selectedTower && gameState.money >= TOWER_COST && !spotTaken) {
       setGameState(prev => ({
         ...prev,
@@ -194,36 +211,32 @@ export default function TowerDefenseGame({ onEmergencyMode }: TowerDefenseGamePr
           lastShot: 0
         }],
         money: prev.money - TOWER_COST
-      }));
-      setLastPlaced({ x, y });
-      setTimeout(() => setLastPlaced(null), 400);
-      setSelectedTower(null);
+      }))
+      setLastPlaced({ x, y } as Point2D)
+      setTimeout(() => setLastPlaced(null), 400)
+      setSelectedTower(null)
     }
-  };
+  }
 
   const startWave = () => {
     if (!gameState.waveInProgress && gameState.bugs.length === 0) {
-      spawnWave(gameState);
+      spawnWave(gameState)
     }
-  };
+  }
 
   // Remove projectiles after a short time
   useEffect(() => {
     if (projectiles.length > 0) {
       const timeout = setTimeout(() => {
-        setProjectiles(prev => prev.slice(1));
-      }, 200);
-      return () => clearTimeout(timeout);
+        setProjectiles(prev => prev.slice(1))
+      }, 200)
+      return () => clearTimeout(timeout)
     }
-  }, [projectiles]);
+  }, [projectiles])
 
   // Exit button handler
   const handleExit = () => {
-    window.location.reload(); // For now, reloads to login (can be improved)
-  };
-
-  if (gameState.gameOver) {
-    return <GameOverScreen level={gameState.level} />;
+    window.location.reload() // For now, reloads to login (can be improved)
   }
 
   return (
@@ -277,5 +290,5 @@ export default function TowerDefenseGame({ onEmergencyMode }: TowerDefenseGamePr
         onStartWave={startWave}
       />
     </View>
-  );
+  )
 } 

@@ -1,4 +1,4 @@
-import { Text, View } from 'react-native';
+import { Text, View } from 'react-native'
 
 export default function NetworkHints() {
   return (
@@ -9,5 +9,5 @@ export default function NetworkHints() {
       <Text className="text-yellow-400 text-xs font-mono mb-1">• 5GHz networks are faster but shorter range</Text>
       <Text className="text-yellow-400 text-xs font-mono">• Some networks may be hidden from normal scans</Text>
     </View>
-  );
+  )
 } 

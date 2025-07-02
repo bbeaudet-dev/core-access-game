@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useState } from 'react'
+import { Text, TextInput, TouchableOpacity, View } from 'react-native'
 
 interface TimerProps {
-  isActive: boolean;
-  onToggle: () => void;
-  onReset: () => void;
-  onSetTime: (minutes: number, seconds: number) => void;
-  timeLeft: number;
-  totalTime: number;
+  isActive: boolean
+  onToggle: () => void
+  onReset: () => void
+  onSetTime: (minutes: number, seconds: number) => void
+  timeLeft: number
+  totalTime: number
 }
 
 export default function Timer({
@@ -18,22 +18,22 @@ export default function Timer({
   timeLeft,
   totalTime
 }: TimerProps) {
-  const [minutes, setMinutes] = useState('0');
-  const [seconds, setSeconds] = useState('0');
+  const [minutes, setMinutes] = useState('0')
+  const [seconds, setSeconds] = useState('0')
 
   const formatTime = (ms: number) => {
-    const minutes = Math.floor(ms / 60000);
-    const seconds = Math.floor((ms % 60000) / 1000);
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
+    const minutes = Math.floor(ms / 60000)
+    const seconds = Math.floor((ms % 60000) / 1000)
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+  }
 
   const handleSetTime = () => {
-    const mins = parseInt(minutes) || 0;
-    const secs = parseInt(seconds) || 0;
-    onSetTime(mins, secs);
-  };
+    const mins = parseInt(minutes) || 0
+    const secs = parseInt(seconds) || 0
+    onSetTime(mins, secs)
+  }
 
-  const progress = totalTime > 0 ? (timeLeft / totalTime) * 100 : 0;
+  const progress = totalTime > 0 ? (timeLeft / totalTime) * 100 : 0
 
   return (
     <View className="bg-gray-900 p-3 rounded-lg my-1">
@@ -101,5 +101,5 @@ export default function Timer({
         </TouchableOpacity>
       </View>
     </View>
-  );
+  )
 } 

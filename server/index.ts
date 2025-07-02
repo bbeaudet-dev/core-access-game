@@ -15,7 +15,7 @@ app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:8081', 'exp://localhost:8081'],
   credentials: true
 }))
-app.use(express.json());
+app.use(express.json())
 
 app.post('/api/auth/signin', async (req: Request, res: Response) => {
   try {
@@ -32,7 +32,7 @@ app.post('/api/auth/signin', async (req: Request, res: Response) => {
     console.error('Signin error:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
-});
+})
 
 app.post('/api/auth/signup', async (req: Request, res: Response) => {
   try {
@@ -56,7 +56,7 @@ app.post('/api/auth/signup', async (req: Request, res: Response) => {
       emailVerified: false,
       createdAt: new Date(),
       updatedAt: new Date(),
-    };
+    }
     await db.insert(users).values(newUser)
     res.status(201).json({ user: { id: newUser.id, email: newUser.email, name: newUser.name } })
   } catch (error) {

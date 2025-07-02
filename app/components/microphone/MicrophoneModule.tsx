@@ -1,94 +1,94 @@
-import { Audio } from 'expo-av';
-import { useEffect, useRef, useState } from 'react';
-import { Animated, Text, View } from 'react-native';
-import HomeButton from '../ui/HomeButton';
-import ModuleHeader from '../ui/ModuleHeader';
-import PhoneFrame from '../ui/PhoneFrame';
-import AudioLevelIndicator from './AudioLevelIndicator';
-import AudioWaveform from './AudioWaveform';
+import { Audio } from 'expo-av'
+import { useEffect, useRef, useState } from 'react'
+import { Animated, Text, View } from 'react-native'
+import HomeButton from '../ui/HomeButton'
+import ModuleHeader from '../ui/ModuleHeader'
+import PhoneFrame from '../ui/PhoneFrame'
+import MicrophoneLevelIndicator from './MicrophoneLevelIndicator'
+import MicrophoneWaveform from './MicrophoneWaveform'
 
-interface AudioModuleProps {
-  onGoHome: () => void;
+interface MicrophoneModuleProps {
+  onGoHome: () => void
 }
 
-export default function AudioModule({ onGoHome }: AudioModuleProps) {
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [recording, setRecording] = useState<Audio.Recording | null>(null);
-  const [audioLevel, setAudioLevel] = useState(0);
-  const [isListening, setIsListening] = useState(false);
-  const audioLevelAnim = useRef(new Animated.Value(0)).current;
+export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null)
+  const [recording, setRecording] = useState<Audio.Recording | null>(null)
+  const [microphoneLevel, setAudioLevel] = useState(0)
+  const [isListening, setIsListening] = useState(false)
+  const microphoneLevelAnim = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
     const requestPermissions = async () => {
       try {
-        const { status } = await Audio.requestPermissionsAsync();
-        setHasPermission(status === 'granted');
+        const { status } = await Audio.requestPermissionsAsync()
+        setHasPermission(status === 'granted')
         
         if (status === 'granted') {
           await Audio.setAudioModeAsync({
             allowsRecordingIOS: true,
             playsInSilentModeIOS: true,
-          });
+          })
         }
       } catch (error) {
-        console.error('Failed to get audio permissions:', error);
-        setHasPermission(false);
+        console.error('Failed to get microphone permissions:', error)
+        setHasPermission(false)
       }
-    };
+    }
 
-    requestPermissions();
-  }, []);
+    requestPermissions()
+  }, [])
 
   useEffect(() => {
     if (hasPermission && !isListening) {
-      startListening();
+      startListening()
     }
-  }, [hasPermission]);
+  }, [hasPermission])
 
   const startListening = async () => {
     try {
-      setIsListening(true);
+      setIsListening(true)
       
-      // Start recording to get audio levels
+      // Start recording to get microphone levels
       const { recording } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY,
         (status) => {
           // This callback gives us audio level information
           if (status.isRecording) {
-            const level = status.metering || 0;
-            setAudioLevel(level);
+            const level = status.metering || 0
+            setAudioLevel(level)
             
             // Animate the audio level
-            Animated.timing(audioLevelAnim, {
+            Animated.timing(microphoneLevelAnim, {
               toValue: Math.min(level / 100, 1),
               duration: 100,
               useNativeDriver: false,
-            }).start();
+            }).start()
           }
         },
         100 // Update every 100ms
-      );
+      )
       
-      setRecording(recording);
+      setRecording(recording)
     } catch (error) {
-      console.error('Failed to start recording:', error);
-      setIsListening(false);
+      console.error('Failed to start recording:', error)
+      setIsListening(false)
     }
-  };
+  }
 
   const stopListening = async () => {
     if (recording) {
-      await recording.stopAndUnloadAsync();
-      setRecording(null);
+      await recording.stopAndUnloadAsync()
+      setRecording(null)
     }
-    setIsListening(false);
-  };
+    setIsListening(false)
+  }
 
   useEffect(() => {
     return () => {
-      stopListening();
-    };
-  }, []);
+      stopListening()
+    }
+  }, [])
 
   if (hasPermission === null) {
     return (
@@ -103,7 +103,7 @@ export default function AudioModule({ onGoHome }: AudioModuleProps) {
           <HomeButton active={true} onPress={onGoHome} />
         </View>
       </PhoneFrame>
-    );
+    )
   }
 
   if (hasPermission === false) {
@@ -120,7 +120,7 @@ export default function AudioModule({ onGoHome }: AudioModuleProps) {
           <HomeButton active={true} onPress={onGoHome} />
         </View>
       </PhoneFrame>
-    );
+    )
   }
 
   return (
@@ -138,13 +138,13 @@ export default function AudioModule({ onGoHome }: AudioModuleProps) {
               {/* Audio Level Indicator Component */}
               <View className="mb-4">
                 <Text className="text-green-400 text-center text-sm mb-2">Audio Level</Text>
-                <AudioLevelIndicator audioLevel={audioLevel} audioLevelAnim={audioLevelAnim} />
+                <MicrophoneLevelIndicator microphoneLevel={microphoneLevel} microphoneLevelAnim={microphoneLevelAnim} />
               </View>
               
               {/* Live Waveform Component */}
               <View className="mb-4">
                 <Text className="text-green-400 text-center text-sm mb-2">Live Waveform</Text>
-                <AudioWaveform audioLevel={audioLevel} />
+                <MicrophoneWaveform microphoneLevel={microphoneLevel} />
               </View>
             </View>
             
@@ -158,5 +158,5 @@ export default function AudioModule({ onGoHome }: AudioModuleProps) {
         <HomeButton active={true} onPress={onGoHome} />
       </View>
     </PhoneFrame>
-  );
+  )
 } 

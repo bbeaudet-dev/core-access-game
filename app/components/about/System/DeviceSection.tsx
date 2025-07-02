@@ -1,8 +1,8 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native'
 
 interface DeviceSectionProps {
-  onGoToAbout: () => void;
-  onGoToCoreVitals: () => void;
+  onGoToAbout: () => void
+  onGoToCoreVitals: () => void
 }
 
 export default function DeviceSection({ onGoToAbout, onGoToCoreVitals }: DeviceSectionProps) {
@@ -20,5 +20,5 @@ export default function DeviceSection({ onGoToAbout, onGoToCoreVitals }: DeviceS
         <Text className="text-gray-400 text-sm">⚠️ Unstable</Text>
       </TouchableOpacity>
     </View>
-  );
+  )
 } 

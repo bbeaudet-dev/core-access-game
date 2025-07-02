@@ -1,29 +1,26 @@
-import { useEffect, useRef } from 'react';
-import { Animated, Dimensions, View } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
+import { useEffect, useRef } from 'react'
+import { Animated, Dimensions, View } from 'react-native'
+import Svg, { Circle, Path } from 'react-native-svg'
 
 interface BugScuttleAnimationProps {
-  visible: boolean;
-  onComplete: () => void;
+  visible: boolean
+  onComplete: () => void
 }
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window')
 
 export default function BugScuttleAnimation({ visible, onComplete }: BugScuttleAnimationProps) {
-  const bugPosition = useRef(new Animated.ValueXY({ x: screenWidth / 2, y: screenHeight / 2 })).current;
-  const bugScale = useRef(new Animated.Value(0)).current;
-  const bugOpacity = useRef(new Animated.Value(0)).current;
+  const bugPosition = useRef(new Animated.ValueXY({ x: screenWidth / 2, y: screenHeight / 2 })).current
+  const bugScale = useRef(new Animated.Value(0)).current
+  const bugOpacity = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
     if (visible) {
       // Start animation
-      bugScale.setValue(0);
-      bugOpacity.setValue(0);
-      bugPosition.setValue({ x: screenWidth / 2, y: screenHeight / 2 });
-
-      // Animate bug appearing and scuttling out
+      bugScale.setValue(0)
+      bugOpacity.setValue(0)
+      bugPosition.setValue({ x: screenWidth / 2, y: screenHeight / 2 })
       Animated.sequence([
-        // Appear with scale and opacity
         Animated.parallel([
           Animated.timing(bugScale, {
             toValue: 1,
@@ -36,12 +33,14 @@ export default function BugScuttleAnimation({ visible, onComplete }: BugScuttleA
             useNativeDriver: true,
           }),
         ]),
+
         // Scuttle to the right edge
         Animated.timing(bugPosition, {
           toValue: { x: screenWidth + 50, y: screenHeight / 2 },
           duration: 2000,
           useNativeDriver: true,
         }),
+        
         // Fade out
         Animated.timing(bugOpacity, {
           toValue: 0,
@@ -49,15 +48,16 @@ export default function BugScuttleAnimation({ visible, onComplete }: BugScuttleA
           useNativeDriver: true,
         }),
       ]).start(() => {
-        onComplete();
-      });
+        onComplete()
+      })
     }
-  }, [visible]);
+  }, [visible])
 
-  if (!visible) return null;
+  if (!visible) return null
 
+  // FIXME: Bug scuttle animation is not working as expected
   return (
-    <View className="absolute inset-0 pointer-events-none z-50">
+    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none', zIndex: 50 }}>
       <Animated.View
         style={{
           position: 'absolute',
@@ -89,5 +89,5 @@ export default function BugScuttleAnimation({ visible, onComplete }: BugScuttleA
         </Svg>
       </Animated.View>
     </View>
-  );
+  )
 } 
