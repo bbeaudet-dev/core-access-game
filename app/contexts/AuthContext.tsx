@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { authApi } from '../lib/auth';
 
-// Basic user type - we'll expand this later
+// Basic user type
 export interface User {
   id: string;
   email: string;
@@ -18,12 +18,9 @@ interface AuthState {
 // Authentication context interface
 interface AuthContextType extends AuthState {
   signIn: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
   signUp: (email: string, password: string, name?: string) => Promise<void>;
   completeAuth: () => void;
 }
-
-// Create the context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Provider component
@@ -69,27 +66,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  // Sign out function
-  const signOut = async () => {
-    setAuthState(prev => ({ ...prev, isLoading: true }));
-    
-    try {
-      // TODO: Implement actual sign out logic
-      console.log('Signing out');
-      
-      setAuthState({
-        user: null,
-        isLoading: false,
-        isAuthenticated: false,
-      });
-    } catch (error) {
-      console.error('Sign out error:', error);
-      setAuthState(prev => ({ ...prev, isLoading: false }));
-      throw error;
-    }
-  };
-
-  // Complete authentication (called after user presses Continue to Game)
+  // Complete authentication
   const completeAuth = () => {
     setAuthState(prev => ({ ...prev, isAuthenticated: true }));
   };
@@ -97,7 +74,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const value: AuthContextType = {
     ...authState,
     signIn,
-    signOut,
     signUp,
     completeAuth,
   };

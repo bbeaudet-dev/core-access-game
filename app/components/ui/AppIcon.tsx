@@ -1,14 +1,14 @@
-import { Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { Text, TouchableOpacity, View, ViewStyle } from 'react-native'
 
 interface AppIconProps {
-  icon: string;
-  name: string;
-  color: string;
-  onPress: () => void;
-  size?: 'sm' | 'md' | 'lg';
-  disabled?: boolean;
-  style?: ViewStyle;
-  badge?: string | number;
+  icon: string
+  name: string
+  color: string
+  onPress: () => void
+  size?: 'sm' | 'md' | 'lg'
+  disabled?: boolean
+  style?: ViewStyle
+  badge?: string | number
 }
 
 export default function AppIcon({ 
@@ -24,54 +24,54 @@ export default function AppIcon({
   const getSizeClasses = () => {
     switch (size) {
       case 'sm':
-        return 'w-12 h-12';
+        return 'w-12 h-12'
       case 'md':
-        return 'w-16 h-16';
+        return 'w-16 h-16'
       case 'lg':
-        return 'w-20 h-20';
+        return 'w-20 h-20'
       default:
-        return 'w-16 h-16';
+        return 'w-16 h-16'
     }
-  };
+  }
 
   const getIconSize = () => {
     switch (size) {
       case 'sm':
-        return 'text-lg';
+        return 'text-lg'
       case 'md':
-        return 'text-xl';
+        return 'text-xl'
       case 'lg':
-        return 'text-2xl';
+        return 'text-2xl'
       default:
-        return 'text-xl';
+        return 'text-xl'
     }
-  };
+  }
 
   const getTextSize = () => {
     switch (size) {
       case 'sm':
-        return 'text-xs';
+        return 'text-xs'
       case 'md':
-        return 'text-xs';
+        return 'text-xs'
       case 'lg':
-        return 'text-sm';
+        return 'text-sm'
       default:
-        return 'text-xs';
+        return 'text-xs'
     }
-  };
+  }
 
   const getBadgeSize = () => {
     switch (size) {
       case 'sm':
-        return 'text-xs';
+        return 'text-xs'
       case 'md':
-        return 'text-xs';
+        return 'text-xs'
       case 'lg':
-        return 'text-sm';
+        return 'text-sm'
       default:
-        return 'text-xs';
+        return 'text-xs'
     }
-  };
+  }
 
   return (
     <TouchableOpacity 
@@ -97,5 +97,5 @@ export default function AppIcon({
         {name}
       </Text>
     </TouchableOpacity>
-  );
+  )
 } 

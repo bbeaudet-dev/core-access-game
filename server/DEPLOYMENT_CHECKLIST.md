@@ -30,24 +30,6 @@
 - [ ] **Test health endpoint**: `https://your-app.onrender.com/health`
 - [ ] **Test from your mobile app**
 
-## Quick Commands
-
-```bash
-# Test local server
-npm run server
-
-# Test production build
-npm run server:prod
-
-# Check if everything is committed
-git status
-
-# Push to GitHub
-git add .
-git commit -m "Prepare for Render deployment"
-git push
-```
-
 ## Troubleshooting
 
 - **Build fails**: Check Render logs for missing dependencies

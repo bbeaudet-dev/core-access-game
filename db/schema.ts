@@ -1,6 +1,4 @@
-import { boolean, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
-// import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
-// import { z } from 'zod';
+import { boolean, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
 
 // Users table
 export const users = pgTable('users', {
@@ -11,7 +9,7 @@ export const users = pgTable('users', {
   emailVerified: boolean('email_verified').notNull().default(false),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
+})
 
 // Game progress table
 export const gameProgress = pgTable('game_progress', {
@@ -24,17 +22,4 @@ export const gameProgress = pgTable('game_progress', {
   lastPlayed: timestamp('last_played').notNull().defaultNow(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
-
-// Indexes can be added later if needed
-
-// Zod schemas for type safety
-// export const insertUserSchema = createInsertSchema(users);
-// export const selectUserSchema = createSelectSchema(users);
-// export const insertGameProgressSchema = createInsertSchema(gameProgress);
-// export const selectGameProgressSchema = createSelectSchema(gameProgress);
-
-// export type User = z.infer<typeof selectUserSchema>;
-// export type NewUser = z.infer<typeof insertUserSchema>;
-// export type GameProgress = z.infer<typeof selectGameProgressSchema>;
-// export type NewGameProgress = z.infer<typeof insertGameProgressSchema>; 
+})
