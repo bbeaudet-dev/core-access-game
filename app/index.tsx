@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Animated, View } from 'react-native'
+import "../global.css"
 import AboutScreen from './components/about/AboutScreen'
 import CoreVitalsScreen from './components/about/CoreVitalsScreen'
 import SystemModule from './components/about/System/SystemModule'

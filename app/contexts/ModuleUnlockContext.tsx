@@ -215,4 +215,6 @@ export function useModuleUnlock() {
     throw new Error('useModuleUnlock must be used within a ModuleUnlockProvider')
   }
   return context
-} 
+}
+
+export default ModuleUnlockProvider 
