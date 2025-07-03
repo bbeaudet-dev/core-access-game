@@ -29,9 +29,11 @@
     "nativewind",
     "neondatabase",
     "NEXTAUTH",
+    "Pressable",
     "Unlockable"
   ],
   "cSpell.ignoreWords": [
+    "Skia",
     "phonecamera"
   ]
 }

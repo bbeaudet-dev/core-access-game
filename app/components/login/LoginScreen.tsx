@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Animated, KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
+import GlitchText from '../ui/GlitchText';
+import GuestMode from './GuestMode';
+import LoginForm from './LoginForm';
+import SuccessScreen from './SuccessScreen';
 
 interface LoginScreenProps {
   onLoginSuccess: () => void;
@@ -122,46 +126,33 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     }
   };
 
-  if (success === 'signup') {
-    return (
-      <View className="flex-1 bg-black justify-center items-center px-6">
-        <Text className="text-green-400 text-2xl mb-4">Successfully signed up!</Text>
-        <TouchableOpacity
-          className="bg-green-600 p-4 rounded-lg"
-          onPress={handleContinue}
-        >
-          <Text className="text-white font-bold">Continue to Game</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+  const handleEmailChange = (text: string) => {
+    setEmail(text);
+    setError('');
+  };
 
-  if (success === 'signin') {
-    return (
-      <View className="flex-1 bg-black justify-center items-center px-6">
-        <Text className="text-green-400 text-2xl mb-4">Successfully signed in!</Text>
-        <TouchableOpacity
-          className="bg-green-600 p-4 rounded-lg"
-          onPress={handleContinue}
-        >
-          <Text className="text-white font-bold">Continue to Game</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+  const handlePasswordChange = (text: string) => {
+    setPassword(text);
+    setError('');
+  };
 
-  if (success === 'guest') {
+  const handleNameChange = (text: string) => {
+    setName(text);
+    setError('');
+  };
+
+  const handleToggleMode = () => {
+    setIsSignUp(!isSignUp);
+    setError('');
+  };
+
+  if (success !== 'none') {
     return (
-      <View className="flex-1 bg-black justify-center items-center px-6">
-        <Text className="text-green-400 text-2xl mb-4">Welcome, {guestUsername}!</Text>
-        <Text className="text-gray-400 text-center mb-6">Guest mode - progress will not be saved</Text>
-        <TouchableOpacity
-          className="bg-green-600 p-4 rounded-lg"
-          onPress={handleContinue}
-        >
-          <Text className="text-white font-bold">Continue to Game</Text>
-        </TouchableOpacity>
-      </View>
+      <SuccessScreen
+        type={success}
+        guestUsername={guestUsername}
+        onContinue={handleContinue}
+      />
     );
   }
 
@@ -172,134 +163,45 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
       keyboardVerticalOffset={80}
     >
       <ScrollView
-        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}
+        contentContainerStyle={{ 
+          flexGrow: 1, 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          paddingHorizontal: 24,
+          paddingTop: 50
+        }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="w-full max-w-sm">
-          {/* Animated Title */}
-          <View className="mb-8">
-            <Animated.Text 
-              className="text-4xl font-bold text-center"
-              style={{
-                fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
-                transform: [
-                  {
-                    translateX: glitchAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0, Math.random() * 4 - 2],
-                    }),
-                  },
-                ],
-                opacity: glitchAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [1, 0.8],
-                }),
-              }}
-            >
-              <Text style={{ color: GAME_WORDS[currentWordIndex].color }}>CORE_</Text>
-              <Text style={{ color: GAME_WORDS[currentWordIndex].color }}>
-                {GAME_WORDS[currentWordIndex].word}
-          </Text>
-            </Animated.Text>
-          </View>
-
-          <Text className="text-lg text-gray-400 text-center mb-8">
-            {isSignUp ? 'Create Account' : 'Sign In'}
-          </Text>
-
-          {error ? (
-            <Text className="text-red-400 text-center mb-4 px-4">
-              {error}
-            </Text>
-          ) : null}
-
-          {isSignUp && (
-            <TextInput
-              className="w-full bg-gray-800 text-white p-4 rounded-lg mb-4 border border-gray-600"
-              placeholder="Name (optional)"
-              placeholderTextColor="#666"
-              value={name}
-              onChangeText={(text) => {
-                setName(text);
-                setError('');
-              }}
-              returnKeyType="next"
-            />
-          )}
-
-          <TextInput
-            className="w-full bg-gray-800 text-white p-4 rounded-lg mb-4 border border-gray-600"
-            placeholder="Email"
-            placeholderTextColor="#666"
-            value={email}
-            onChangeText={(text) => {
-              setEmail(text);
-              setError('');
-            }}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            returnKeyType="next"
+        <View style={{ marginBottom: 40 }}>
+          <GlitchText 
+            text="CORE_ACCESS"
+            fontSize={32}
+            width={400}
+            height={200}
+            animationSpeed={100}
+            animationInterval={1800}
+            primaryColor="#E5484D"
+            secondaryColor="#12A594"
+            baseColor="white"
+            opacity={0.9}
           />
-
-          <TextInput
-            className="w-full bg-gray-800 text-white p-4 rounded-lg mb-6 border border-gray-600"
-            placeholder="Password"
-            placeholderTextColor="#666"
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              setError('');
-            }}
-            secureTextEntry
-            returnKeyType="done"
-          />
-
-          <TouchableOpacity
-            className={`w-full p-4 rounded-lg mb-4 ${
-              isLoading ? 'bg-gray-600' : 'bg-green-600'
-            }`}
-            onPress={handleSubmit}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text className="text-white font-bold text-center">
-                {isSignUp ? 'Sign Up' : 'Sign In'}
-              </Text>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            className="w-full p-4"
-            onPress={() => {
-              setIsSignUp(!isSignUp);
-              setError('');
-            }}
-          >
-            <Text className="text-gray-400 text-center">
-              {isSignUp 
-                ? 'Already have an account? Sign In' 
-                : "Don't have an account? Sign Up"
-              }
-            </Text>
-          </TouchableOpacity>
-
-          {/* Guest Mode Button */}
-          <View className="mt-6 pt-6 border-t border-gray-700">
-            <TouchableOpacity
-              className="w-full p-4 rounded-lg bg-gray-700"
-              onPress={handleGuestMode}
-            >
-              <Text className="text-gray-300 text-center font-bold">
-                Continue as Guest
-              </Text>
-            </TouchableOpacity>
-            <Text className="text-gray-500 text-center text-sm mt-2">
-              No account required - progress not saved
-            </Text>
-          </View>
         </View>
+        
+        <LoginForm
+          email={email}
+          password={password}
+          name={name}
+          isSignUp={isSignUp}
+          isLoading={isLoading}
+          error={error}
+          onEmailChange={handleEmailChange}
+          onPasswordChange={handlePasswordChange}
+          onNameChange={handleNameChange}
+          onSubmit={handleSubmit}
+          onToggleMode={handleToggleMode}
+        />
+
+        <GuestMode onGuestMode={handleGuestMode} />
       </ScrollView>
     </KeyboardAvoidingView>
   );
