@@ -18,6 +18,11 @@ const ALL_MODULES = [
   { name: 'logs', displayName: 'LOGS', icon: '📋', color: 'bg-red-500' },
   { name: 'help', displayName: 'HELP', icon: '💡', color: 'bg-blue-500' },
   { name: 'games', displayName: 'GAMES', icon: '🕹️', color: 'bg-red-500' },
+  { name: 'flashlight', displayName: 'FLASHLIGHT', icon: '🔦', color: 'bg-yellow-500' },
+  { name: 'battery', displayName: 'BATTERY', icon: '🔋', color: 'bg-green-500' },
+  { name: 'barometer', displayName: 'BAROMETER', icon: '💨', color: 'bg-blue-500' },
+  { name: 'maps', displayName: 'MAPS', icon: '🗺️', color: 'bg-purple-500' },
+  { name: 'calculator', displayName: 'CALCULATOR', icon: '🧮', color: 'bg-orange-500' },
 ];
 
 type ModuleName = typeof ALL_MODULES[number]['name'];

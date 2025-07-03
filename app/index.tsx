@@ -4,15 +4,20 @@ import AboutScreen from './components/about/AboutScreen';
 import CoreVitalsScreen from './components/about/CoreVitalsScreen';
 import SystemModule from './components/about/System/SystemModule';
 import AccelerometerModule from './components/accelerometer/AccelerometerModule';
+import BarometerModule from './components/barometer/BarometerModule';
+import BatteryModule from './components/battery/BatteryModule';
+import CalculatorModule from './components/calculator/CalculatorModule';
 import PhoneCameraModule from './components/camera/PhoneCameraModule';
 import ClockModule from './components/clock/ClockModule';
 import CompassModule from './components/compass/CompassModule';
+import FlashlightModule from './components/flashlight/FlashlightModule';
 import GyroModule from './components/gyro/GyroModule';
 import HelpModule from './components/help/HelpModule';
 import HomeScreen from './components/HomeScreen';
 import InfectionSequence from './components/InfectionSequence';
 import LoginScreen from './components/login/LoginScreen';
 import LogsModule from './components/LogsModule';
+import MapsModule from './components/maps/MapsModule';
 import MicrophoneModule from './components/microphone/MicrophoneModule';
 import MusicModule from './components/music/MusicModule';
 import TerminalModule from './components/TerminalModule';
@@ -23,7 +28,7 @@ import { useAuth } from './contexts/AuthContext';
 import { startInfectionSequence } from './utils/infectionSequence';
 
 // Define module names type
-type ModuleName = 'terminal' | 'system' | 'clock' | 'gyro' | 'compass' | 'microphone' | 'camera' | 'accelerometer' | 'wifi' | 'logs' | 'help' | 'music';
+type ModuleName = 'terminal' | 'system' | 'clock' | 'gyro' | 'compass' | 'microphone' | 'camera' | 'accelerometer' | 'wifi' | 'logs' | 'help' | 'music' | 'flashlight' | 'battery' | 'barometer' | 'maps' | 'calculator';
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
@@ -192,6 +197,46 @@ function AppContent() {
     return (
       <View className="flex-1">
         <WifiModule onGoHome={() => navigate('home')} />
+      </View>
+    );
+  }
+
+  if (gameState === 'flashlight') {
+    return (
+      <View className="flex-1">
+        <FlashlightModule onGoHome={() => navigate('home')} />
+      </View>
+    );
+  }
+
+  if (gameState === 'battery') {
+    return (
+      <View className="flex-1">
+        <BatteryModule onGoHome={() => navigate('home')} />
+      </View>
+    );
+  }
+
+  if (gameState === 'barometer') {
+    return (
+      <View className="flex-1">
+        <BarometerModule onGoHome={() => navigate('home')} />
+      </View>
+    );
+  }
+
+  if (gameState === 'maps') {
+    return (
+      <View className="flex-1">
+        <MapsModule onGoHome={() => navigate('home')} />
+      </View>
+    );
+  }
+
+  if (gameState === 'calculator') {
+    return (
+      <View className="flex-1">
+        <CalculatorModule onGoHome={() => navigate('home')} />
       </View>
     );
   }
