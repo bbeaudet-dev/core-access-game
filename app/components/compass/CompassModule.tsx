@@ -2,7 +2,7 @@ import { Magnetometer } from 'expo-sensors';
 import { useEffect, useState } from 'react';
 import { Dimensions, Platform, Text, View } from 'react-native';
 import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
-import { useModuleUnlock } from '../../contexts/ModuleUnlockContext';
+
 import HomeButton from '../ui/HomeButton';
 import ModuleHeader from '../ui/ModuleHeader';
 import PhoneFrame from '../ui/PhoneFrame';
@@ -17,7 +17,7 @@ export default function CompassModule({ onGoHome }: CompassModuleProps) {
   const [subscription, setSubscription] = useState<any>(null);
   const [isAvailable, setIsAvailable] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { unlockModule, isModuleUnlocked } = useModuleUnlock();
+  // All modules are now unlocked by default
 
   useEffect(() => {
     checkMagnetometerAvailability();
@@ -31,12 +31,7 @@ export default function CompassModule({ onGoHome }: CompassModuleProps) {
     return () => _unsubscribe();
   }, [isAvailable]);
 
-  // Unlock microphone module if facing North (within 10 degrees)
-  useEffect(() => {
-    if (isAvailable && Math.abs(heading) < 10 && !isModuleUnlocked('microphone')) {
-      unlockModule('microphone');
-    }
-  }, [heading, isAvailable, unlockModule, isModuleUnlocked]);
+  // Microphone module is now always unlocked, so no need for unlock logic
 
   const checkMagnetometerAvailability = async () => {
     try {

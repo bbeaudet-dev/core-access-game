@@ -20,13 +20,13 @@ import FakeGameMenu from './components/tower-defense/FakeGameMenu';
 import TowerDefenseGame from './components/tower-defense/TowerDefenseGame';
 import WifiModule from './components/wifi/WifiModule';
 import { useAuth } from './contexts/AuthContext';
-import { HintProvider } from './contexts/HintContext';
-import { ModuleName, ModuleUnlockProvider, useModuleUnlock } from './contexts/ModuleUnlockContext';
 import { startInfectionSequence } from './utils/infectionSequence';
+
+// Define module names type
+type ModuleName = 'terminal' | 'system' | 'clock' | 'gyro' | 'compass' | 'microphone' | 'camera' | 'accelerometer' | 'wifi' | 'logs' | 'help' | 'music';
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
-  const { unlockModule } = useModuleUnlock();
   const [gameState, setGameState] = useState('menu'); // 'menu', 'infected', 'tower-defense', 'home', 'logs', 'terminal', 'phone-camera', 'microphone', 'system', 'compass', 'gyro', 'help', 'clock', 'about', 'core-vitals', 'accelerometer', 'wifi', 'music'
   const [glitchLevel, setGlitchLevel] = useState(0);
   const [terminalText, setTerminalText] = useState('');
@@ -67,12 +67,7 @@ function AppContent() {
     }
   };
 
-  const handleOpenModule = (moduleName: ModuleName) => {
-    // Handle module unlocking logic here
-    if (moduleName === 'clock') {
-      unlockModule('gyro');
-    }
-    
+  const handleOpenModule = (moduleName: string) => {
     navigate(moduleName);
   };
 
@@ -108,7 +103,7 @@ function AppContent() {
   if (gameState === 'home') {
     return (
       <View className="flex-1">
-        <HomeScreen onOpenModule={handleOpenModule}/>
+        <HomeScreen onOpenModule={handleOpenModule} />
       </View>
     );
   }
@@ -234,11 +229,5 @@ function AppContent() {
 }
 
 export default function Index() {
-  return (
-    <ModuleUnlockProvider>
-      <HintProvider>
-        <AppContent />
-      </HintProvider>
-    </ModuleUnlockProvider>
-  );
+  return <AppContent />;
 }

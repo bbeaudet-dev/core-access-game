@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
-import { useModuleUnlock } from '../../contexts/ModuleUnlockContext';
+
 import HomeButton from '../ui/HomeButton';
 import ModuleHeader from '../ui/ModuleHeader';
 import PhoneFrame from '../ui/PhoneFrame';
@@ -13,7 +13,7 @@ interface ClockModuleProps {
 }
 
 export default function ClockModule({ onGoHome }: ClockModuleProps) {
-  const { unlockModule } = useModuleUnlock();
+  // All modules are now unlocked by default
   const [puzzleSolved, setPuzzleSolved] = useState(false);
   
   // Stopwatch state
@@ -32,9 +32,9 @@ export default function ClockModule({ onGoHome }: ClockModuleProps) {
   useEffect(() => {
     if (stopwatchTime >= 30000 && !puzzleSolved) { // 30 seconds
       setPuzzleSolved(true);
-      unlockModule('gyro');
+      // Gyro module is now always unlocked, so no need to call unlockModule
     }
-  }, [stopwatchTime, puzzleSolved, unlockModule]);
+  }, [stopwatchTime, puzzleSolved]);
 
   // Stopwatch functions
   const toggleStopwatch = () => {

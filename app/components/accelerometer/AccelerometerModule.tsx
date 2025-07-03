@@ -1,7 +1,6 @@
 import { Accelerometer } from 'expo-sensors';
 import { useEffect, useState } from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
-import { useModuleUnlock } from '../../contexts/ModuleUnlockContext';
 import HomeButton from '../ui/HomeButton';
 import ModuleHeader from '../ui/ModuleHeader';
 import PhoneFrame from '../ui/PhoneFrame';
@@ -20,8 +19,6 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
   const [movementType, setMovementType] = useState<string>('STATIONARY');
   const [isUnlocked, setIsUnlocked] = useState(false);
 
-  const { unlockModule } = useModuleUnlock();
-
   // Acceleration threshold to unlock WiFi (in m/s²)
   const UNLOCK_THRESHOLD = 15;
 
@@ -34,9 +31,9 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
   useEffect(() => {
     if (maxAcceleration >= UNLOCK_THRESHOLD && !isUnlocked) {
       setIsUnlocked(true);
-      unlockModule('wifi');
+      // WiFi module is now always unlocked, so no need to call unlockModule
     }
-  }, [maxAcceleration, isUnlocked, unlockModule]);
+  }, [maxAcceleration, isUnlocked]);
 
   const checkAccelerometerAvailability = async () => {
     try {
