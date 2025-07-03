@@ -5,7 +5,6 @@ import HomeButton from '../ui/HomeButton';
 import ModuleHeader from '../ui/ModuleHeader';
 import PhoneFrame from '../ui/PhoneFrame';
 import ConnectionStatus from './ConnectionStatus';
-import NetworkHints from './NetworkHints';
 import NetworkList from './NetworkList';
 import NetworkScanner from './NetworkScanner';
 import NetworkStats from './NetworkStats';
@@ -91,12 +90,13 @@ export default function WifiModule({ onGoHome }: WifiModuleProps) {
     }
   };
 
-  if (error && !connection.isConnected) {
-    return (
-      <PhoneFrame>
-        <View className="flex-1 bg-black">
-          <View className="p-4">
-            <ModuleHeader name="WIFI" color="blue" />
+  return (
+    <PhoneFrame>
+      <View className="flex-1 bg-black">
+        <View className="p-4">
+          <ModuleHeader name="WIFI" color="blue" />
+          
+          {error && !connection.isConnected ? (
             <View className="flex-1 justify-center items-center">
               <Text className="text-red-400 text-center font-mono mb-4">
                 {error}
@@ -105,26 +105,14 @@ export default function WifiModule({ onGoHome }: WifiModuleProps) {
                 Try on a physical device
               </Text>
             </View>
-          </View>
-          <HomeButton active={true} onPress={onGoHome} />
-        </View>
-      </PhoneFrame>
-    );
-  }
-
-  return (
-    <PhoneFrame>
-      <View className="flex-1 bg-black">
-        <View className="p-4">
-          <ModuleHeader name="WIFI" color="blue" />
-          
-          <View className="space-y-4">
-            <ConnectionStatus connection={connection} />
-            <NetworkScanner isScanning={isScanning} onScan={scanNetworks} />
-            <NetworkList networks={availableNetworks} />
-            <NetworkStats networks={availableNetworks} />
-            <NetworkHints />
-          </View>
+          ) : (
+            <View className="space-y-4">
+              <ConnectionStatus connection={connection} />
+              <NetworkScanner isScanning={isScanning} onScan={scanNetworks} />
+              <NetworkList networks={availableNetworks} />
+              <NetworkStats networks={availableNetworks} />
+            </View>
+          )}
         </View>
         <HomeButton active={true} onPress={onGoHome} />
       </View>

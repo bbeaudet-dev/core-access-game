@@ -3,12 +3,12 @@ import { useEffect, useState } from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { usePuzzle } from '../../contexts/PuzzleContext';
 import HomeButton from '../ui/HomeButton';
+import AccelerometerPlot from '../ui/LiveDataPlot';
 import ModuleHeader from '../ui/ModuleHeader';
 import PhoneFrame from '../ui/PhoneFrame';
 import AccelerometerControls from './AccelerometerControls';
 import AccelerometerData from './AccelerometerData';
 import AccelerometerUnavailable from './AccelerometerUnavailable';
-import SpeedPlot from './SpeedPlot';
 
 interface AccelerometerModuleProps {
   onGoHome: () => void;
@@ -233,12 +233,14 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
           />
 
           {/* Speed Plot Component */}
-          <SpeedPlot 
+          <AccelerometerPlot 
             speedHistory={accelerationHistory.map(val => convertToUnit(val, unitType))}
             maxSpeed={convertToUnit(maxAcceleration, unitType)} 
             historyLength={HISTORY_LENGTH}
             unitType={unitType}
             normalized={normalized}
+            title="ACCELERATION PLOT"
+            color="purple"
           />
 
           <AccelerometerControls 

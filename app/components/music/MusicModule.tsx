@@ -5,7 +5,6 @@ import { SOUND_EFFECTS, SoundManager, playBackgroundMusic, setSoundMuted, setSou
 import HomeButton from '../ui/HomeButton'
 import ModuleHeader from '../ui/ModuleHeader'
 import PhoneFrame from '../ui/PhoneFrame'
-import AmbientSounds from './AmbientSounds'
 import AudioControls from './AudioControls'
 import MusicTracks from './MusicTracks'
 
@@ -77,40 +76,6 @@ export default function MusicModule({ onGoHome }: MusicModuleProps) {
   }
 
   const musicTracks = SOUND_EFFECTS.filter(sound => sound.category === 'music')
-  const ambientSounds = SOUND_EFFECTS.filter(sound => sound.category === 'ambient')
-
-  if (hasPermission === null) {
-    return (
-      <PhoneFrame>
-        <View className="flex-1 bg-black">
-          <View className="p-4">
-            <ModuleHeader name="MUSIC" color="purple" />
-            <View className="flex-1 p-5 justify-center">
-              <Text className="text-purple-400 text-center text-base mb-2">Requesting speaker permission...</Text>
-            </View>
-          </View>
-          <HomeButton active={true} onPress={onGoHome} />
-        </View>
-      </PhoneFrame>
-    )
-  }
-
-  if (hasPermission === false) {
-    return (
-      <PhoneFrame>
-        <View className="flex-1 bg-black">
-          <View className="p-4">
-            <ModuleHeader name="MUSIC" color="purple" />
-            <View className="flex-1 p-5 justify-center">
-              <Text className="text-purple-400 text-center text-base mb-2">Speaker access denied</Text>
-              <Text className="text-purple-400 text-center text-base mb-2">Please grant speaker permissions</Text>
-            </View>
-          </View>
-          <HomeButton active={true} onPress={onGoHome} />
-        </View>
-      </PhoneFrame>
-    )
-  }
 
   return (
     <PhoneFrame>
@@ -118,33 +83,39 @@ export default function MusicModule({ onGoHome }: MusicModuleProps) {
         <View className="p-4">
           <ModuleHeader name="MUSIC" color="purple" />
           
-          <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-            <View className="p-5 space-y-6">
-              {/* Audio Controls */}
-              <AudioControls
-                isMuted={isMuted}
-                volume={volume}
-                currentTrack={currentTrack}
-                onMuteToggle={handleMuteToggle}
-                onVolumeChange={handleVolumeChange}
-                soundEffects={SOUND_EFFECTS}
-              />
-
-              {/* Background Music */}
-              <MusicTracks
-                musicTracks={musicTracks}
-                currentTrack={currentTrack}
-                onPlayTrack={handlePlayTrack}
-                onStopMusic={handleStopMusic}
-              />
-
-              {/* Ambient Sounds */}
-              <AmbientSounds
-                ambientSounds={ambientSounds}
-                onPlayTrack={handlePlayTrack}
-              />
+          {hasPermission === null ? (
+            <View className="flex-1 p-5 justify-center">
+              <Text className="text-purple-400 text-center text-base mb-2">Requesting speaker permission...</Text>
             </View>
-          </ScrollView>
+          ) : hasPermission === false ? (
+            <View className="flex-1 p-5 justify-center">
+              <Text className="text-purple-400 text-center text-base mb-2">Speaker access denied</Text>
+              <Text className="text-purple-400 text-center text-base mb-2">Please grant speaker permissions</Text>
+            </View>
+          ) : (
+            <ScrollView className="flex-col" showsVerticalScrollIndicator={false}>
+              <View className="p-5 space-y-6">
+                {/* Audio Controls */}
+                <AudioControls
+                  isMuted={isMuted}
+                  volume={volume}
+                  currentTrack={currentTrack}
+                  onMuteToggle={handleMuteToggle}
+                  onVolumeChange={handleVolumeChange}
+                  soundEffects={SOUND_EFFECTS}
+                />
+
+                {/* Music */}
+                <MusicTracks
+                  musicTracks={musicTracks}
+                  currentTrack={currentTrack}
+                  onPlayTrack={handlePlayTrack}
+                  onStopMusic={handleStopMusic}
+                />
+
+              </View>
+            </ScrollView>
+          )}
         </View>
         <HomeButton active={true} onPress={onGoHome} />
       </View>
