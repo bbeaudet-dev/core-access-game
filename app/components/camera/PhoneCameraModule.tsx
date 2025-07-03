@@ -1,3 +1,4 @@
+import { Camera } from 'expo-camera';
 import { useEffect, useState } from 'react';
 import { Platform, Text, View } from 'react-native';
 import HomeButton from '../ui/HomeButton';
@@ -23,8 +24,13 @@ export default function PhoneCameraModule({ onGoHome }: PhoneCameraModuleProps) 
           return;
         }
 
-        // Simple permission check without complex imports
-        setHasPermission(true);
+        // Request camera permissions
+        const { status } = await Camera.requestCameraPermissionsAsync();
+        setHasPermission(status === 'granted');
+        
+        if (status !== 'granted') {
+          setError('Camera permission denied');
+        }
       } catch (err) {
         console.error('Camera initialization failed:', err);
         setError('Failed to initialize camera');

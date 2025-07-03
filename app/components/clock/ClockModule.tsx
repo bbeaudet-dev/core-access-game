@@ -136,32 +136,8 @@ export default function ClockModule({ onGoHome }: ClockModuleProps) {
           
           <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
             <View className="space-y-4">
-              {/* Puzzle Status */}
-              {!puzzleSolved && (
-                <View className="bg-gray-900 p-4 rounded-lg">
-                  <Text className="text-gray-400 text-sm font-mono mb-2">PUZZLE</Text>
-                  <Text className="text-yellow-400 text-lg font-mono mb-2">
-                    Run the stopwatch for 30 seconds to unlock gyroscope
-                  </Text>
-                  <Text className="text-gray-500 text-sm font-mono">
-                    Progress: {Math.floor(stopwatchTime / 1000)}/30 seconds
-                  </Text>
-                </View>
-              )}
 
-              {puzzleSolved && (
-                <View className="bg-green-900 p-4 rounded-lg">
-                  <Text className="text-green-400 text-sm font-mono mb-2">PUZZLE SOLVED!</Text>
-                  <Text className="text-green-400 text-lg font-mono">
-                    Gyroscope module unlocked! 🎉
-                  </Text>
-                </View>
-              )}
-
-              {/* Real Clock */}
               <RealClock />
-              
-              {/* Stopwatch */}
               <Stopwatch
                 isActive={stopwatchActive}
                 onToggle={toggleStopwatch}
@@ -170,8 +146,6 @@ export default function ClockModule({ onGoHome }: ClockModuleProps) {
                 time={stopwatchTime}
                 laps={stopwatchLaps}
               />
-              
-              {/* Timer */}
               <Timer
                 isActive={timerActive}
                 onToggle={toggleTimer}

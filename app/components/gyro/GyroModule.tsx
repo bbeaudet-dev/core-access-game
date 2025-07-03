@@ -133,6 +133,7 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
               </Text>
             </View>
           </View>
+          <HomeButton active={true} onPress={onGoHome} />
         </View>
       </PhoneFrame>
     );
