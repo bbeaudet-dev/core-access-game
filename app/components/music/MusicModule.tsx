@@ -20,24 +20,23 @@ export default function MusicModule({ onGoHome }: MusicModuleProps) {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null)
 
   useEffect(() => {
-    const requestPermissions = async () => {
+    const setupAudio = async () => {
       try {
-        const { status } = await Audio.requestPermissionsAsync()
-        setHasPermission(status === 'granted')
-        
-        if (status === 'granted') {
-          await Audio.setAudioModeAsync({
-            allowsRecordingIOS: false,
-            playsInSilentModeIOS: true,
-          })
-        }
+        // For music playback, we don't need special permissions
+        // Just configure the audio mode for playback
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: true,
+        })
+        setHasPermission(true)
       } catch (error) {
-        console.error('Failed to get microphone permissions:', error)
+        console.error('Failed to setup audio:', error)
         setHasPermission(false)
       }
     }
 
-    requestPermissions()
+    setupAudio()
     
     // Initialize sound manager state
     const soundManager = SoundManager.getInstance()

@@ -39,7 +39,7 @@ export default function Stopwatch({
           className={`px-4 py-2 rounded-lg ${isActive ? 'bg-red-500' : 'bg-green-500'}`}
           onPress={onToggle}
         >
-          <Text className="text-white text-sm font-bold">
+          <Text className="text-white text-xs font-bold">
             {isActive ? 'STOP' : 'START'}
           </Text>
         </TouchableOpacity>

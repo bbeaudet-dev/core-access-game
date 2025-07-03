@@ -74,28 +74,30 @@ export default function AppIcon({
   };
 
   return (
-    <TouchableOpacity 
-      className={`${getSizeClasses()} ${color} justify-center items-center m-1 rounded-lg relative ${disabled ? 'opacity-50' : ''}`}
-      onPress={onPress}
-      disabled={disabled}
-      style={style}
-    >
-      {/* Badge */}
-      {badge && (
-        <View className="absolute -top-1 -right-1 bg-red-500 rounded-full min-w-5 h-5 justify-center items-center">
-          <Text className={`${getBadgeSize()} text-white font-bold`}>
-            {badge}
-          </Text>
-        </View>
-      )}
-      
-      {/* Icon */}
-      <Text className={`${getIconSize()} mb-1`}>{icon}</Text>
+    <View>
+      <TouchableOpacity 
+        className={`${getSizeClasses()} ${color} justify-center items-center m-1 rounded-lg relative ${disabled ? 'opacity-50' : ''}`}
+        onPress={onPress}
+        disabled={disabled}
+        style={style}
+      >
+        {/* Badge */}
+        {badge && (
+          <View className="absolute bg-red-500 rounded-full min-w-5 h-5 justify-center align-center items-center">
+            <Text className={`${getBadgeSize()} text-white font-bold`}>
+              {badge}
+            </Text>
+          </View>
+        )}
+        
+        {/* Icon */}
+        <Text className={`${getIconSize()} mb-1`}>{icon}</Text>  
+      </TouchableOpacity>
       
       {/* Name */}
-      <Text className={`${getTextSize()} font-bold text-white text-center`}>
+      <Text className={`${getTextSize()} font-bold text-white text-center justify-center`}>
         {name}
       </Text>
-    </TouchableOpacity>
+    </View>  
   );
 } 

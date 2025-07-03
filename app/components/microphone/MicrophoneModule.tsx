@@ -41,7 +41,10 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
 
   useEffect(() => {
     if (hasPermission && !isListening) {
-      startListening();
+      // Add a small delay to ensure permissions are fully set
+      setTimeout(() => {
+        startListening();
+      }, 500);
     }
   }, [hasPermission]);
 
@@ -73,6 +76,8 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
     } catch (error) {
       console.error('Failed to start recording:', error);
       setIsListening(false);
+      // Don't set hasPermission to false here, just log the error
+      // The user might still want to see the UI even if recording fails
     }
   };
 

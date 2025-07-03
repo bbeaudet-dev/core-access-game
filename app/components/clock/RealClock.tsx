@@ -46,9 +46,9 @@ export default function RealClock() {
         {formatTime(currentTime)}
       </Text>
       
-      {/* 12-Hour Time */}
-      <Text className="text-yellow-300 text-lg font-mono text-center mb-2">
-        {formatTime12Hour(currentTime)}
+      {/* Timezone */}
+      <Text className="text-gray-500 text-xs font-mono text-center mb-1">
+        {currentTime.toLocaleTimeString('en-US', { timeZoneName: 'short' })}
       </Text>
       
       {/* Date */}
@@ -56,10 +56,6 @@ export default function RealClock() {
         {formatDate(currentTime)}
       </Text>
       
-      {/* Timezone */}
-      <Text className="text-gray-500 text-xs font-mono text-center">
-        {currentTime.toLocaleTimeString('en-US', { timeZoneName: 'short' })}
-      </Text>
     </View>
   );
 } 
