@@ -1,17 +1,19 @@
 import { Accelerometer } from 'expo-sensors';
 import { useEffect, useState } from 'react';
-import { Platform, View } from 'react-native';
+import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import HomeButton from '../ui/HomeButton';
 import ModuleHeader from '../ui/ModuleHeader';
 import PhoneFrame from '../ui/PhoneFrame';
 import AccelerometerControls from './AccelerometerControls';
 import AccelerometerData from './AccelerometerData';
-import AccelerometerStatus from './AccelerometerStatus';
 import AccelerometerUnavailable from './AccelerometerUnavailable';
+import SpeedPlot from './SpeedPlot';
 
 interface AccelerometerModuleProps {
   onGoHome: () => void;
 }
+
+type UnitType = 'g' | 'm/s²' | 'ft/s²';
 
 export default function AccelerometerModule({ onGoHome }: AccelerometerModuleProps) {
   const [accelerometerData, setAccelerometerData] = useState({ x: 0, y: 0, z: 0 });
@@ -22,22 +24,66 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
   const [error, setError] = useState<string | null>(null);
   const [movementType, setMovementType] = useState<string>('STATIONARY');
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const [accelerationHistory, setAccelerationHistory] = useState<number[]>([]); // For sparkline
+  const [unitType, setUnitType] = useState<UnitType>('g'); // Unit toggle
+  const [normalized, setNormalized] = useState(false); // Normalized graph toggle
 
-  // Acceleration threshold to unlock WiFi (in m/s²)
-  const UNLOCK_THRESHOLD = 15;
+  // Acceleration threshold to unlock WiFi (in g-force)
+  const UNLOCK_THRESHOLD = 1.5; // ~15 m/s² in g-force units
+  // Sparkline settings
+  const HISTORY_LENGTH = 200; // 20 seconds at 10Hz
+
+  // Unit conversion functions
+  const convertToUnit = (valueInG: number, targetUnit: UnitType): number => {
+    switch (targetUnit) {
+      case 'g':
+        return valueInG;
+      case 'm/s²':
+        return valueInG * 9.81;
+      case 'ft/s²':
+        return valueInG * 32.17;
+      default:
+        return valueInG;
+    }
+  };
+
+  const getUnitLabel = (unit: UnitType): string => {
+    switch (unit) {
+      case 'g':
+        return 'g';
+      case 'm/s²':
+        return 'm/s²';
+      case 'ft/s²':
+        return 'ft/s²';
+      default:
+        return 'g';
+    }
+  };
+
+  const getExpectedGravity = (unit: UnitType): number => {
+    switch (unit) {
+      case 'g':
+        return 1.0;
+      case 'm/s²':
+        return 9.81;
+      case 'ft/s²':
+        return 32.17;
+      default:
+        return 1.0;
+    }
+  };
+
+  const toggleUnit = () => {
+    const units: UnitType[] = ['g', 'm/s²', 'ft/s²'];
+    const currentIndex = units.indexOf(unitType);
+    const nextIndex = (currentIndex + 1) % units.length;
+    setUnitType(units[nextIndex]);
+  };
 
   useEffect(() => {
     checkAccelerometerAvailability();
     return () => _unsubscribe();
   }, []);
-
-  // Check for unlock condition
-  useEffect(() => {
-    if (maxAcceleration >= UNLOCK_THRESHOLD && !isUnlocked) {
-      setIsUnlocked(true);
-      // WiFi module is now always unlocked, so no need to call unlockModule
-    }
-  }, [maxAcceleration, isUnlocked]);
 
   const checkAccelerometerAvailability = async () => {
     try {
@@ -74,16 +120,38 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
         );
         setCurrentAcceleration(acceleration);
         
+        // Debug: Log the first few readings to verify units
+        if (accelerationHistory.length < 5) {
+          console.log('Accelerometer Debug:', {
+            raw: { x: data.x, y: data.y, z: data.z },
+            magnitude: acceleration,
+            expectedGravity: getExpectedGravity(unitType),
+            ratio: acceleration / getExpectedGravity(unitType),
+            units: getUnitLabel(unitType)
+          });
+        }
+        
+        // Update acceleration history for sparkline
+        setAccelerationHistory(prev => {
+          const next = [...prev, acceleration];
+          // Keep only the last HISTORY_LENGTH samples
+          return next.length > HISTORY_LENGTH ? next.slice(next.length - HISTORY_LENGTH) : next;
+        });
+        
         // Update max acceleration
         setMaxAcceleration(prevMax => {
           if (acceleration > prevMax) {
+            // Check if we should unlock
+            if (acceleration >= UNLOCK_THRESHOLD && !isUnlocked) {
+              setIsUnlocked(true);
+            }
             return acceleration;
           }
           return prevMax;
         });
 
         // Determine movement type
-        if (acceleration < 1) {
+        if (acceleration < 1.1) {
           setMovementType('STATIONARY');
         } else if (acceleration < 2.5) {
           setMovementType('WALKING');
@@ -115,6 +183,7 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
   const resetMaxAcceleration = () => {
     setMaxAcceleration(0);
     setIsUnlocked(false);
+    setAccelerationHistory([]);
   };
 
   if (!isAvailable) {
@@ -127,16 +196,48 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
         <View className="p-4">
           <ModuleHeader name="ACCELEROMETER" color="purple" />
           
-          <AccelerometerStatus 
-            isUnlocked={isUnlocked}
-            unlockThreshold={UNLOCK_THRESHOLD}
-          />
+          {/* Unit Toggle Button */}
+          <View className="bg-gray-900 p-3 rounded-lg mb-4">
+            <Text className="text-gray-400 text-sm font-mono mb-2">UNITS</Text>
+            <TouchableOpacity 
+              onPress={toggleUnit}
+              className="bg-purple-600 px-4 py-2 rounded-lg"
+            >
+              <Text className="text-white text-center font-mono">
+                {getUnitLabel(unitType)}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          
+          {/* Graph Toggle Button */}
+          <View className="bg-gray-900 p-3 rounded-lg mb-4">
+            <Text className="text-gray-400 text-sm font-mono mb-2">GRAPH MODE</Text>
+            <TouchableOpacity 
+              onPress={() => setNormalized(!normalized)}
+              className={`px-4 py-2 rounded-lg ${normalized ? 'bg-green-600' : 'bg-blue-600'}`}
+            >
+              <Text className="text-white text-center font-mono">
+                {normalized ? 'NORMALIZED' : 'FULL RANGE'}
+              </Text>
+            </TouchableOpacity>
+          </View>
           
           <AccelerometerData 
-            currentAcceleration={currentAcceleration}
-            maxAcceleration={maxAcceleration}
+            currentAcceleration={convertToUnit(currentAcceleration, unitType)}
+            maxAcceleration={convertToUnit(maxAcceleration, unitType)}
             movementType={movementType}
             accelerometerData={accelerometerData}
+            unitType={unitType}
+            expectedGravity={getExpectedGravity(unitType)}
+          />
+
+          {/* Speed Plot Component */}
+          <SpeedPlot 
+            speedHistory={accelerationHistory.map(val => convertToUnit(val, unitType))}
+            maxSpeed={convertToUnit(maxAcceleration, unitType)} 
+            historyLength={HISTORY_LENGTH}
+            unitType={unitType}
+            normalized={normalized}
           />
 
           <AccelerometerControls 

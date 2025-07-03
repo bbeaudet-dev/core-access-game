@@ -38,12 +38,17 @@ export default function RealClock() {
   };
 
   return (
-    <View className="bg-gray-900 p-3 rounded-lg my-1">
-      <Text className="text-gray-400 text-xs font-mono mb-1">REAL TIME CLOCK</Text>
+    <View className="bg-gray-900 p-4 rounded-lg my-1">
+      <Text className="text-gray-400 text-xs font-mono mb-2">REAL TIME CLOCK</Text>
       
       {/* 24-Hour Time */}
-      <Text className="text-yellow-400 text-3xl font-mono text-center mb-1">
+      <Text className="text-yellow-400 text-2xl font-mono text-center mb-2">
         {formatTime(currentTime)}
+      </Text>
+      
+      {/* 12-Hour Time */}
+      <Text className="text-yellow-300 text-lg font-mono text-center mb-2">
+        {formatTime12Hour(currentTime)}
       </Text>
       
       {/* Timezone */}
@@ -52,7 +57,7 @@ export default function RealClock() {
       </Text>
       
       {/* Date */}
-      <Text className="text-gray-300 text-xs font-mono text-center mb-1">
+      <Text className="text-gray-300 text-xs font-mono text-center">
         {formatDate(currentTime)}
       </Text>
       

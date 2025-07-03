@@ -12,11 +12,12 @@ const ALL_MODULES = [
   { name: 'music', displayName: 'MUSIC', icon: '🎶', color: 'bg-green-500' },
   { name: 'wifi', displayName: 'WIFI', icon: '📡', color: 'bg-blue-500' },
   { name: 'compass', displayName: 'COMPASS', icon: '🧭', color: 'bg-red-500' },
-  { name: 'accelerometer', displayName: 'ACCEL', icon: '📊', color: 'bg-purple-500' },
-  { name: 'gyro', displayName: 'GYRO', icon: '⚡', color: 'bg-red-500' },
+  { name: 'accelerometer', displayName: 'ACCEL', icon: '⏪', color: 'bg-purple-500' },
+  { name: 'gyro', displayName: 'GYRO', icon: '🔄', color: 'bg-red-500' },
   { name: 'terminal', displayName: 'TERMINAL', icon: '💻', color: 'bg-red-500' },
   { name: 'logs', displayName: 'LOGS', icon: '📋', color: 'bg-red-500' },
   { name: 'help', displayName: 'HELP', icon: '💡', color: 'bg-blue-500' },
+  { name: 'games', displayName: 'GAMES', icon: '🕹️', color: 'bg-red-500' },
 ];
 
 type ModuleName = typeof ALL_MODULES[number]['name'];
