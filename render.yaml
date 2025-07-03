@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: core-access-api
+    name: core-defender
     env: node
     plan: free
     buildCommand: npm install

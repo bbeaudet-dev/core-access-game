@@ -1,10 +1,10 @@
 import { Barometer } from 'expo-sensors';
 import { useEffect, useState } from 'react';
-import { Platform, Text, View } from 'react-native';
+import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import HomeButton from '../ui/HomeButton';
+import PressurePlot from '../ui/LiveDataPlot';
 import ModuleHeader from '../ui/ModuleHeader';
 import PhoneFrame from '../ui/PhoneFrame';
-import PuzzleStatus from '../ui/PuzzleStatus';
 
 interface BarometerModuleProps {
   onGoHome: () => void;
@@ -19,8 +19,7 @@ export default function BarometerModule({ onGoHome }: BarometerModuleProps) {
   const [pressureHistory, setPressureHistory] = useState<number[]>([]);
   const [blowDetected, setBlowDetected] = useState(false);
 
-  // Blowing detection settings
-  const BLOW_THRESHOLD = 5; // hPa pressure increase
+  // Pressure history settings
   const HISTORY_LENGTH = 50;
 
   useEffect(() => {
@@ -67,18 +66,6 @@ export default function BarometerModule({ onGoHome }: BarometerModuleProps) {
           }
           return prevMax;
         });
-
-        // Detect blowing (pressure increase)
-        if (pressureHistory.length > 0) {
-          const recentPressure = pressureHistory[pressureHistory.length - 1];
-          const pressureChange = data.pressure - recentPressure;
-          
-          if (pressureChange > BLOW_THRESHOLD) {
-            setBlowDetected(true);
-            // Reset after 2 seconds
-            setTimeout(() => setBlowDetected(false), 2000);
-          }
-        }
       })
     );
     Barometer.setUpdateInterval(100); // 10Hz
@@ -94,84 +81,81 @@ export default function BarometerModule({ onGoHome }: BarometerModuleProps) {
     setBlowDetected(false);
   };
 
-  if (!isAvailable) {
-    return (
-      <PhoneFrame>
-        <View className="flex-1 bg-black">
-          <View className="p-4">
-            <ModuleHeader name="BAROMETER" color="blue" />
-            <View className="flex-1 p-5 justify-center">
-              <Text className="text-blue-400 text-center text-base mb-2">Barometer not available</Text>
-            </View>
-          </View>
-          <HomeButton active={true} onPress={onGoHome} />
-        </View>
-      </PhoneFrame>
-    );
-  }
-
   return (
     <PhoneFrame>
       <View className="flex-1 bg-black">
         <View className="p-4">
           <ModuleHeader name="BAROMETER" color="blue" />
           
-          <View className="flex flex-col space-y-4">
-            {/* Current Pressure */}
-            <View className="bg-gray-900 p-6 rounded-lg">
-              <Text className="text-gray-400 text-sm font-mono mb-2">CURRENT PRESSURE</Text>
-              <Text className="text-blue-400 text-3xl font-mono text-center">
-                {pressure !== null ? `${pressure.toFixed(1)} hPa` : '--'}
-              </Text>
+          {!isAvailable ? (
+            <View className="flex-1 p-5 justify-center">
+              <Text className="text-blue-400 text-center text-base mb-2">Barometer not available</Text>
             </View>
-
-            {/* Relative Altitude */}
-            <View className="bg-gray-900 p-6 rounded-lg">
-              <Text className="text-gray-400 text-sm font-mono mb-2">RELATIVE ALTITUDE</Text>
-              <Text className="text-blue-400 text-2xl font-mono text-center">
-                {relativeAltitude !== null ? `${relativeAltitude.toFixed(1)} m` : '--'}
-              </Text>
-            </View>
-
-            {/* Max Pressure */}
-            <View className="bg-gray-900 p-6 rounded-lg">
-              <Text className="text-gray-400 text-sm font-mono mb-2">MAX PRESSURE</Text>
-              <Text className="text-green-400 text-2xl font-mono text-center">
-                {maxPressure.toFixed(1)} hPa
-              </Text>
-            </View>
-
-            {/* Blow Detection */}
-            <View className="bg-gray-900 p-6 rounded-lg">
-              <Text className="text-gray-400 text-sm font-mono mb-2">BLOW DETECTION</Text>
-              <View className="flex flex-row items-center justify-center">
-                <Text className={`text-4xl mr-4 ${blowDetected ? 'text-yellow-400' : 'text-gray-600'}`}>
-                  💨
-                </Text>
-                <Text className={`text-2xl font-mono ${blowDetected ? 'text-yellow-400' : 'text-gray-600'}`}>
-                  {blowDetected ? 'BLOW DETECTED!' : 'WAITING FOR BLOW'}
+          ) : (
+            <View className="flex flex-col space-y-4">
+              {/* Current Pressure */}
+              <View className="bg-gray-900 p-6 rounded-lg">
+                <Text className="text-gray-400 text-sm font-mono mb-2">CURRENT PRESSURE</Text>
+                <Text className="text-blue-400 text-3xl font-mono text-center">
+                  {pressure !== null ? `${pressure.toFixed(1)} hPa` : '--'}
                 </Text>
               </View>
-            </View>
 
-            {/* Puzzle Status */}
-            <PuzzleStatus
-              title="PUZZLE STATUS"
-              description="Target: Blow into the device"
-              isComplete={blowDetected}
-              color="blue"
-            />
-
-            {/* Pressure Graph Placeholder */}
-            <View className="bg-gray-900 p-6 rounded-lg">
-              <Text className="text-gray-400 text-sm font-mono mb-2">PRESSURE HISTORY</Text>
-              <View className="h-20 bg-gray-800 rounded-lg flex items-center justify-center">
-                <Text className="text-gray-500 text-xs font-mono">
-                  {pressureHistory.length} readings
+              {/* Relative Altitude */}
+              <View className="bg-gray-900 p-6 rounded-lg">
+                <Text className="text-gray-400 text-sm font-mono mb-2">RELATIVE ALTITUDE</Text>
+                <Text className="text-blue-400 text-2xl font-mono text-center">
+                  {relativeAltitude !== null ? `${relativeAltitude.toFixed(1)} m` : '--'}
                 </Text>
               </View>
+
+              {/* Max Pressure */}
+              <View className="bg-gray-900 p-6 rounded-lg">
+                <Text className="text-gray-400 text-sm font-mono mb-2">MAX PRESSURE</Text>
+                <Text className="text-green-400 text-2xl font-mono text-center">
+                  {maxPressure.toFixed(1)} hPa
+                </Text>
+              </View>
+
+              {/* Blow Detection - Note about using microphone */}
+              <View className="bg-gray-900 p-6 rounded-lg">
+                <Text className="text-gray-400 text-sm font-mono mb-2">BLOW DETECTION</Text>
+                <View className="flex flex-col items-center justify-center">
+                  <Text className="text-4xl mb-4">💨</Text>
+                  <Text className="text-yellow-400 text-lg font-mono text-center mb-2">
+                    Use Microphone Module
+                  </Text>
+                  <Text className="text-gray-500 text-sm font-mono text-center">
+                    Barometer measures air pressure, not airflow
+                  </Text>
+                </View>
+              </View>
+
+              {/* Pressure Plot */}
+              <PressurePlot 
+                speedHistory={pressureHistory}
+                maxSpeed={maxPressure} 
+                historyLength={HISTORY_LENGTH}
+                unitType="hPa"
+                normalized={false}
+                title="PRESSURE PLOT"
+                color="blue"
+              />
+
+              {/* Reset Button */}
+              <View className="bg-gray-900 p-6 rounded-lg">
+                <Text className="text-gray-400 text-sm font-mono mb-2">CONTROLS</Text>
+                <View className="flex flex-row justify-center">
+                  <TouchableOpacity
+                    onPress={resetMaxPressure}
+                    className="bg-blue-600 px-4 py-2 rounded-lg"
+                  >
+                    <Text className="text-white text-center font-mono">Reset Max</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
-          </View>
+          )}
         </View>
         
         <HomeButton active={true} onPress={onGoHome} />

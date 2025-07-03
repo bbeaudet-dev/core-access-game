@@ -18,7 +18,7 @@ export default function AudioControls({
   soundEffects
 }: AudioControlsProps) {
   return (
-    <View className="space-y-4">
+    <View className="space-y-4 mb-8">
       <Text className="text-purple-400 text-lg font-bold">Audio Controls</Text>
       
       {/* Mute Toggle */}

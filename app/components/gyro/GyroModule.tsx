@@ -5,11 +5,11 @@ import { useHints } from '../../contexts/HintContext';
 import { usePuzzle } from '../../contexts/PuzzleContext';
 
 import HomeButton from '../ui/HomeButton';
+import GyroPlot from '../ui/LiveDataPlot';
 import ModuleHeader from '../ui/ModuleHeader';
 import PhoneFrame from '../ui/PhoneFrame';
 import GyroControls from './GyroControls';
 import SpeedDisplay from './SpeedDisplay';
-import SpeedPlot from './SpeedPlot';
 
 interface GyroModuleProps {
   onGoHome: () => void;
@@ -17,20 +17,19 @@ interface GyroModuleProps {
 
 export default function GyroModule({ onGoHome }: GyroModuleProps) {
   const [gyroscopeData, setGyroscopeData] = useState({ x: 0, y: 0, z: 0 });
-  const [currentSpeed, setCurrentSpeed] = useState(0);
-  const [maxSpeed, setMaxSpeed] = useState(0);
+  const [currentAngularVelocity, setCurrentAngularVelocity] = useState(0);
+  const [maxAngularVelocity, setMaxAngularVelocity] = useState(0);
   const [subscription, setSubscription] = useState<any>(null);
   const [isAvailable, setIsAvailable] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const [speedHistory, setSpeedHistory] = useState<number[]>([]); // For sparkline
+  const [angularVelocityHistory, setAngularVelocityHistory] = useState<number[]>([]); // For sparkline
 
   const { checkGyroAchievement } = useHints();
   const { updatePuzzleProgress, completePuzzle } = usePuzzle();
 
-  // Speed threshold to unlock puzzle (in degrees/second)
-  const UNLOCK_THRESHOLD = 50;
-  // Sparkline settings
+  // Angular velocity threshold to unlock puzzle (in degrees/second)
+  const UNLOCK_THRESHOLD = 50; // deg/s
   const HISTORY_LENGTH = 200; // 20 seconds at 10Hz
 
   useEffect(() => {
@@ -66,28 +65,28 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
       Gyroscope.addListener((data) => {
         setGyroscopeData(data);
         
-        // Calculate speed magnitude (degrees/second)
-        const speed = Math.sqrt(
+        // Calculate angular velocity magnitude (degrees/second)
+        const angularVelocity = Math.sqrt(
           data.x * data.x + 
           data.y * data.y + 
           data.z * data.z
         );
-        setCurrentSpeed(speed);
-        setSpeedHistory(prev => {
-          const next = [...prev, speed];
+        setCurrentAngularVelocity(angularVelocity);
+        setAngularVelocityHistory(prev => {
+          const next = [...prev, angularVelocity];
           // Keep only the last HISTORY_LENGTH samples
           return next.length > HISTORY_LENGTH ? next.slice(next.length - HISTORY_LENGTH) : next;
         });
-        // Update max speed if current speed is higher
-        setMaxSpeed(prevMax => {
-          if (speed > prevMax) {
+        // Update max angular velocity if current is higher
+        setMaxAngularVelocity(prevMax => {
+          if (angularVelocity > prevMax) {
             // Check if we should unlock puzzle
-            if (speed >= UNLOCK_THRESHOLD && !isUnlocked) {
+            if (angularVelocity >= UNLOCK_THRESHOLD && !isUnlocked) {
               setIsUnlocked(true);
               completePuzzle('gyroscope_rotation');
             }
             
-            return speed;
+            return angularVelocity;
           }
           return prevMax;
         });
@@ -109,16 +108,16 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
     }
   };
 
-  const resetMaxSpeed = () => {
-    setMaxSpeed(0);
+  const resetMaxAngularVelocity = () => {
+    setMaxAngularVelocity(0);
     setIsUnlocked(false);
-    setSpeedHistory([]);
+    setAngularVelocityHistory([]);
   };
 
-  // Check for achievements whenever max speed changes
+  // Check for achievements whenever max angular velocity changes
   useEffect(() => {
-    checkGyroAchievement(maxSpeed);
-  }, [maxSpeed, checkGyroAchievement]);
+    checkGyroAchievement(maxAngularVelocity);
+  }, [maxAngularVelocity, checkGyroAchievement]);
 
   return (
     <PhoneFrame>
@@ -139,19 +138,22 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
             <>
               
               <View className="space-y-4">
-                {/* Speed Display Components */}
-                <SpeedDisplay currentSpeed={currentSpeed} maxSpeed={maxSpeed} />
+                {/* Angular Velocity Display Components */}
+                <SpeedDisplay currentSpeed={currentAngularVelocity} maxSpeed={maxAngularVelocity} />
 
-                {/* Speed Plot Component */}
-                <SpeedPlot 
-                  speedHistory={speedHistory} 
-                  maxSpeed={maxSpeed} 
-                  historyLength={HISTORY_LENGTH} 
+                {/* Angular Velocity Plot Component */}
+                <GyroPlot 
+                  speedHistory={angularVelocityHistory} 
+                  maxSpeed={maxAngularVelocity} 
+                  historyLength={HISTORY_LENGTH}
+                  unitType="deg/s"
+                  title="ANGULAR VELOCITY PLOT"
+                  color="green"
                 />
                 
                 {/* Raw Data */}
                 <View className="bg-gray-900 p-4 rounded-lg flex flex-row justify-between my-1">
-                  <Text className="text-gray-400 text-sm font-mono mb-2">RAW DATA</Text>
+                  <Text className="text-gray-400 text-sm font-mono mb-2">RAW DATA (deg/s)</Text>
                   <Text className="text-gray-300 text-sm font-mono">X: {gyroscopeData.x.toFixed(2)}</Text>
                   <Text className="text-gray-300 text-sm font-mono">Y: {gyroscopeData.y.toFixed(2)}</Text>
                   <Text className="text-gray-300 text-sm font-mono">Z: {gyroscopeData.z.toFixed(2)}</Text>
@@ -161,7 +163,7 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
                 <GyroControls 
                   subscription={subscription}
                   onToggleGyroscope={toggleGyroscope}
-                  onResetMaxSpeed={resetMaxSpeed}
+                  onResetMaxSpeed={resetMaxAngularVelocity}
                 />
               </View>
             </>

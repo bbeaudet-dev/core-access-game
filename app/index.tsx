@@ -23,16 +23,38 @@ import MusicModule from './components/music/MusicModule';
 import TerminalModule from './components/TerminalModule';
 import FakeGameMenu from './components/tower-defense/FakeGameMenu';
 import TowerDefenseGame from './components/tower-defense/TowerDefenseGame';
+import WeatherModule from './components/weather/WeatherModule';
 import WifiModule from './components/wifi/WifiModule';
 import { useAuth } from './contexts/AuthContext';
 import { startInfectionSequence } from './utils/infectionSequence';
 
 // Define module names type
-type ModuleName = 'terminal' | 'system' | 'clock' | 'gyro' | 'compass' | 'microphone' | 'camera' | 'accelerometer' | 'wifi' | 'logs' | 'help' | 'music' | 'flashlight' | 'battery' | 'barometer' | 'maps' | 'calculator';
+type ModuleName = 'terminal' | 'system' | 'clock' | 'gyro' | 'compass' | 'microphone' | 'camera' | 'accelerometer' | 'wifi' | 'logs' | 'help' | 'music' | 'flashlight' | 'battery' | 'barometer' | 'maps' | 'calculator' | 'weather';
+
+// Module mapping object - much cleaner than repetitive if statements
+const MODULE_COMPONENTS = {
+  terminal: TerminalModule,
+  clock: ClockModule,
+  gyro: GyroModule,
+  compass: CompassModule,
+  microphone: MicrophoneModule,
+  camera: PhoneCameraModule,
+  accelerometer: AccelerometerModule,
+  wifi: WifiModule,
+  logs: LogsModule,
+  help: HelpModule,
+  music: MusicModule,
+  flashlight: FlashlightModule,
+  battery: BatteryModule,
+  barometer: BarometerModule,
+  maps: MapsModule,
+  calculator: CalculatorModule,
+  weather: WeatherModule,
+} as const;
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
-  const [gameState, setGameState] = useState('menu'); // 'menu', 'infected', 'tower-defense', 'home', 'logs', 'terminal', 'phone-camera', 'microphone', 'system', 'compass', 'gyro', 'help', 'clock', 'about', 'core-vitals', 'accelerometer', 'wifi', 'music'
+  const [gameState, setGameState] = useState('menu');
   const [glitchLevel, setGlitchLevel] = useState(0);
   const [terminalText, setTerminalText] = useState('');
   const [fadeAnim] = useState(new Animated.Value(1));
@@ -113,134 +135,7 @@ function AppContent() {
     );
   }
 
-  if (gameState === 'logs') {
-    return (
-      <View className="flex-1">
-        <LogsModule onGoHome={() => navigate('home')} />
-      </View>
-    );
-  }
-
-  if (gameState === 'terminal') {
-    return (
-      <View className="flex-1">
-        <TerminalModule onGoHome={() => navigate('home')} />
-      </View>
-    );
-  }
-
-  if (gameState === 'camera') {
-    return (
-      <View className="flex-1">
-        <PhoneCameraModule onGoHome={() => navigate('home')} />
-      </View>
-    );
-  }
-
-  if (gameState === 'microphone') {
-    return (
-      <View className="flex-1">
-        <MicrophoneModule onGoHome={() => navigate('home')} />
-      </View>
-    )
-  }
-
-  if (gameState === 'music') {
-    return (
-      <View className="flex-1">
-        <MusicModule onGoHome={() => navigate('home')} />
-      </View>
-    )
-  }
-
-  if (gameState === 'compass') {
-    return (
-      <View className="flex-1">
-        <CompassModule onGoHome={() => navigate('home')} />
-      </View>
-    );
-  }
-
-  if (gameState === 'gyro') {
-    return (
-      <View className="flex-1">
-        <GyroModule onGoHome={() => navigate('home')} />        
-      </View>
-    );
-  }
-
-  if (gameState === 'help') {
-    return (
-      <View className="flex-1">
-        <HelpModule onGoHome={() => navigate('home')} />        
-      </View>
-    );
-  }
-
-  if (gameState === 'clock') {
-    return (
-      <View className="flex-1">
-        <ClockModule onGoHome={() => navigate('home')} />
-      </View>
-    );
-  }
-
-  if (gameState === 'accelerometer') {
-    return (
-      <View className="flex-1">
-        <AccelerometerModule onGoHome={() => navigate('home')} />        
-      </View>
-    );
-  }
-
-  if (gameState === 'wifi') {
-    return (
-      <View className="flex-1">
-        <WifiModule onGoHome={() => navigate('home')} />
-      </View>
-    );
-  }
-
-  if (gameState === 'flashlight') {
-    return (
-      <View className="flex-1">
-        <FlashlightModule onGoHome={() => navigate('home')} />
-      </View>
-    );
-  }
-
-  if (gameState === 'battery') {
-    return (
-      <View className="flex-1">
-        <BatteryModule onGoHome={() => navigate('home')} />
-      </View>
-    );
-  }
-
-  if (gameState === 'barometer') {
-    return (
-      <View className="flex-1">
-        <BarometerModule onGoHome={() => navigate('home')} />
-      </View>
-    );
-  }
-
-  if (gameState === 'maps') {
-    return (
-      <View className="flex-1">
-        <MapsModule onGoHome={() => navigate('home')} />
-      </View>
-    );
-  }
-
-  if (gameState === 'calculator') {
-    return (
-      <View className="flex-1">
-        <CalculatorModule onGoHome={() => navigate('home')} />
-      </View>
-    );
-  }
-
+  // Handle special cases that need custom props
   if (gameState === 'system') {
     return (
       <View className="flex-1">
@@ -266,6 +161,16 @@ function AppContent() {
     return (
       <View className="flex-1">
         <CoreVitalsScreen onGoBack={() => navigate('system')} />
+      </View>
+    );
+  }
+
+  // Handle all standard modules with a single pattern
+  if (gameState in MODULE_COMPONENTS) {
+    const ModuleComponent = MODULE_COMPONENTS[gameState as keyof typeof MODULE_COMPONENTS];
+    return (
+      <View className="flex-1">
+        <ModuleComponent onGoHome={() => navigate('home')} />
       </View>
     );
   }

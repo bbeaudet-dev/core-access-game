@@ -125,128 +125,95 @@ export default function MapsModule({ onGoHome }: MapsModuleProps) {
     );
   };
 
-  if (hasPermission === null) {
-    return (
-      <PhoneFrame>
-        <View className="flex-1 bg-black">
-          <View className="p-4">
-            <ModuleHeader name="MAPS" color="purple" />
-            <View className="flex-1 p-5 justify-center">
-              <Text className="text-purple-400 text-center text-base mb-2">Requesting location permission...</Text>
-            </View>
-          </View>
-          <HomeButton active={true} onPress={onGoHome} />
-        </View>
-      </PhoneFrame>
-    );
-  }
-
-  if (hasPermission === false) {
-    return (
-      <PhoneFrame>
-        <View className="flex-1 bg-black">
-          <View className="p-4">
-            <ModuleHeader name="MAPS" color="purple" />
-            <View className="flex-1 p-5 justify-center">
-              <Text className="text-purple-400 text-center text-base mb-2">Location access denied</Text>
-              <Text className="text-purple-400 text-center text-base mb-2">Please grant location permissions</Text>
-            </View>
-          </View>
-          <HomeButton active={true} onPress={onGoHome} />
-        </View>
-      </PhoneFrame>
-    );
-  }
-
   return (
     <PhoneFrame>
       <View className="flex-1 bg-black">
         <View className="p-4">
           <ModuleHeader name="MAPS" color="purple" />
           
-          <View className="flex flex-col space-y-4">
-            {/* Current Location */}
-            <View className="bg-gray-900 p-6 rounded-lg">
-              <Text className="text-gray-400 text-sm font-mono mb-2">CURRENT LOCATION</Text>
-              {location ? (
-                <View>
-                  <Text className="text-purple-400 text-lg font-mono">
-                    Lat: {location.coords.latitude.toFixed(6)}
-                  </Text>
-                  <Text className="text-purple-400 text-lg font-mono">
-                    Lon: {location.coords.longitude.toFixed(6)}
-                  </Text>
-                  <Text className="text-gray-300 text-sm font-mono mt-2">
-                    Accuracy: ±{location.coords.accuracy?.toFixed(1)}m
-                  </Text>
+          {hasPermission === null ? (
+            <View className="flex-1 p-5 justify-center">
+              <Text className="text-purple-400 text-center text-base mb-2">Requesting location permission...</Text>
+            </View>
+          ) : hasPermission === false ? (
+            <View className="flex-1 p-5 justify-center">
+              <Text className="text-purple-400 text-center text-base mb-2">Location access denied</Text>
+              <Text className="text-purple-400 text-center text-base mb-2">Please grant location permissions</Text>
+            </View>
+          ) : (
+            <View className="flex flex-col space-y-4">
+              {/* Current Location */}
+              <View className="bg-gray-900 p-6 rounded-lg">
+                <Text className="text-gray-400 text-sm font-mono mb-2">CURRENT LOCATION</Text>
+                {location ? (
+                  <View>
+                    <Text className="text-purple-400 text-lg font-mono">
+                      Lat: {location.coords.latitude.toFixed(6)}
+                    </Text>
+                    <Text className="text-purple-400 text-lg font-mono">
+                      Lon: {location.coords.longitude.toFixed(6)}
+                    </Text>
+                    <Text className="text-gray-300 text-sm font-mono mt-2">
+                      Accuracy: ±{location.coords.accuracy?.toFixed(1)}m
+                    </Text>
+                  </View>
+                ) : (
+                  <Text className="text-gray-600 font-mono">No location data</Text>
+                )}
+              </View>
+
+              {/* Target Location */}
+              <View className="bg-gray-900 p-6 rounded-lg">
+                <Text className="text-gray-400 text-sm font-mono mb-2">TARGET LOCATION</Text>
+                <Text className="text-purple-400 text-lg font-mono">
+                  Lat: {TARGET_LAT.toFixed(6)}
+                </Text>
+                <Text className="text-purple-400 text-lg font-mono">
+                  Lon: {TARGET_LON.toFixed(6)}
+                </Text>
+                <Text className="text-gray-300 text-sm font-mono mt-2">
+                  Radius: {TARGET_RADIUS}m
+                </Text>
+              </View>
+
+              {/* Distance to Target */}
+              <View className="bg-gray-900 p-6 rounded-lg">
+                <Text className="text-gray-400 text-sm font-mono mb-2">DISTANCE TO TARGET</Text>
+                <Text className="text-purple-400 text-2xl font-mono text-center">
+                  {location ? `${(getDistanceToTarget() / 1000).toFixed(2)} km` : '--'}
+                </Text>
+              </View>
+
+              {/* Location Controls */}
+              <View className="bg-gray-900 p-6 rounded-lg">
+                <Text className="text-gray-400 text-sm font-mono mb-2">LOCATION CONTROLS</Text>
+                <View className="flex flex-row justify-center space-x-4">
+                  <TouchableOpacity
+                    onPress={getCurrentLocation}
+                    className="bg-purple-600 px-4 py-2 rounded-lg"
+                  >
+                    <Text className="text-white text-center font-mono">Get Location</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={isTracking ? stopLocationTracking : startLocationTracking}
+                    className={`px-4 py-2 rounded-lg ${isTracking ? 'bg-red-600' : 'bg-green-600'}`}
+                  >
+                    <Text className="text-white text-center font-mono">
+                      {isTracking ? 'Stop Tracking' : 'Start Tracking'}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
-              ) : (
-                <Text className="text-gray-600 font-mono">No location data</Text>
-              )}
-            </View>
+              </View>
 
-            {/* Target Location */}
-            <View className="bg-gray-900 p-6 rounded-lg">
-              <Text className="text-gray-400 text-sm font-mono mb-2">TARGET LOCATION</Text>
-              <Text className="text-purple-400 text-lg font-mono">
-                Lat: {TARGET_LAT.toFixed(6)}
-              </Text>
-              <Text className="text-purple-400 text-lg font-mono">
-                Lon: {TARGET_LON.toFixed(6)}
-              </Text>
-              <Text className="text-gray-300 text-sm font-mono mt-2">
-                Radius: {TARGET_RADIUS}m
-              </Text>
-            </View>
-
-            {/* Distance to Target */}
-            <View className="bg-gray-900 p-6 rounded-lg">
-              <Text className="text-gray-400 text-sm font-mono mb-2">DISTANCE TO TARGET</Text>
-              <Text className="text-purple-400 text-2xl font-mono text-center">
-                {location ? `${(getDistanceToTarget() / 1000).toFixed(2)} km` : '--'}
-              </Text>
-            </View>
-
-            {/* Puzzle Status */}
-            <PuzzleStatus
-              title="PUZZLE STATUS"
-              description="Target: Navigate to specified coordinates"
-              isComplete={targetReached}
-              color="purple"
-              showProgress={true}
-              progress={Math.max(0, 100 - (getDistanceToTarget() / 1000) * 10)} // Progress based on distance
-              progressMax={100}
-            />
-
-            {/* Location Controls */}
-            <View className="bg-gray-900 p-6 rounded-lg">
-              <Text className="text-gray-400 text-sm font-mono mb-2">LOCATION CONTROLS</Text>
-              <View className="flex flex-row justify-center space-x-4">
-                <TouchableOpacity
-                  onPress={getCurrentLocation}
-                  className="bg-purple-600 px-4 py-2 rounded-lg"
-                >
-                  <Text className="text-white text-center font-mono">Get Location</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={isTracking ? stopLocationTracking : startLocationTracking}
-                  className={`px-4 py-2 rounded-lg ${isTracking ? 'bg-red-600' : 'bg-green-600'}`}
-                >
-                  <Text className="text-white text-center font-mono">
-                    {isTracking ? 'Stop Tracking' : 'Start Tracking'}
-                  </Text>
-                </TouchableOpacity>
+              {/* Location History */}
+              <View className="bg-gray-900 p-6 rounded-lg">
+                <Text className="text-gray-400 text-sm font-mono mb-2">LOCATION HISTORY</Text>
+                <Text className="text-gray-300 text-sm font-mono text-center">
+                  {locationHistory.length} locations tracked
+                </Text>
               </View>
             </View>
-
-            {/* Location History */}
-            <View className="bg-gray-900 p-6 rounded-lg">
-              <Text className="text-gray-400 text-sm font-mono mb-2">LOCATION HISTORY</Text>
-              <Text className="text-gray-300 text-sm font-mono text-center">
-                {locationHistory.length} locations tracked
-              </Text>
-            </View>
-          </View>
+          )}
         </View>
         
         <HomeButton active={true} onPress={onGoHome} />
