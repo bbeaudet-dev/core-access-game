@@ -1,8 +1,3 @@
-// ModuleHeader: A reusable header for module screens.
-// Props:
-//   - name: string (the module name)
-//   - color: string (color keyword: 'green', 'red', etc)
-
 import { Text, View } from 'react-native';
 
 const colorMap: Record<string, string> = {

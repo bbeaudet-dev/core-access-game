@@ -12,7 +12,6 @@ export default function PhoneFrame({
   children, 
   style, 
   showNotch = true, 
-  showHomeIndicator = true 
 }: PhoneFrameProps) {
   return (
     <View className="flex-1 bg-gray-900 justify-center items-center p-4">
