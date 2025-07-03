@@ -16,7 +16,7 @@ export default function HelpModule({ onGoHome }: HelpModuleProps) {
       case 'gyro': return 'text-green-400';
       case 'compass': return 'text-blue-400';
       case 'camera': return 'text-purple-400';
-      case 'audio': return 'text-yellow-400';
+      case 'microphone': return 'text-yellow-400';
       default: return 'text-gray-400';
     }
   };
@@ -26,7 +26,7 @@ export default function HelpModule({ onGoHome }: HelpModuleProps) {
       case 'gyro': return '🔄';
       case 'compass': return '🧭';
       case 'camera': return '📷';
-      case 'audio': return '🎤';
+      case 'microphone': return '🎤';
       default: return '💡';
     }
   };
@@ -110,7 +110,7 @@ export default function HelpModule({ onGoHome }: HelpModuleProps) {
                   • Explore the compass and camera modules
                 </Text>
                 <Text className="text-gray-300 text-sm mb-2">
-                  • Monitor audio levels in the audio module
+                  • Monitor audio levels in the microphone module
                 </Text>
                 <Text className="text-gray-300 text-sm">
                   • Complete various achievements across all modules

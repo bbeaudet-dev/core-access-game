@@ -60,7 +60,7 @@ export const authApi = {
   },
 };
 
-// TODO: Implement BetterAuth later when we add database
+// TODO: Implement BetterAuth later with database
 export const auth = {
   // Placeholder for now
 }; 

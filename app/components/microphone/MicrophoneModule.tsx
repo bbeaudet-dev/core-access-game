@@ -7,11 +7,11 @@ import PhoneFrame from '../ui/PhoneFrame';
 import AudioLevelIndicator from './AudioLevelIndicator';
 import AudioWaveform from './AudioWaveform';
 
-interface AudioModuleProps {
+interface MicrophoneModuleProps {
   onGoHome: () => void;
 }
 
-export default function AudioModule({ onGoHome }: AudioModuleProps) {
+export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [audioLevel, setAudioLevel] = useState(0);
@@ -31,7 +31,7 @@ export default function AudioModule({ onGoHome }: AudioModuleProps) {
           });
         }
       } catch (error) {
-        console.error('Failed to get audio permissions:', error);
+        console.error('Failed to get microphone permissions:', error);
         setHasPermission(false);
       }
     };
