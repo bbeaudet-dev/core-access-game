@@ -1,6 +1,6 @@
 import { Audio } from 'expo-av';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Text, View } from 'react-native';
+import { Animated, Text, TouchableOpacity, View } from 'react-native';
 import HomeButton from '../ui/HomeButton';
 import ModuleHeader from '../ui/ModuleHeader';
 import PhoneFrame from '../ui/PhoneFrame';
@@ -28,6 +28,7 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
           await Audio.setAudioModeAsync({
             allowsRecordingIOS: true,
             playsInSilentModeIOS: true,
+            staysActiveInBackground: false,
           });
         }
       } catch (error) {
@@ -39,15 +40,6 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
     requestPermissions();
   }, []);
 
-  useEffect(() => {
-    if (hasPermission && !isListening) {
-      // Add a small delay to ensure permissions are fully set
-      setTimeout(() => {
-        startListening();
-      }, 500);
-    }
-  }, [hasPermission]);
-
   const startListening = async () => {
     try {
       setIsListening(true);
@@ -56,7 +48,6 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
       const { recording } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY,
         (status) => {
-          // This callback gives us audio level information
           if (status.isRecording) {
             const level = status.metering || 0;
             setAudioLevel(level);
@@ -76,17 +67,51 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
     } catch (error) {
       console.error('Failed to start recording:', error);
       setIsListening(false);
-      // Don't set hasPermission to false here, just log the error
-      // The user might still want to see the UI even if recording fails
     }
   };
 
   const stopListening = async () => {
-    if (recording) {
-      await recording.stopAndUnloadAsync();
-      setRecording(null);
+    try {
+      if (recording) {
+        await recording.stopAndUnloadAsync();
+        setRecording(null);
+      }
+      setIsListening(false);
+      setAudioLevel(0);
+      
+      // Reset the audio level animation
+      Animated.timing(audioLevelAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
+      
+      // Reset audio mode to allow music to play again
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: false,
+      });
+      
+      // Re-enable recording for next use
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: false,
+      });
+    } catch (error) {
+      console.error('Failed to stop recording:', error);
+      setIsListening(false);
+      setAudioLevel(0);
     }
-    setIsListening(false);
+  };
+
+  const toggleMicrophone = async () => {
+    if (isListening) {
+      await stopListening();
+    } else {
+      await startListening();
+    }
   };
 
   useEffect(() => {
@@ -95,69 +120,57 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
     };
   }, []);
 
-  if (hasPermission === null) {
-    return (
-      <PhoneFrame>
-        <View className="flex-1 bg-black">
-          <View className="p-4">
-            <ModuleHeader name="AUDIO" color="green" />
-            <View className="flex-1 p-5 justify-center">
-              <Text className="text-green-400 text-center text-base mb-2">Requesting microphone permission...</Text>
-            </View>
-          </View>
-          <HomeButton active={true} onPress={onGoHome} />
-        </View>
-      </PhoneFrame>
-    );
-  }
-
-  if (hasPermission === false) {
-    return (
-      <PhoneFrame>
-        <View className="flex-1 bg-black">
-          <View className="p-4">
-            <ModuleHeader name="AUDIO" color="green" />
-            <View className="flex-1 p-5 justify-center">
-              <Text className="text-green-400 text-center text-base mb-2">Microphone access denied</Text>
-              <Text className="text-green-400 text-center text-base mb-2">Please grant microphone permissions</Text>
-            </View>
-          </View>
-          <HomeButton active={true} onPress={onGoHome} />
-        </View>
-      </PhoneFrame>
-    );
-  }
-
   return (
     <PhoneFrame>
       <View className="flex-1 bg-black">
         <View className="p-4">
-          <ModuleHeader name="AUDIO" color="green" />
+          <ModuleHeader name="MICROPHONE" color="green" />
           
-          <View className="flex-1 p-5">
-            <View className="mb-6">
+          {hasPermission === null ? (
+            <View className="flex-1 p-5 justify-center">
+              <Text className="text-green-400 text-center text-base mb-2">Requesting microphone permission...</Text>
+            </View>
+          ) : hasPermission === false ? (
+            <View className="flex-1 p-5 justify-center">
+              <Text className="text-green-400 text-center text-base mb-2">Microphone access denied</Text>
+              <Text className="text-green-400 text-center text-base mb-2">Please grant microphone permissions</Text>
+            </View>
+          ) : (
+            <View className="flex flex-col content-center">
+              <View className="mb-6">
+                
+                {/* Audio Level Indicator Component */}
+                <View className="">
+                  <AudioLevelIndicator audioLevel={audioLevel} audioLevelAnim={audioLevelAnim} />
+                </View>
+                
+                {/* Live Waveform Component */}
+                <View className="">
+                  <Text className="text-green-400 text-center text-sm mb-2">Live Waveform</Text>
+                  <AudioWaveform audioLevel={audioLevel} />
+                </View>
+              </View>
+              
+              {/* Microphone Toggle Button */}
+              <View className="flex items-center justify-center">
+                <TouchableOpacity
+                  onPress={toggleMicrophone}
+                  className={`w-20 h-20 rounded-full justify-center items-center m-2 ${
+                    isListening ? 'bg-red-500' : 'bg-green-500'
+                  }`}
+                  activeOpacity={0.8}
+                >
+                  <Text className="text-white text-2xl">
+                    {isListening ? '🔴' : '🎤'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              
               <Text className="text-green-400 text-center text-lg mb-4">
                 {isListening ? '🎤 LIVE AUDIO FEED' : '🎤 Audio System: STANDBY'}
               </Text>
-              
-              {/* Audio Level Indicator Component */}
-              <View className="mb-4">
-                <Text className="text-green-400 text-center text-sm mb-2">Audio Level</Text>
-                <AudioLevelIndicator audioLevel={audioLevel} audioLevelAnim={audioLevelAnim} />
-              </View>
-              
-              {/* Live Waveform Component */}
-              <View className="mb-4">
-                <Text className="text-green-400 text-center text-sm mb-2">Live Waveform</Text>
-                <AudioWaveform audioLevel={audioLevel} />
-              </View>
             </View>
-            
-            <View className="space-y-3">
-              <Text className="text-green-400 text-center text-sm">Voice recognition: {isListening ? 'ACTIVE' : 'DISABLED'}</Text>
-              <Text className="text-yellow-400 text-center text-xs">HINT: Try saying "unlock core" or "access granted"</Text>
-            </View>
-          </View>
+          )}
         </View>
         
         <HomeButton active={true} onPress={onGoHome} />

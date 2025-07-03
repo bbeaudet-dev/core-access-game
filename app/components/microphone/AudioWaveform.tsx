@@ -7,7 +7,7 @@ interface AudioWaveformProps {
 export default function AudioWaveform({ audioLevel }: AudioWaveformProps) {
   // Generate waveform bars based on audio level
   const generateWaveform = () => {
-    const bars = 48;
+    const bars = 24; // Reduced from 48 for mobile
     const minBarHeight = 5;
     const maxBarHeight = 60;
     const adjustedAudio = Math.max(0, 60 + audioLevel); // 0 (silent) to 60 (loud)
@@ -22,14 +22,11 @@ export default function AudioWaveform({ audioLevel }: AudioWaveformProps) {
           key={i}
           className="bg-green-400 rounded-sm mx-0.5"
           style={{
-            width: 6,
+            width: 4,
             height: barHeight,
             marginTop: 5,
             marginBottom: 5,
             opacity: 0.8,
-            position: 'absolute',
-            left: i * 10,
-            zIndex: 2,
           }}
         />
       );
@@ -40,7 +37,7 @@ export default function AudioWaveform({ audioLevel }: AudioWaveformProps) {
 
   return (
     <View className="bg-gray-800 rounded-lg p-4 mb-4">
-      <View className="flex-row justify-center items-center" style={{ height: 80, position: 'relative', width: 480 }}>
+      <View className="flex-row justify-center items-center" style={{ height: 80 }}>
         {generateWaveform()}
       </View>
     </View>

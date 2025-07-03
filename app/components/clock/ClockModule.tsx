@@ -13,8 +13,6 @@ interface ClockModuleProps {
 }
 
 export default function ClockModule({ onGoHome }: ClockModuleProps) {
-  // All modules are now unlocked by default
-  const [puzzleSolved, setPuzzleSolved] = useState(false);
   
   // Stopwatch state
   const [stopwatchTime, setStopwatchTime] = useState(0);
@@ -27,14 +25,6 @@ export default function ClockModule({ onGoHome }: ClockModuleProps) {
   const [timerTotalTime, setTimerTotalTime] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
   const [timerInterval, setTimerInterval] = useState<number | null>(null);
-
-  // Check for puzzle completion
-  useEffect(() => {
-    if (stopwatchTime >= 30000 && !puzzleSolved) { // 30 seconds
-      setPuzzleSolved(true);
-      // Gyro module is now always unlocked, so no need to call unlockModule
-    }
-  }, [stopwatchTime, puzzleSolved]);
 
   // Stopwatch functions
   const toggleStopwatch = () => {
@@ -134,7 +124,7 @@ export default function ClockModule({ onGoHome }: ClockModuleProps) {
         <View className="p-4">
           <ModuleHeader name="CLOCK" color="yellow" />
           
-          <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+          <ScrollView className="flex-col" showsVerticalScrollIndicator={false}>
             <View className="space-y-4">
 
               <RealClock />
