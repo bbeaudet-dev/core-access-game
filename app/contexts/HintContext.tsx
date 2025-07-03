@@ -5,7 +5,7 @@ export interface Hint {
   id: string;
   title: string;
   description: string;
-  category: 'gyro' | 'compass' | 'camera' | 'audio' | 'general';
+  category: 'gyro' | 'compass' | 'camera' | 'microphone' | 'general';
   unlocked: boolean;
   unlockedAt?: Date;
   condition: string;
@@ -59,7 +59,7 @@ const DEFAULT_HINTS: Hint[] = [
     id: 'audio-listener',
     title: 'Sound Detective',
     description: 'You\'ve been monitoring audio levels. The microphone can detect sound patterns and frequencies.',
-    category: 'audio',
+    category: 'microphone',
     unlocked: false,
     condition: 'Monitor audio for 10+ seconds'
   }

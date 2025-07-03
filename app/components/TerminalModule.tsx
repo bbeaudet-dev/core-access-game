@@ -21,7 +21,7 @@ export default function TerminalModule({ onGoHome }: TerminalModuleProps) {
             <Text className="text-green-400 text-base font-mono mb-2">Access: DENIED</Text>
             <Text className="text-green-400 text-base font-mono mb-2">$ unlock core</Text>
             <Text className="text-red-400 text-base font-mono mb-2">ERROR: Authentication required</Text>
-            <Text className="text-green-400 text-base font-mono mb-2">$ inspect vault</Text>
+            <Text className="text-green-400 text-base font-mono mb-2">$ inspect home</Text>
             <Text className="text-yellow-400 text-base font-mono mb-2">WARNING: Multiple access attempts detected</Text>
             <Text className="text-green-400 text-base font-mono mb-2">$ help</Text>
             <Text className="text-green-400 text-base font-mono mb-2">Available commands: status, unlock, inspect, help</Text>

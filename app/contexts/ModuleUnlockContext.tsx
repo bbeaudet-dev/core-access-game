@@ -7,12 +7,13 @@ export type ModuleName =
   | 'clock' 
   | 'gyro' 
   | 'compass' 
-  | 'audio' 
+  | 'microphone' 
   | 'camera' 
   | 'accelerometer'
   | 'wifi'
   | 'logs'
-  | 'help';
+  | 'help'
+  | 'music'
 
 export interface ModuleUnlock {
   name: ModuleName;
@@ -38,6 +39,8 @@ interface ModuleUnlockContextType {
 
 const ModuleUnlockContext = createContext<ModuleUnlockContextType | undefined>(undefined);
 
+// TEMPORARY: All modules unlocked for testing - EASILY REVERSIBLE
+// To revert: change all "unlocked: true" back to "unlocked: false" except terminal, system, clock
 const DEFAULT_MODULES: ModuleUnlock[] = [
   {
     name: 'terminal',
@@ -71,7 +74,7 @@ const DEFAULT_MODULES: ModuleUnlock[] = [
     displayName: 'GYRO',
     icon: '⚡',
     color: 'bg-red-500',
-    unlocked: false,
+    unlocked: true, // TEMPORARY: Unlocked for testing
     requirement: 'Solve the clock puzzle (TBD)',
     order: 4
   },
@@ -80,16 +83,16 @@ const DEFAULT_MODULES: ModuleUnlock[] = [
     displayName: 'COMPASS',
     icon: '🧭',
     color: 'bg-red-500',
-    unlocked: false,
+    unlocked: true, // TEMPORARY: Unlocked for testing
     requirement: 'Unlock gyroscope module',
     order: 5
   },
   {
-    name: 'audio',
-    displayName: 'AUDIO',
+    name: 'microphone',
+    displayName: 'MICROPHONE',
     icon: '🎵',
     color: 'bg-red-500',
-    unlocked: false,
+    unlocked: true, // TEMPORARY: Unlocked for testing
     requirement: 'Unlock compass module',
     order: 6
   },
@@ -98,8 +101,8 @@ const DEFAULT_MODULES: ModuleUnlock[] = [
     displayName: 'PHONE CAMERA',
     icon: '📷',
     color: 'bg-red-500',
-    unlocked: false,
-    requirement: 'Unlock audio module',
+    unlocked: true, // TEMPORARY: Unlocked for testing
+    requirement: 'Unlock microphone module',
     order: 7
   },
   {
@@ -107,7 +110,7 @@ const DEFAULT_MODULES: ModuleUnlock[] = [
     displayName: 'ACCELEROMETER',
     icon: '📊',
     color: 'bg-purple-500',
-    unlocked: false,
+    unlocked: true, // TEMPORARY: Unlocked for testing
     requirement: 'Unlock camera module',
     order: 8
   },
@@ -116,7 +119,7 @@ const DEFAULT_MODULES: ModuleUnlock[] = [
     displayName: 'WIFI',
     icon: '📡',
     color: 'bg-blue-500',
-    unlocked: false,
+    unlocked: true, // TEMPORARY: Unlocked for testing
     requirement: 'Unlock accelerometer module',
     order: 9
   },
@@ -125,7 +128,7 @@ const DEFAULT_MODULES: ModuleUnlock[] = [
     displayName: 'LOGS',
     icon: '📋',
     color: 'bg-red-500',
-    unlocked: false,
+    unlocked: true, // TEMPORARY: Unlocked for testing
     requirement: 'Unlock wifi module',
     order: 10
   },
@@ -134,9 +137,18 @@ const DEFAULT_MODULES: ModuleUnlock[] = [
     displayName: 'HELP',
     icon: '💡',
     color: 'bg-blue-500',
-    unlocked: false,
+    unlocked: true, // TEMPORARY: Unlocked for testing
     requirement: 'Unlock logs module',
     order: 11
+  },
+  {
+    name: 'music',
+    displayName: 'MUSIC',
+    icon: '🎶',
+    color: 'bg-green-500',
+    unlocked: true, // TEMPORARY: Unlocked for testing
+    requirement: 'Unlock help module',
+    order: 12
   }
 ];
 

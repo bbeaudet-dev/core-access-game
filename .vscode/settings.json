@@ -28,7 +28,8 @@
     "LOCKDOWN",
     "nativewind",
     "neondatabase",
-    "NEXTAUTH"
+    "NEXTAUTH",
+    "Unlockable"
   ],
   "cSpell.ignoreWords": [
     "phonecamera"

@@ -31,10 +31,10 @@ export default function CompassModule({ onGoHome }: CompassModuleProps) {
     return () => _unsubscribe();
   }, [isAvailable]);
 
-  // Unlock audio module if facing North (within 10 degrees)
+  // Unlock microphone module if facing North (within 10 degrees)
   useEffect(() => {
-    if (isAvailable && Math.abs(heading) < 10 && !isModuleUnlocked('audio')) {
-      unlockModule('audio');
+    if (isAvailable && Math.abs(heading) < 10 && !isModuleUnlocked('microphone')) {
+      unlockModule('microphone');
     }
   }, [heading, isAvailable, unlockModule, isModuleUnlocked]);
 

@@ -1,13 +1,8 @@
 // API Configuration
 export const API_CONFIG = {
   // Development (local)
-  development: {
-    baseURL: 'https://core-access-api.onrender.com', // Use deployed API for now
-  },
-  // Production (Render)
-  production: {
-    baseURL: 'https://core-access-api.onrender.com',
-  },
+  development: {baseURL: 'https://localhost:3001'},
+  production: {baseURL: 'https://core-access-api.onrender.com'},
 };
 
 // Get the current environment
