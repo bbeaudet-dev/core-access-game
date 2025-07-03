@@ -1,11 +1,14 @@
 import { Magnetometer } from 'expo-sensors';
 import { useEffect, useState } from 'react';
-import { Dimensions, Platform, Text, View } from 'react-native';
-import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
+import { Platform, View } from 'react-native';
 
 import HomeButton from '../ui/HomeButton';
 import ModuleHeader from '../ui/ModuleHeader';
 import PhoneFrame from '../ui/PhoneFrame';
+import CompassData from './CompassData';
+import CompassDisplay from './CompassDisplay';
+import CompassError from './CompassError';
+import CompassUnavailable from './CompassUnavailable';
 
 interface CompassModuleProps {
   onGoHome: () => void;
@@ -98,141 +101,12 @@ export default function CompassModule({ onGoHome }: CompassModuleProps) {
 
   const direction = getDirection(heading);
 
-  // Render circular compass
-  const renderCompass = () => {
-    const screenWidth = Dimensions.get('window').width;
-    const size = Math.min(400, Math.floor(screenWidth * 0.95));
-    const center = size / 2;
-    const radius = size / 2 - 20;
-    const needleLength = radius - 20;
-    
-    // Cardinal directions
-    const directions = [
-      { text: 'N', angle: 0 },
-      { text: 'NE', angle: 45 },
-      { text: 'E', angle: 90 },
-      { text: 'SE', angle: 135 },
-      { text: 'S', angle: 180 },
-      { text: 'SW', angle: 225 },
-      { text: 'W', angle: 270 },
-      { text: 'NW', angle: 315 }
-    ];
-
-    return (
-      <View className="items-center justify-center" style={{ minHeight: size + 20 }}>
-        <Svg width={size} height={size}>
-          {/* Outer circle */}
-          <Circle
-            cx={center}
-            cy={center}
-            r={radius}
-            stroke="#333"
-            strokeWidth="3"
-            fill="#18181b"
-          />
-          
-          {/* Inner circle */}
-          <Circle
-            cx={center}
-            cy={center}
-            r={radius - 10}
-            stroke="#444"
-            strokeWidth="1"
-            fill="#232323"
-          />
-          
-          {/* Cardinal direction markers */}
-          {directions.map((dir, index) => {
-            const angle = (dir.angle - heading) * Math.PI / 180;
-            const x1 = center + (radius - 15) * Math.sin(angle);
-            const y1 = center - (radius - 15) * Math.cos(angle);
-            const x2 = center + radius * Math.sin(angle);
-            const y2 = center - radius * Math.cos(angle);
-            const textX = center + (radius + 15) * Math.sin(angle);
-            const textY = center - (radius + 15) * Math.cos(angle);
-            
-            return (
-              <>
-                <Line
-                  key={`line-${index}`}
-                  x1={x1}
-                  y1={y1}
-                  x2={x2}
-                  y2={y2}
-                  stroke={dir.text === 'N' ? '#ef4444' : '#666'}
-                  strokeWidth={dir.text === 'N' ? '3' : '1'}
-                />
-                <SvgText
-                  key={`text-${index}`}
-                  x={textX}
-                  y={textY}
-                  fontSize="18"
-                  fontWeight="bold"
-                  fill={dir.text === 'N' ? '#ef4444' : '#bbb'}
-                  textAnchor="middle"
-                  alignmentBaseline="middle"
-                >
-                  {dir.text}
-                </SvgText>
-              </>
-            );
-          })}
-          
-          {/* Center dot */}
-          <Circle
-            cx={center}
-            cy={center}
-            r="6"
-            fill="#ef4444"
-          />
-          
-          {/* North needle */}
-          <Line
-            x1={center}
-            y1={center}
-            x2={center}
-            y2={center - needleLength}
-            stroke="#ef4444"
-            strokeWidth="6"
-            strokeLinecap="round"
-          />
-        </Svg>
-      </View>
-    );
-  };
-
   if (error) {
-    return (
-      <PhoneFrame>
-        <View className="flex-1 bg-black">
-          <View className="p-4">
-            <ModuleHeader name="COMPASS" color="blue" />
-            <View className="flex-1 justify-center items-center p-5">
-              <Text className="text-red-500 text-lg text-center mb-4">Error: {error}</Text>
-              <Text className="text-gray-400 text-sm text-center">Try on a mobile device or enable device orientation</Text>
-            </View>
-          </View>
-          <HomeButton active={true} onPress={onGoHome} />
-        </View>
-      </PhoneFrame>
-    );
+    return <CompassError error={error} onGoHome={onGoHome} />;
   }
 
   if (!isAvailable) {
-    return (
-      <PhoneFrame>
-        <View className="flex-1 bg-black">
-          <View className="p-4">
-            <ModuleHeader name="COMPASS" color="blue" />
-            <View className="flex-1 justify-center items-center p-5">
-              <Text className="text-red-500 text-lg text-center mb-4">Magnetometer not available</Text>
-              <Text className="text-gray-400 text-sm text-center">This device doesn't support magnetometer sensors</Text>
-            </View>
-          </View>
-          <HomeButton active={true} onPress={onGoHome} />
-        </View>
-      </PhoneFrame>
-    );
+    return <CompassUnavailable onGoHome={onGoHome} />;
   }
 
   return (
@@ -240,18 +114,12 @@ export default function CompassModule({ onGoHome }: CompassModuleProps) {
       <View className="flex-1 bg-black w-full">
         <ModuleHeader name="COMPASS" color="blue" />
         <View className="flex-1 w-full items-center justify-center">
-          {/* Circular Compass */}
-          {renderCompass()}
-          <View className="items-center my-4">
-            <Text className="text-green-400 text-5xl font-bold font-mono mb-1">{direction}</Text>
-            <Text className="text-red-500 text-lg font-bold uppercase">DIRECTION</Text>
-          </View>
-          <View className="bg-gray-800 p-3 rounded-lg mb-2 items-center w-full max-w-xs">
-            <Text className="text-green-400 text-2xl font-mono mb-1">Heading: {heading.toFixed(1)}°</Text>
-            <Text className="text-green-400 text-base font-mono mb-1">X: {magnetometerData.x.toFixed(2)}</Text>
-            <Text className="text-green-400 text-base font-mono mb-1">Y: {magnetometerData.y.toFixed(2)}</Text>
-            <Text className="text-green-400 text-base font-mono mb-1">Z: {magnetometerData.z.toFixed(2)}</Text>
-          </View>
+          <CompassDisplay heading={heading} />
+          <CompassData 
+            direction={direction}
+            heading={heading}
+            magnetometerData={magnetometerData}
+          />
         </View>
         <HomeButton active={true} onPress={onGoHome} />
       </View>

@@ -1,7 +1,7 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, View } from 'react-native';
 import AppIcon from './ui/AppIcon';
-import PhoneFrame from './ui/PhoneFrame';
 import HomeButton from './ui/HomeButton';
+import PhoneFrame from './ui/PhoneFrame';
 
 // Define all available modules directly
 const ALL_MODULES = [
@@ -29,28 +29,30 @@ export default function HomeScreen({
   onOpenModule 
 }: HomeScreenProps) {
   return (
-    <PhoneFrame>
-      <View className="flex-1 bg-black">
-        <View className="p-5 pt-15 flex-row justify-between items-center">
-          <Text className="text-red-500 text-2xl font-bold">EMERGENCY MODE</Text>
-        </View>
-        
-        <View className="flex-1 p-5 my-2 ">
-          <View className="flex-row flex-wrap">
-            {ALL_MODULES.map(module => (
-              <View key={module.name} className="w-1/4 mb-4">
-                <AppIcon
-                  icon={module.icon}
-                  name={module.displayName}
-                  color={module.color}
-                  onPress={() => onOpenModule(module.name)}
-                />
-              </View>
-            ))}
+    <View className="flex-1 bg-gray-900 relative">
+      <PhoneFrame>
+        <View className="flex-1 bg-black relative">
+          <View className="p-5 pt-15 flex-row justify-between items-center" style={{ zIndex: 1 }}>
+            <Text className="text-red-500 text-2xl font-bold">EMERGENCY MODE</Text>
           </View>
+          
+          <View className="flex-1 p-5 my-2" style={{ zIndex: 1 }}>
+            <View className="flex-row flex-wrap">
+              {ALL_MODULES.map(module => (
+                <View key={module.name} className="w-1/4 mb-4">
+                  <AppIcon
+                    icon={module.icon}
+                    name={module.displayName}
+                    color={module.color}
+                    onPress={() => onOpenModule(module.name)}
+                  />
+                </View>
+              ))}
+            </View>
+          </View>
+          <HomeButton active={false} onPress={() => {}} />
         </View>
-        <HomeButton active={false} onPress={() => {}} />
-      </View>
-    </PhoneFrame>
+      </PhoneFrame>
+    </View>
   );
 } 
