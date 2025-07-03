@@ -2,7 +2,7 @@ import { Gyroscope } from 'expo-sensors';
 import { useEffect, useState } from 'react';
 import { Platform, Text, View } from 'react-native';
 import { useHints } from '../../contexts/HintContext';
-import { useModuleUnlock } from '../../contexts/ModuleUnlockContext';
+
 import HomeButton from '../ui/HomeButton';
 import ModuleHeader from '../ui/ModuleHeader';
 import PhoneFrame from '../ui/PhoneFrame';
@@ -25,7 +25,7 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
   const [speedHistory, setSpeedHistory] = useState<number[]>([]); // For sparkline
 
   const { checkGyroAchievement } = useHints();
-  const { unlockModule } = useModuleUnlock();
+  // All modules are now unlocked by default
 
   // Speed threshold to unlock (in degrees/second)
   const UNLOCK_THRESHOLD = 50;
@@ -83,7 +83,7 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
             // Check if we should unlock
             if (speed >= UNLOCK_THRESHOLD && !isUnlocked) {
               setIsUnlocked(true);
-              unlockModule('compass'); // Unlock the next module
+              // Compass module is now always unlocked, so no need to call unlockModule
             }
             return speed;
           }
