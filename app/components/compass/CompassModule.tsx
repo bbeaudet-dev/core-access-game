@@ -1,6 +1,7 @@
 import { Magnetometer } from 'expo-sensors';
 import { useEffect, useState } from 'react';
 import { Platform, View } from 'react-native';
+import { usePuzzle } from '../../contexts/PuzzleContext';
 
 import HomeButton from '../ui/HomeButton';
 import ModuleHeader from '../ui/ModuleHeader';
@@ -20,7 +21,12 @@ export default function CompassModule({ onGoHome }: CompassModuleProps) {
   const [subscription, setSubscription] = useState<any>(null);
   const [isAvailable, setIsAvailable] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // All modules are now unlocked by default
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  
+  const { updatePuzzleProgress, completePuzzle } = usePuzzle();
+
+  // North direction tolerance (degrees)
+  const NORTH_TOLERANCE = 10;
 
   useEffect(() => {
     checkMagnetometerAvailability();
@@ -71,6 +77,13 @@ export default function CompassModule({ onGoHome }: CompassModuleProps) {
         heading = (heading + 360) % 360;
         
         setHeading(heading);
+        
+        // Check if pointing north for puzzle completion
+        const isPointingNorth = heading <= NORTH_TOLERANCE || heading >= (360 - NORTH_TOLERANCE);
+        if (isPointingNorth && !isUnlocked) {
+          setIsUnlocked(true);
+          completePuzzle('compass_orientation');
+        }
       })
     );
   };

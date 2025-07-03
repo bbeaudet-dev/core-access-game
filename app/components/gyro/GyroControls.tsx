@@ -22,7 +22,7 @@ export default function GyroControls({ subscription, onToggleGyroscope, onResetM
         onPress={onResetMaxSpeed}
         className="bg-gray-700 p-3 rounded-lg flex-1 ml-2"
       >
-        <Text className="text-white text-center font-mono">RESET</Text>
+        <Text className="text-white text-center font-mono">RESET MAX</Text>
       </TouchableOpacity>
     </View>
   );

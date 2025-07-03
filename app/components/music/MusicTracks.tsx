@@ -15,7 +15,7 @@ export default function MusicTracks({
 }: MusicTracksProps) {
   return (
     <View className="space-y-4">
-      <Text className="text-purple-400 text-lg font-bold">Background Music</Text>
+      <Text className="text-purple-400 text-lg font-bold">Music</Text>
       
       {musicTracks.map((track) => (
         <TouchableOpacity
