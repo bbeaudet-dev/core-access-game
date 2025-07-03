@@ -113,7 +113,7 @@ export default function CompassModule({ onGoHome }: CompassModuleProps) {
     <PhoneFrame>
       <View className="flex-1 bg-black w-full">
         <ModuleHeader name="COMPASS" color="blue" />
-        <View className="flex-1 w-full items-center justify-center">
+        <View className="flex-col w-full items-center justify-center">
           <CompassDisplay heading={heading} />
           <CompassData 
             direction={direction}

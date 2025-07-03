@@ -118,12 +118,13 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
     checkGyroAchievement(maxSpeed);
   }, [maxSpeed, checkGyroAchievement]);
 
-  if (!isAvailable) {
-    return (
-      <PhoneFrame>
-        <View className="flex-1 bg-black">
-          <View className="p-4">
-            <ModuleHeader name="GYRO" color="green" />
+  return (
+    <PhoneFrame>
+      <View className="flex-1 bg-black">
+        <View className="p-4">
+          <ModuleHeader name="GYRO" color="green" />
+          
+          {!isAvailable ? (
             <View className="flex-1 justify-center items-center">
               <Text className="text-red-400 text-center font-mono mb-4">
                 {error || 'Gyroscope not available'}
@@ -132,63 +133,37 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
                 Try on a physical device
               </Text>
             </View>
-          </View>
-          <HomeButton active={true} onPress={onGoHome} />
-        </View>
-      </PhoneFrame>
-    );
-  }
+          ) : (
+            <>
+              
+              <View className="space-y-4">
+                {/* Speed Display Components */}
+                <SpeedDisplay currentSpeed={currentSpeed} maxSpeed={maxSpeed} />
 
-  return (
-    <PhoneFrame>
-      <View className="flex-1 bg-black">
-        <View className="p-4">
-          <ModuleHeader name="GYRO" color="green" />
-          
-          {/* Unlock Status */}
-          <View className="bg-gray-900 p-4 rounded-lg mb-4">
-              <Text className="text-gray-400 text-sm font-mono mb-2">STATUS</Text>
-              <Text className={`text-2xl font-mono ${isUnlocked ? 'text-green-400' : 'text-red-400'}`}>
-                {isUnlocked ? 'UNLOCKED' : 'LOCKED'}
-              </Text>
-              {!isUnlocked && (
-                <Text className="text-gray-500 text-sm font-mono mt-2">
-                  Need {UNLOCK_THRESHOLD}°/s to unlock compass
-                </Text>
-              )}
-              {isUnlocked && (
-                <Text className="text-green-400 text-sm font-mono mt-2">
-                  Compass module unlocked! 🧭
-                </Text>
-              )}
-            </View>
-          
-          <View className="space-y-4">
-            {/* Speed Display Components */}
-            <SpeedDisplay currentSpeed={currentSpeed} maxSpeed={maxSpeed} />
+                {/* Speed Plot Component */}
+                <SpeedPlot 
+                  speedHistory={speedHistory} 
+                  maxSpeed={maxSpeed} 
+                  historyLength={HISTORY_LENGTH} 
+                />
+                
+                {/* Raw Data */}
+                <View className="bg-gray-900 p-4 rounded-lg flex flex-row justify-between my-1">
+                  <Text className="text-gray-400 text-sm font-mono mb-2">RAW DATA</Text>
+                  <Text className="text-gray-300 text-sm font-mono">X: {gyroscopeData.x.toFixed(2)}</Text>
+                  <Text className="text-gray-300 text-sm font-mono">Y: {gyroscopeData.y.toFixed(2)}</Text>
+                  <Text className="text-gray-300 text-sm font-mono">Z: {gyroscopeData.z.toFixed(2)}</Text>
+                </View>
 
-            {/* Speed Plot Component */}
-            <SpeedPlot 
-              speedHistory={speedHistory} 
-              maxSpeed={maxSpeed} 
-              historyLength={HISTORY_LENGTH} 
-            />
-            
-            {/* Raw Data */}
-            <View className="bg-gray-900 p-4 rounded-lg flex flex-row justify-between my-1">
-              <Text className="text-gray-400 text-sm font-mono mb-2">RAW DATA</Text>
-              <Text className="text-gray-300 text-sm font-mono">X: {gyroscopeData.x.toFixed(2)}</Text>
-              <Text className="text-gray-300 text-sm font-mono">Y: {gyroscopeData.y.toFixed(2)}</Text>
-              <Text className="text-gray-300 text-sm font-mono">Z: {gyroscopeData.z.toFixed(2)}</Text>
-            </View>
-
-            {/* Controls Component */}
-            <GyroControls 
-              subscription={subscription}
-              onToggleGyroscope={toggleGyroscope}
-              onResetMaxSpeed={resetMaxSpeed}
-            />
-          </View>
+                {/* Controls Component */}
+                <GyroControls 
+                  subscription={subscription}
+                  onToggleGyroscope={toggleGyroscope}
+                  onResetMaxSpeed={resetMaxSpeed}
+                />
+              </View>
+            </>
+          )}
         </View>
         <HomeButton active={true} onPress={onGoHome} />
       </View>
