@@ -11,7 +11,9 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "This app needs access to the microphone to detect audio levels and provide audio feedback."
+        "NSMicrophoneUsageDescription": "This app needs access to the microphone to detect audio levels and provide audio feedback.",
+        "NSLocationWhenInUseUsageDescription": "This app needs access to location to provide GPS-based puzzle functionality.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app needs access to location to provide GPS-based puzzle functionality."
       }
     },
     "android": {

@@ -1,6 +1,7 @@
 import { Audio } from 'expo-av';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Text, TouchableOpacity, View } from 'react-native';
+import { usePuzzle } from '../../contexts/PuzzleContext';
 import HomeButton from '../ui/HomeButton';
 import ModuleHeader from '../ui/ModuleHeader';
 import PhoneFrame from '../ui/PhoneFrame';
@@ -16,7 +17,14 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [audioLevel, setAudioLevel] = useState(0);
   const [isListening, setIsListening] = useState(false);
+  const [maxAudioLevel, setMaxAudioLevel] = useState(0);
+  const [isUnlocked, setIsUnlocked] = useState(false);
   const audioLevelAnim = useRef(new Animated.Value(0)).current;
+  
+  const { updatePuzzleProgress, completePuzzle } = usePuzzle();
+
+  // Audio level threshold to unlock puzzle
+  const UNLOCK_THRESHOLD = 70; // dB
 
   useEffect(() => {
     const requestPermissions = async () => {
@@ -51,6 +59,20 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
           if (status.isRecording) {
             const level = status.metering || 0;
             setAudioLevel(level);
+            
+            // Update max audio level and check for puzzle completion
+            setMaxAudioLevel(prevMax => {
+              if (level > prevMax) {
+                // Check if we should unlock puzzle
+                if (level >= UNLOCK_THRESHOLD && !isUnlocked) {
+                  setIsUnlocked(true);
+                  completePuzzle('microphone_level');
+                }
+                
+                return level;
+              }
+              return prevMax;
+            });
             
             // Animate the audio level
             Animated.timing(audioLevelAnim, {
