@@ -1,35 +1,36 @@
 import { useState } from 'react';
 import { Animated, View } from 'react-native';
-import AboutScreen from './components/about/AboutScreen';
-import CoreVitalsScreen from './components/about/CoreVitalsScreen';
-import SystemModule from './components/about/System/SystemModule';
-import AccelerometerModule from './components/accelerometer/AccelerometerModule';
-import BarometerModule from './components/barometer/BarometerModule';
-import BatteryModule from './components/battery/BatteryModule';
-import CalculatorModule from './components/calculator/CalculatorModule';
-import PhoneCameraModule from './components/camera/PhoneCameraModule';
-import ClockModule from './components/clock/ClockModule';
-import CompassModule from './components/compass/CompassModule';
-import FlashlightModule from './components/flashlight/FlashlightModule';
-import GyroModule from './components/gyro/GyroModule';
-import HelpModule from './components/help/HelpModule';
+import AboutScreen from './components/Modules/about/AboutScreen';
+import CoreVitalsScreen from './components/Modules/about/CoreVitalsScreen';
+import SystemModule from './components/Modules/about/System/SystemModule';
 import HomeScreen from './components/HomeScreen';
 import InfectionSequence from './components/InfectionSequence';
 import LoginScreen from './components/login/LoginScreen';
-import LogsModule from './components/LogsModule';
-import MapsModule from './components/maps/MapsModule';
-import MicrophoneModule from './components/microphone/MicrophoneModule';
-import MusicModule from './components/music/MusicModule';
-import TerminalModule from './components/TerminalModule';
-import FakeGameMenu from './components/tower-defense/FakeGameMenu';
-import TowerDefenseGame from './components/tower-defense/TowerDefenseGame';
-import WeatherModule from './components/weather/WeatherModule';
-import WifiModule from './components/wifi/WifiModule';
+import AccelerometerModule from './components/Modules/accelerometer/AccelerometerModule';
+import BarometerModule from './components/Modules/barometer/BarometerModule';
+import BatteryModule from './components/Modules/battery/BatteryModule';
+import CalculatorModule from './components/Modules/calculator/CalculatorModule';
+import PhoneCameraModule from './components/Modules/camera/PhoneCameraModule';
+import ClockModule from './components/Modules/clock/ClockModule';
+import CompassModule from './components/Modules/compass/CompassModule';
+import FlashlightModule from './components/Modules/flashlight/FlashlightModule';
+import GamesModule from './components/Modules/games/GamesModule';
+import GyroModule from './components/Modules/gyro/GyroModule';
+import HelpModule from './components/Modules/help/HelpModule';
+import LogsModule from './components/Modules/logs/LogsModule';
+import MapsModule from './components/Modules/maps/MapsModule';
+import MicrophoneModule from './components/Modules/microphone/MicrophoneModule';
+import MusicModule from './components/Modules/music/MusicModule';
+import TerminalModule from './components/Modules/terminal/TerminalModule';
+import WeatherModule from './components/Modules/weather/WeatherModule';
+import WifiModule from './components/Modules/wifi/WifiModule';
+import FakeGameMenu from './components/towerdefense/FakeGameMenu';
+import TowerDefenseGame from './components/towerdefense/TowerDefenseGame';
 import { useAuth } from './contexts/AuthContext';
 import { startInfectionSequence } from './utils/infectionSequence';
 
 // Define module names type
-type ModuleName = 'terminal' | 'system' | 'clock' | 'gyro' | 'compass' | 'microphone' | 'camera' | 'accelerometer' | 'wifi' | 'logs' | 'help' | 'music' | 'flashlight' | 'battery' | 'barometer' | 'maps' | 'calculator' | 'weather';
+type ModuleName = 'terminal' | 'system' | 'clock' | 'gyro' | 'compass' | 'microphone' | 'camera' | 'accelerometer' | 'wifi' | 'logs' | 'help' | 'music' | 'flashlight' | 'battery' | 'barometer' | 'maps' | 'calculator' | 'weather' | 'games';
 
 // Module mapping object - much cleaner than repetitive if statements
 const MODULE_COMPONENTS = {
@@ -50,6 +51,7 @@ const MODULE_COMPONENTS = {
   maps: MapsModule,
   calculator: CalculatorModule,
   weather: WeatherModule,
+  games: GamesModule,
 } as const;
 
 function AppContent() {
