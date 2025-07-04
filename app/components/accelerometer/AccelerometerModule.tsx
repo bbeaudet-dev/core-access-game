@@ -23,16 +23,17 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
   const [subscription, setSubscription] = useState<any>(null);
   const [isAvailable, setIsAvailable] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [movementType, setMovementType] = useState<string>('STATIONARY');
+  const [movementEquivalent, setMovementEquivalent] = useState<string>('STATIONARY');
+  const [highestMovementEquivalent, setHighestMovementEquivalent] = useState<string>('STATIONARY');
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [accelerationHistory, setAccelerationHistory] = useState<number[]>([]); // For sparkline
-  const [unitType, setUnitType] = useState<UnitType>('g'); // Unit toggle
+  const [unitType, setUnitType] = useState<UnitType>('m/s²'); // Changed default to m/s²
   const [normalized, setNormalized] = useState(false); // Normalized graph toggle
   
   const { updatePuzzleProgress, completePuzzle } = usePuzzle();
 
-  // Acceleration threshold to unlock puzzle (in g-force)
-  const UNLOCK_THRESHOLD = 1.5; // ~15 m/s² in g-force units
+  // Acceleration threshold to unlock puzzle (in m/s²)
+  const UNLOCK_THRESHOLD = 15; // 15 m/s²
   // Sparkline settings
   const HISTORY_LENGTH = 200; // 20 seconds at 10Hz
 
@@ -108,6 +109,49 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
     }
   };
 
+  const getMovementEquivalent = (acceleration: number): string => {
+    // Convert to m/s² for consistent comparison
+    const accelerationMS2 = convertToUnit(acceleration, 'm/s²');
+    
+    if (accelerationMS2 < 1.5) {
+      return 'STATIONARY';
+    } else if (accelerationMS2 < 3) {
+      return 'CRAWLING';
+    } else if (accelerationMS2 < 6) {
+      return 'WALKING';
+    } else if (accelerationMS2 < 12) {
+      return 'JOGGING';
+    } else if (accelerationMS2 < 20) {
+      return 'RUNNING';
+    } else if (accelerationMS2 < 30) {
+      return 'SPRINTING';
+    } else if (accelerationMS2 < 50) {
+      return 'VEHICLE';
+    } else if (accelerationMS2 < 80) {
+      return 'HIGH SPEED';
+    } else if (accelerationMS2 < 120) {
+      return 'EXTREME SPEED';
+    } else {
+      return 'ROCKET LAUNCH';
+    }
+  };
+
+  const getMovementRank = (movement: string): number => {
+    const ranks = {
+      'STATIONARY': 0,
+      'CRAWLING': 1,
+      'WALKING': 2,
+      'JOGGING': 3,
+      'RUNNING': 4,
+      'SPRINTING': 5,
+      'VEHICLE': 6,
+      'HIGH SPEED': 7,
+      'EXTREME SPEED': 8,
+      'ROCKET LAUNCH': 9
+    };
+    return ranks[movement as keyof typeof ranks] || 0;
+  };
+
   const _subscribe = () => {
     if (!isAvailable) return;
 
@@ -126,7 +170,6 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
         // Update acceleration history for sparkline
         setAccelerationHistory(prev => {
           const next = [...prev, acceleration];
-          // Keep only the last HISTORY_LENGTH samples
           return next.length > HISTORY_LENGTH ? next.slice(next.length - HISTORY_LENGTH) : next;
         });
         
@@ -148,18 +191,16 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
           return prevMax;
         });
 
-        // Determine movement type
-        if (acceleration < 1.1) {
-          setMovementType('STATIONARY');
-        } else if (acceleration < 2.5) {
-          setMovementType('WALKING');
-        } else if (acceleration < 5) {
-          setMovementType('RUNNING');
-        } else if (acceleration < 10) {
-          setMovementType('VEHICLE');
-        } else {
-          setMovementType('HIGH SPEED');
-        }
+        // Use new movement equivalent function
+        const newMovementEquivalent = getMovementEquivalent(acceleration);
+        setMovementEquivalent(newMovementEquivalent);
+        
+        // Update highest movement equivalent
+        setHighestMovementEquivalent(prevHighest => {
+          const currentRank = getMovementRank(newMovementEquivalent);
+          const highestRank = getMovementRank(prevHighest);
+          return currentRank > highestRank ? newMovementEquivalent : prevHighest;
+        });
       })
     );
     Accelerometer.setUpdateInterval(100); // 10Hz
@@ -180,6 +221,7 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
 
   const resetMaxAcceleration = () => {
     setMaxAcceleration(0);
+    setHighestMovementEquivalent('STATIONARY');
     setIsUnlocked(false);
     setAccelerationHistory([]);
   };
@@ -202,52 +244,55 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
                 onPress={toggleUnit}
                 className="bg-purple-600 px-4 py-2 rounded-lg"
               >
-                <Text className="text-white text-center font-mono">
+                <Text className="text-white font-mono text-center">
                   {getUnitLabel(unitType)}
                 </Text>
               </TouchableOpacity>
             </View>
-            
-            {/* Graph Toggle Button */}
+
+            {/* Normalized Graph Toggle */}
             <View className="bg-gray-900 p-3 rounded-lg mb-4">
-              <Text className="text-gray-400 text-sm font-mono mb-2">GRAPH MODE</Text>
+              <Text className="text-gray-400 text-sm font-mono mb-2">GRAPH</Text>
               <TouchableOpacity 
                 onPress={() => setNormalized(!normalized)}
-                className={`px-4 py-2 rounded-lg ${normalized ? 'bg-green-600' : 'bg-blue-600'}`}
+                className={`px-4 py-2 rounded-lg ${normalized ? 'bg-green-600' : 'bg-gray-600'}`}
               >
-                <Text className="text-white text-center font-mono">
-                  {normalized ? 'NORMALIZED' : 'FULL RANGE'}
+                <Text className="text-white font-mono text-center">
+                  {normalized ? 'NORM' : 'RAW'}
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
 
-          
-          <AccelerometerData 
+          <AccelerometerData
             currentAcceleration={convertToUnit(currentAcceleration, unitType)}
             maxAcceleration={convertToUnit(maxAcceleration, unitType)}
-            movementType={movementType}
+            movementEquivalent={movementEquivalent}
+            highestMovementEquivalent={highestMovementEquivalent}
             accelerometerData={accelerometerData}
             unitType={unitType}
             expectedGravity={getExpectedGravity(unitType)}
           />
 
-          {/* Speed Plot Component */}
-          <AccelerometerPlot 
-            speedHistory={accelerationHistory.map(val => convertToUnit(val, unitType))}
-            maxSpeed={convertToUnit(maxAcceleration, unitType)} 
-            historyLength={HISTORY_LENGTH}
-            unitType={unitType}
-            normalized={normalized}
-            title="ACCELERATION PLOT"
-            color="purple"
-          />
-
-          <AccelerometerControls 
+          <AccelerometerControls
             subscription={subscription}
             onToggleAccelerometer={toggleAccelerometer}
             onResetMaxAcceleration={resetMaxAcceleration}
           />
+
+          {/* Speed Plot */}
+          <View className="bg-gray-900 p-4 rounded-lg mt-4">
+            <Text className="text-gray-400 text-sm font-mono mb-2">ACCELERATION HISTORY</Text>
+            <AccelerometerPlot
+              speedHistory={accelerationHistory.map(val => convertToUnit(val, unitType))}
+              maxSpeed={convertToUnit(maxAcceleration, unitType)}
+              historyLength={HISTORY_LENGTH}
+              unitType={unitType}
+              normalized={normalized}
+              title="ACCELERATION PLOT"
+              color="purple"
+            />
+          </View>
         </View>
         <HomeButton active={true} onPress={onGoHome} />
       </View>

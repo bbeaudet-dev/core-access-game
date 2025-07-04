@@ -154,7 +154,7 @@ export default function TerminalModule({ onGoHome }: TerminalModuleProps) {
           
           <ScrollView 
             ref={scrollViewRef}
-            className="flex-1 bg-gray-900 rounded-lg p-4 mb-4"
+            className="flex-1 bg-gray-900 rounded-lg p-4 mb-4 min-h-[400px]"
             showsVerticalScrollIndicator={false}
           >
             {history.map((item, index) => (

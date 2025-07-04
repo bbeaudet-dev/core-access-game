@@ -1,25 +1,57 @@
 import { Text, View } from 'react-native';
-import { NetworkInfo } from './types';
+
+interface NetworkInfo {
+  name: string;
+  strength: number;
+  security: string;
+  frequency: string;
+  channel: number;
+}
 
 interface NetworkStatsProps {
   networks: NetworkInfo[];
 }
 
 export default function NetworkStats({ networks }: NetworkStatsProps) {
+  if (networks.length === 0) return null;
+
   const totalNetworks = networks.length;
-  const secureNetworks = networks.filter(n => n.security !== 'Open').length;
-  const fiveGhzNetworks = networks.filter(n => n.frequency === '5GHz').length;
-  const averageSignal = networks.length > 0 
-    ? Math.round(networks.reduce((sum, n) => sum + n.strength, 0) / networks.length) 
-    : 0;
+  const avgStrength = Math.round(networks.reduce((sum, net) => sum + net.strength, 0) / totalNetworks);
+  const secureNetworks = networks.filter(net => net.security !== 'Open').length;
+  const fiveGHzNetworks = networks.filter(net => net.frequency === '5GHz').length;
 
   return (
     <View className="bg-gray-900 p-4 rounded-lg">
-      <Text className="text-gray-400 text-sm font-mono mb-2">NETWORK STATS</Text>
-      <Text className="text-gray-300 text-sm font-mono">Total Networks: {totalNetworks}</Text>
-      <Text className="text-gray-300 text-sm font-mono">Secure Networks: {secureNetworks}</Text>
-      <Text className="text-gray-300 text-sm font-mono">5GHz Networks: {fiveGhzNetworks}</Text>
-      <Text className="text-gray-300 text-sm font-mono">Average Signal: {averageSignal}%</Text>
+      <Text className="text-blue-400 font-mono text-lg mb-2">NETWORK STATISTICS</Text>
+      
+      <View className="space-y-2">
+        <View className="flex-row justify-between">
+          <Text className="text-gray-400 font-mono">Total Networks:</Text>
+          <Text className="text-white font-mono">{totalNetworks}</Text>
+        </View>
+        
+        <View className="flex-row justify-between">
+          <Text className="text-gray-400 font-mono">Avg Signal:</Text>
+          <Text className={`font-mono ${getSignalColor(avgStrength)}`}>{avgStrength}%</Text>
+        </View>
+        
+        <View className="flex-row justify-between">
+          <Text className="text-gray-400 font-mono">Secure Networks:</Text>
+          <Text className="text-white font-mono">{secureNetworks}/{totalNetworks}</Text>
+        </View>
+        
+        <View className="flex-row justify-between">
+          <Text className="text-gray-400 font-mono">5GHz Networks:</Text>
+          <Text className="text-white font-mono">{fiveGHzNetworks}/{totalNetworks}</Text>
+        </View>
+      </View>
     </View>
   );
-} 
+}
+
+const getSignalColor = (strength: number): string => {
+  if (strength >= 80) return 'text-green-400';
+  if (strength >= 60) return 'text-yellow-400';
+  if (strength >= 40) return 'text-orange-400';
+  return 'text-red-400';
+}; 

@@ -1,11 +1,10 @@
 import * as Brightness from 'expo-brightness';
 import * as Haptics from 'expo-haptics';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import HomeButton from '../ui/HomeButton';
 import ModuleHeader from '../ui/ModuleHeader';
 import PhoneFrame from '../ui/PhoneFrame';
-import PuzzleStatus from '../ui/PuzzleStatus';
 
 interface FlashlightModuleProps {
   onGoHome: () => void;
@@ -13,24 +12,38 @@ interface FlashlightModuleProps {
 
 export default function FlashlightModule({ onGoHome }: FlashlightModuleProps) {
   const [isOn, setIsOn] = useState(false);
-  const [originalBrightness, setOriginalBrightness] = useState(0);
   const [isPlayingMorse, setIsPlayingMorse] = useState(false);
   const [morseMessage, setMorseMessage] = useState('SOS');
+  const originalBrightnessRef = useRef<number | null>(null);
 
   useEffect(() => {
-    // Store original brightness
-    Brightness.getBrightnessAsync().then(setOriginalBrightness);
+    // Store original brightness when component mounts
+    const storeOriginalBrightness = async () => {
+      try {
+        const brightness = await Brightness.getBrightnessAsync();
+        originalBrightnessRef.current = brightness;
+      } catch (error) {
+        console.error('Failed to get original brightness:', error);
+        originalBrightnessRef.current = 0.6; // Fallback
+      }
+    };
+    storeOriginalBrightness();
     
     return () => {
       // Restore original brightness when component unmounts
-      Brightness.setBrightnessAsync(originalBrightness);
+      if (originalBrightnessRef.current !== null) {
+        Brightness.setBrightnessAsync(originalBrightnessRef.current);
+      }
     };
   }, []);
 
   const toggleFlashlight = async () => {
     try {
       if (isOn) {
-        await Brightness.setBrightnessAsync(originalBrightness);
+        // Restore original brightness
+        if (originalBrightnessRef.current !== null) {
+          await Brightness.setBrightnessAsync(originalBrightnessRef.current);
+        }
         setIsOn(false);
       } else {
         await Brightness.setBrightnessAsync(1.0);
@@ -42,6 +55,63 @@ export default function FlashlightModule({ onGoHome }: FlashlightModuleProps) {
   };
 
   const playMorseCode = async () => {
+    if (isPlayingMorse) return;
+    
+    setIsPlayingMorse(true);
+    
+    // SOS pattern: ... --- ... (3 dots, 3 dashes, 3 dots)
+    const dotDuration = 200; // 200ms for dot
+    const dashDuration = 600; // 600ms for dash
+    const elementGap = 200; // 200ms between elements
+    const letterGap = 600; // 600ms between letters
+    const wordGap = 1400; // 1400ms between words
+    
+    // SOS pattern with alternating brightness
+    const sosPattern = [
+      // S: ... (3 dots)
+      { duration: dotDuration, brightness: 0.75 }, // High brightness
+      { duration: elementGap, brightness: 0.5 },   // Low brightness
+      { duration: dotDuration, brightness: 0.75 },
+      { duration: elementGap, brightness: 0.5 },
+      { duration: dotDuration, brightness: 0.75 },
+      { duration: letterGap, brightness: 0.5 },
+      
+      // O: --- (3 dashes)
+      { duration: dashDuration, brightness: 0.75 },
+      { duration: elementGap, brightness: 0.5 },
+      { duration: dashDuration, brightness: 0.75 },
+      { duration: elementGap, brightness: 0.5 },
+      { duration: dashDuration, brightness: 0.75 },
+      { duration: letterGap, brightness: 0.5 },
+      
+      // S: ... (3 dots)
+      { duration: dotDuration, brightness: 0.75 },
+      { duration: elementGap, brightness: 0.5 },
+      { duration: dotDuration, brightness: 0.75 },
+      { duration: elementGap, brightness: 0.5 },
+      { duration: dotDuration, brightness: 0.75 },
+      { duration: wordGap, brightness: 0.5 },
+    ];
+
+    try {
+      for (const step of sosPattern) {
+        await Brightness.setBrightnessAsync(step.brightness);
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        await new Promise(resolve => setTimeout(resolve, step.duration));
+      }
+      
+      // Restore original brightness
+      if (originalBrightnessRef.current !== null) {
+        await Brightness.setBrightnessAsync(originalBrightnessRef.current);
+      }
+    } catch (error) {
+      console.error('Failed to play SOS morse code:', error);
+    } finally {
+      setIsPlayingMorse(false);
+    }
+  };
+
+  const playCustomMorseCode = async () => {
     if (isPlayingMorse) return;
     
     setIsPlayingMorse(true);
@@ -61,40 +131,51 @@ export default function FlashlightModule({ onGoHome }: FlashlightModuleProps) {
       'Y': '-.--', 'Z': '--..', ' ': ' '
     };
 
-    for (let i = 0; i < message.length; i++) {
-      const char = message[i].toUpperCase();
-      const morse = morseAlphabet[char];
-      
-      if (morse && morse !== ' ') {
-        for (let j = 0; j < morse.length; j++) {
-          const symbol = morse[j];
+    try {
+      for (let i = 0; i < message.length; i++) {
+        const char = message[i].toUpperCase();
+        const morse = morseAlphabet[char];
+        
+        if (morse && morse !== ' ') {
+          for (let j = 0; j < morse.length; j++) {
+            const symbol = morse[j];
+            
+            // Turn on flashlight with alternating brightness
+            const brightness = j % 2 === 0 ? 0.75 : 0.5;
+            await Brightness.setBrightnessAsync(brightness);
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            
+            // Wait for dot or dash duration
+            await new Promise(resolve => 
+              setTimeout(resolve, symbol === '.' ? dotDuration : dashDuration)
+            );
+            
+            // Turn off flashlight
+            if (originalBrightnessRef.current !== null) {
+              await Brightness.setBrightnessAsync(originalBrightnessRef.current);
+            }
+            
+            // Wait between elements
+            if (j < morse.length - 1) {
+              await new Promise(resolve => setTimeout(resolve, elementGap));
+            }
+          }
           
-          // Turn on flashlight
-          await Brightness.setBrightnessAsync(1.0);
-          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          
-          // Wait for dot or dash duration
-          await new Promise(resolve => 
-            setTimeout(resolve, symbol === '.' ? dotDuration : dashDuration)
-          );
-          
-          // Turn off flashlight
-          await Brightness.setBrightnessAsync(originalBrightness);
-          
-          // Wait between elements
-          if (j < morse.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, elementGap));
+          // Wait between letters
+          if (i < message.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, letterGap));
           }
         }
-        
-        // Wait between letters
-        if (i < message.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, letterGap));
-        }
       }
+    } catch (error) {
+      console.error('Failed to play morse code:', error);
+    } finally {
+      // Restore original brightness
+      if (originalBrightnessRef.current !== null) {
+        await Brightness.setBrightnessAsync(originalBrightnessRef.current);
+      }
+      setIsPlayingMorse(false);
     }
-    
-    setIsPlayingMorse(false);
   };
 
   return (
@@ -103,7 +184,7 @@ export default function FlashlightModule({ onGoHome }: FlashlightModuleProps) {
         <View className="p-4">
           <ModuleHeader name="FLASHLIGHT" color="yellow" />
           
-          <View className="flex flex-col items-center justify-center flex-1">
+          <View className="flex flex-col items-center justify-center">
             {/* Flashlight Status */}
             <View className="bg-gray-900 p-6 rounded-lg mb-8 w-full">
               <Text className="text-gray-400 text-sm font-mono mb-2 text-center">FLASHLIGHT STATUS</Text>
@@ -112,22 +193,31 @@ export default function FlashlightModule({ onGoHome }: FlashlightModuleProps) {
               </Text>
             </View>
 
-            {/* Morse Code Puzzle Status */}
-            <PuzzleStatus
-              title="MORSE CODE PUZZLE"
-              description="Target: Transmit SOS in morse code"
-              isComplete={isPlayingMorse}
-              color="yellow"
-            />
-
-            {/* Morse Code Section */}
+            {/* SOS Morse Code Section */}
             <View className="bg-gray-900 p-6 rounded-lg mb-8 w-full">
-              <Text className="text-gray-400 text-sm font-mono mb-2 text-center">MORSE CODE TRANSMITTER</Text>
+              <Text className="text-gray-400 text-sm font-mono mb-2 text-center">SOS EMERGENCY SIGNAL</Text>
+              <Text className="text-red-400 text-lg font-mono text-center mb-4">
+                Pattern: ... --- ... (75% ↔ 50% brightness)
+              </Text>
+              <TouchableOpacity
+                onPress={playMorseCode}
+                disabled={isPlayingMorse}
+                className={`px-6 py-3 rounded-lg mx-auto ${isPlayingMorse ? 'bg-gray-600' : 'bg-red-600'}`}
+              >
+                <Text className="text-white text-center font-mono">
+                  {isPlayingMorse ? 'TRANSMITTING SOS...' : 'TRANSMIT SOS'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Custom Morse Code Section */}
+            <View className="bg-gray-900 p-6 rounded-lg mb-8 w-full">
+              <Text className="text-gray-400 text-sm font-mono mb-2 text-center">CUSTOM MORSE CODE</Text>
               <Text className="text-yellow-400 text-lg font-mono text-center mb-4">
                 Message: {morseMessage}
               </Text>
               <TouchableOpacity
-                onPress={playMorseCode}
+                onPress={playCustomMorseCode}
                 disabled={isPlayingMorse}
                 className={`px-6 py-3 rounded-lg mx-auto ${isPlayingMorse ? 'bg-gray-600' : 'bg-yellow-600'}`}
               >

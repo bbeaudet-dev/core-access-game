@@ -1,10 +1,10 @@
 import { Audio } from 'expo-av';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Text, TouchableOpacity, View } from 'react-native';
-import { usePuzzle } from '../../contexts/PuzzleContext';
-import HomeButton from '../ui/HomeButton';
-import ModuleHeader from '../ui/ModuleHeader';
-import PhoneFrame from '../ui/PhoneFrame';
+import { usePuzzle } from '../../../contexts/PuzzleContext';
+import HomeButton from '../../ui/HomeButton';
+import ModuleHeader from '../../ui/ModuleHeader';
+import PhoneFrame from '../../ui/PhoneFrame';
 import AudioLevelIndicator from './AudioLevelIndicator';
 import AudioWaveform from './AudioWaveform';
 
