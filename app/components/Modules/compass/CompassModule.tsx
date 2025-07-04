@@ -4,9 +4,7 @@ import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { usePuzzle } from '../../../contexts/PuzzleContext';
 
 import { playSound } from '@/app/utils/soundManager';
-import HomeButton from '../../ui/HomeButton';
-import ModuleHeader from '../../ui/ModuleHeader';
-import PhoneFrame from '../../ui/PhoneFrame';
+import ScreenTemplate from '../../ui/ScreenTemplate';
 import CompassData from './CompassData';
 import CompassDisplay from './CompassDisplay';
 import CompassError from './CompassError';
@@ -176,63 +174,59 @@ export default function CompassModule({ onGoHome }: CompassModuleProps) {
   }
 
   return (
-    <PhoneFrame>
-      <View className="flex-1 bg-black w-full">
-        <ModuleHeader name="COMPASS" color="blue" />
-        <View className="flex-col w-full items-center justify-center">
-          <CompassDisplay heading={heading} />
-          <CompassData 
-            direction={direction}
-            heading={heading}
-            magnetometerData={magnetometerData}
-          />
+    <ScreenTemplate title="COMPASS" titleColor="blue" onGoHome={onGoHome}>
+      <View className="flex-col w-full items-center justify-center">
+        <CompassDisplay heading={heading} />
+        <CompassData 
+          direction={direction}
+          heading={heading}
+          magnetometerData={magnetometerData}
+        />
+        
+        {/* Direction Timer Puzzle */}
+        <View className="bg-gray-900 p-4 rounded-lg m-4 w-full">
+          <Text className="text-gray-400 text-sm font-mono mb-2 text-center">DIRECTION TIMER PUZZLE</Text>
           
-          {/* Direction Timer Puzzle */}
-          <View className="bg-gray-900 p-4 rounded-lg m-4 w-full">
-            <Text className="text-gray-400 text-sm font-mono mb-2 text-center">DIRECTION TIMER PUZZLE</Text>
-            
-            {!isDirectionPuzzleActive ? (
-              <View className="space-y-2">
-                <Text className="text-blue-400 text-center font-mono">
-                  Hold device facing a direction for 5 seconds
-                </Text>
-                <View className="flex-row justify-center space-x-2">
-                  {['N', 'E', 'S', 'W'].map(dir => (
-                    <TouchableOpacity
-                      key={dir}
-                      onPress={() => startDirectionPuzzle(dir)}
-                      className="bg-blue-600 px-4 py-2 rounded-lg"
-                    >
-                      <Text className="text-white font-mono">{dir}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
+          {!isDirectionPuzzleActive ? (
+            <View className="space-y-2">
+              <Text className="text-blue-400 text-center font-mono">
+                Hold device facing a direction for 5 seconds
+              </Text>
+              <View className="flex-row justify-center space-x-2">
+                {['N', 'E', 'S', 'W'].map(dir => (
+                  <TouchableOpacity
+                    key={dir}
+                    onPress={() => startDirectionPuzzle(dir)}
+                    className="bg-blue-600 px-4 py-2 rounded-lg"
+                  >
+                    <Text className="text-white font-mono">{dir}</Text>
+                  </TouchableOpacity>
+                ))}
               </View>
-            ) : (
-              <View className="space-y-2">
-                <Text className="text-yellow-400 text-center font-mono">
-                  Target: {targetDirection} | Current: {currentDirection}
+            </View>
+          ) : (
+            <View className="space-y-2">
+              <Text className="text-yellow-400 text-center font-mono">
+                Target: {targetDirection} | Current: {currentDirection}
+              </Text>
+              <Text className="text-blue-400 text-center font-mono">
+                Time: {(timeInDirection / 1000).toFixed(1)}s / 5.0s
+              </Text>
+              {directionPuzzleComplete && (
+                <Text className="text-green-400 text-center font-mono font-bold">
+                  PUZZLE COMPLETE!
                 </Text>
-                <Text className="text-blue-400 text-center font-mono">
-                  Time: {(timeInDirection / 1000).toFixed(1)}s / 5.0s
-                </Text>
-                {directionPuzzleComplete && (
-                  <Text className="text-green-400 text-center font-mono font-bold">
-                    PUZZLE COMPLETE!
-                  </Text>
-                )}
-                <TouchableOpacity
-                  onPress={stopDirectionPuzzle}
-                  className="bg-red-600 px-4 py-2 rounded-lg mx-auto"
-                >
-                  <Text className="text-white font-mono text-center">STOP</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
+              )}
+              <TouchableOpacity
+                onPress={stopDirectionPuzzle}
+                className="bg-red-600 px-4 py-2 rounded-lg mx-auto"
+              >
+                <Text className="text-white font-mono text-center">STOP</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
-        <HomeButton active={true} onPress={onGoHome} />
       </View>
-    </PhoneFrame>
+    </ScreenTemplate>
   );
 } 

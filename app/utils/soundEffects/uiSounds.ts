@@ -34,7 +34,7 @@ export const uiSounds: SoundEffect[] = [
     name: 'System Access',
     category: 'ui',
     description: 'Return to home interface',
-    file: require('../../../assets/sounds/ui/322900__rhodesmas__tap-01.wav'),
+    file: require('../../../assets/sounds/ui/Taketones_Pop2.wav'),
   },
   {
     id: 'ui_back',
@@ -55,7 +55,21 @@ export const uiSounds: SoundEffect[] = [
     name: 'App Launch',
     category: 'ui',
     description: 'Module activation',
-    file: require('../../../assets/sounds/ui/322900__rhodesmas__tap-01.wav'),
+    file: require('../../../assets/sounds/ui/Taketones_Pop.wav'),
+  },
+  {
+    id: 'ui_button_tap',
+    name: 'Button Tap',
+    category: 'ui',
+    description: 'Module button press',
+    file: require('../../../assets/sounds/ui/Taketones_Tap.wav'),
+  },
+  {
+    id: 'ui_login_success',
+    name: 'Login Success',
+    category: 'ui',
+    description: 'Successful login/signup/guest',
+    file: require('../../../assets/sounds/ui/Taketones_Ding.wav'),
   },
   {
     id: 'ui_data_transfer',

@@ -6,9 +6,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Text, TouchableOpacity, View } from 'react-native';
 import { usePuzzle } from '../../../contexts/PuzzleContext';
-import HomeButton from '../../ui/HomeButton';
-import ModuleHeader from '../../ui/ModuleHeader';
-import PhoneFrame from '../../ui/PhoneFrame';
+import ScreenTemplate from '../../ui/ScreenTemplate';
 import AudioLevelIndicator from './AudioLevelIndicator';
 import AudioWaveform from './AudioWaveform';
 
@@ -80,31 +78,31 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
 
       // Set up status listener for audio levels
       const statusListener = (status: any) => {
-        if (status.isRecording) {
-          const level = status.metering || 0;
-          setAudioLevel(level);
-          
-          // Update max audio level and check for puzzle completion
-          setMaxAudioLevel(prevMax => {
-            if (level > prevMax) {
-              // Check if we should unlock puzzle
-              if (level >= UNLOCK_THRESHOLD && !isUnlocked) {
-                setIsUnlocked(true);
-                completePuzzle('microphone_level');
+          if (status.isRecording) {
+            const level = status.metering || 0;
+            setAudioLevel(level);
+            
+            // Update max audio level and check for puzzle completion
+            setMaxAudioLevel(prevMax => {
+              if (level > prevMax) {
+                // Check if we should unlock puzzle
+                if (level >= UNLOCK_THRESHOLD && !isUnlocked) {
+                  setIsUnlocked(true);
+                  completePuzzle('microphone_level');
+                }
+                
+                return level;
               }
-              
-              return level;
-            }
-            return prevMax;
-          });
-          
-          // Animate the audio level
-          Animated.timing(audioLevelAnim, {
-            toValue: Math.min(level / 100, 1),
-            duration: 100,
-            useNativeDriver: false,
-          }).start();
-        }
+              return prevMax;
+            });
+            
+            // Animate the audio level
+            Animated.timing(audioLevelAnim, {
+              toValue: Math.min(level / 100, 1),
+              duration: 100,
+              useNativeDriver: false,
+            }).start();
+          }
       };
 
       // Listen for status updates
@@ -167,11 +165,7 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
   }, []);
 
   return (
-    <PhoneFrame>
-      <View className="flex-1 bg-black">
-        <View className="p-4">
-          <ModuleHeader name="MICROPHONE" color="green" />
-          
+    <ScreenTemplate title="MICROPHONE" titleColor="green" onGoHome={onGoHome}>
           {hasPermission === null ? (
             <View className="flex-1 p-5 justify-center">
               <Text className="text-green-400 text-center text-base mb-2">Requesting microphone permission...</Text>
@@ -217,10 +211,6 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
               </Text>
             </View>
           )}
-        </View>
-        
-        <HomeButton active={true} onPress={onGoHome} />
-      </View>
-    </PhoneFrame>
+    </ScreenTemplate>
   );
 } 

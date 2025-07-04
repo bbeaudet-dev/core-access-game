@@ -1,7 +1,5 @@
-import { ScrollView, View } from 'react-native';
-import HomeButton from '../../../ui/HomeButton';
-import ModuleHeader from '../../../ui/ModuleHeader';
-import PhoneFrame from '../../../ui/PhoneFrame';
+import { ScrollView } from 'react-native';
+import ScreenTemplate from '../../../ui/ScreenTemplate';
 import DangerZoneSection from './DangerZoneSection';
 import DeviceSection from './DeviceSection';
 import HardwareSection from './HardwareSection';
@@ -22,22 +20,14 @@ export default function SystemModule({
   onSelfDestruct 
 }: SystemModuleProps) {
   return (
-    <PhoneFrame>
-      <View className="flex-1 bg-black">
-        <View className="p-4">
-          <ModuleHeader name="SYSTEM" color="red" />
-        </View>
-        
-        <ScrollView className="flex-1 p-5">
-          <DeviceSection onGoToAbout={onGoToAbout} onGoToCoreVitals={onGoToCoreVitals} />
-          <SecuritySection />
-          <HardwareSection />
-          <SystemSection />
-          <DangerZoneSection onSelfDestruct={onSelfDestruct} />
-        </ScrollView>
-        
-        <HomeButton active={true} onPress={onGoHome} />
-      </View>
-    </PhoneFrame>
+    <ScreenTemplate title="SYSTEM" titleColor="red" onGoHome={onGoHome}>
+      <ScrollView className="flex-1 p-5">
+        <DeviceSection onGoToAbout={onGoToAbout} onGoToCoreVitals={onGoToCoreVitals} />
+        <SecuritySection />
+        <HardwareSection />
+        <SystemSection />
+        <DangerZoneSection onSelfDestruct={onSelfDestruct} />
+      </ScrollView>
+    </ScreenTemplate>
   );
 } 

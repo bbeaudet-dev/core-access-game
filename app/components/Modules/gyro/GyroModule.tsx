@@ -5,10 +5,8 @@ import { useHints } from '../../../contexts/HintContext';
 import { usePuzzle } from '../../../contexts/PuzzleContext';
 import { playSound } from '../../../utils/soundManager';
 
-import HomeButton from '../../ui/HomeButton';
 import GyroPlot from '../../ui/LiveDataPlot';
-import ModuleHeader from '../../ui/ModuleHeader';
-import PhoneFrame from '../../ui/PhoneFrame';
+import ScreenTemplate from '../../ui/ScreenTemplate';
 import GyroControls from './GyroControls';
 import SpeedDisplay from './SpeedDisplay';
 
@@ -156,6 +154,7 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
   };
 
   const startSpinPuzzle = () => {
+    playSound('ui_button_tap');
     setIsSpinPuzzleActive(true);
     setSpinPuzzleComplete(false);
     setTotalRotation(0);
@@ -164,11 +163,13 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
   };
 
   const stopSpinPuzzle = () => {
+    playSound('ui_button_tap');
     setIsSpinPuzzleActive(false);
     setSpinPuzzleComplete(false);
   };
 
   const resetSpinPuzzle = () => {
+    playSound('ui_button_tap');
     setTotalRotation(0);
     setSpinCount(0);
     setSpinPuzzleComplete(false);
@@ -179,103 +180,96 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
   }, [maxAngularVelocity, checkGyroAchievement]);
 
   return (
-    <PhoneFrame>
-      <View className="flex-1 bg-black">
-        <View className="p-4">
-          <ModuleHeader name="GYRO" color="green" />
-          
-          {!isAvailable ? (
-            <View className="flex-1 justify-center items-center">
-              <Text className="text-red-400 text-center font-mono mb-4">
-                {error || 'Gyroscope not available'}
-              </Text>
-              <Text className="text-gray-400 text-center font-mono text-sm">
-                Try on a physical device
-              </Text>
-            </View>
-          ) : (
-            <>
-              <View className="space-y-4">
-                {/* Angular Velocity Display Components */}
-                <SpeedDisplay currentSpeed={currentAngularVelocity} maxSpeed={maxAngularVelocity} />
-
-                {/* Spin Counter Puzzle */}
-                <View className="bg-gray-900 p-4 rounded-lg">
-                  <Text className="text-gray-400 text-sm font-mono mb-2 text-center">SPIN COUNTER PUZZLE</Text>
-                  
-                  {!isSpinPuzzleActive ? (
-                    <View className="space-y-2">
-                      <Text className="text-green-400 text-center font-mono">
-                        Spin the device {targetSpins} times
-                      </Text>
-                      <TouchableOpacity
-                        onPress={startSpinPuzzle}
-                        className="bg-green-600 px-4 py-2 rounded-lg mx-auto"
-                      >
-                        <Text className="text-white font-mono text-center">START SPIN PUZZLE</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ) : (
-                    <View className="space-y-2">
-                      <Text className="text-yellow-400 text-center font-mono">
-                        Spins: {spinCount} / {targetSpins}
-                      </Text>
-                      <Text className="text-green-400 text-center font-mono">
-                        Total Rotation: {totalRotation.toFixed(1)}°
-                      </Text>
-                      {spinPuzzleComplete && (
-                        <Text className="text-green-400 text-center font-mono font-bold">
-                          SPIN PUZZLE COMPLETE!
-                        </Text>
-                      )}
-                      <View className="flex-row justify-center space-x-2">
-                        <TouchableOpacity
-                          onPress={stopSpinPuzzle}
-                          className="bg-red-600 px-4 py-2 rounded-lg"
-                        >
-                          <Text className="text-white font-mono">STOP</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          onPress={resetSpinPuzzle}
-                          className="bg-blue-600 px-4 py-2 rounded-lg"
-                        >
-                          <Text className="text-white font-mono">RESET</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  )}
-                </View>
-
-                {/* Angular Velocity Plot Component */}
-                <GyroPlot 
-                  speedHistory={angularVelocityHistory} 
-                  maxSpeed={maxAngularVelocity} 
-                  historyLength={HISTORY_LENGTH}
-                  unitType="deg/s"
-                  title="ANGULAR VELOCITY PLOT"
-                  color="green"
-                />
-                
-                {/* Raw Data */}
-                <View className="bg-gray-900 p-4 rounded-lg flex flex-row justify-between my-1">
-                  <Text className="text-gray-400 text-sm font-mono mb-2">RAW DATA (deg/s)</Text>
-                  <Text className="text-gray-300 text-sm font-mono">X: {gyroscopeData.x.toFixed(2)}</Text>
-                  <Text className="text-gray-300 text-sm font-mono">Y: {gyroscopeData.y.toFixed(2)}</Text>
-                  <Text className="text-gray-300 text-sm font-mono">Z: {gyroscopeData.z.toFixed(2)}</Text>
-                </View>
-
-                {/* Controls Component */}
-                <GyroControls 
-                  subscription={subscription}
-                  onToggleGyroscope={toggleGyroscope}
-                  onResetMaxSpeed={resetMaxAngularVelocity}
-                />
-              </View>
-            </>
-          )}
+    <ScreenTemplate title="GYRO" titleColor="green" onGoHome={onGoHome}>
+      {!isAvailable ? (
+        <View className="flex-1 justify-center items-center">
+          <Text className="text-red-400 text-center font-mono mb-4">
+            {error || 'Gyroscope not available'}
+          </Text>
+          <Text className="text-gray-400 text-center font-mono text-sm">
+            Try on a physical device
+          </Text>
         </View>
-        <HomeButton active={true} onPress={onGoHome} />
-      </View>
-    </PhoneFrame>
+      ) : (
+        <>
+          <View className="space-y-4">
+            {/* Angular Velocity Display Components */}
+            <SpeedDisplay currentSpeed={currentAngularVelocity} maxSpeed={maxAngularVelocity} />
+
+            {/* Spin Counter Puzzle */}
+            <View className="bg-gray-900 p-4 rounded-lg">
+              <Text className="text-gray-400 text-sm font-mono mb-2 text-center">SPIN COUNTER PUZZLE</Text>
+              
+              {!isSpinPuzzleActive ? (
+                <View className="space-y-2">
+                  <Text className="text-green-400 text-center font-mono">
+                    Spin the device {targetSpins} times
+                  </Text>
+                  <TouchableOpacity
+                    onPress={startSpinPuzzle}
+                    className="bg-green-600 px-4 py-2 rounded-lg mx-auto"
+                  >
+                    <Text className="text-white font-mono text-center">START SPIN PUZZLE</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View className="space-y-2">
+                  <Text className="text-yellow-400 text-center font-mono">
+                    Spins: {spinCount} / {targetSpins}
+                  </Text>
+                  <Text className="text-green-400 text-center font-mono">
+                    Total Rotation: {totalRotation.toFixed(1)}°
+                  </Text>
+                  {spinPuzzleComplete && (
+                    <Text className="text-green-400 text-center font-mono font-bold">
+                      SPIN PUZZLE COMPLETE!
+                    </Text>
+                  )}
+                  <View className="flex-row justify-center space-x-2">
+                    <TouchableOpacity
+                      onPress={stopSpinPuzzle}
+                      className="bg-red-600 px-4 py-2 rounded-lg"
+                    >
+                      <Text className="text-white font-mono">STOP</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={resetSpinPuzzle}
+                      className="bg-blue-600 px-4 py-2 rounded-lg"
+                    >
+                      <Text className="text-white font-mono">RESET</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+            </View>
+
+            {/* Angular Velocity Plot Component */}
+            <GyroPlot 
+              speedHistory={angularVelocityHistory} 
+              maxSpeed={maxAngularVelocity} 
+              historyLength={HISTORY_LENGTH}
+              unitType="deg/s"
+              title="ANGULAR VELOCITY PLOT"
+              color="green"
+            />
+            
+            {/* Raw Data */}
+            <View className="bg-gray-900 p-4 rounded-lg flex flex-row justify-between my-1">
+              <Text className="text-gray-400 text-sm font-mono mb-2">RAW DATA (deg/s)</Text>
+              <Text className="text-gray-300 text-sm font-mono">X: {gyroscopeData.x.toFixed(2)}</Text>
+              <Text className="text-gray-300 text-sm font-mono">Y: {gyroscopeData.y.toFixed(2)}</Text>
+              <Text className="text-gray-300 text-sm font-mono">Z: {gyroscopeData.z.toFixed(2)}</Text>
+            </View>
+
+            {/* Controls Component */}
+            <GyroControls 
+              subscription={subscription}
+              onToggleGyroscope={toggleGyroscope}
+              onResetMaxSpeed={resetMaxAngularVelocity}
+            />
+          </View>
+        </>
+      )}
+    </ScreenTemplate>
   );
 } 

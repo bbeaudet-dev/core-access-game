@@ -1,9 +1,7 @@
 import { Camera } from 'expo-camera';
 import { useEffect, useState } from 'react';
 import { Platform, Text, View } from 'react-native';
-import HomeButton from '../../ui/HomeButton';
-import ModuleHeader from '../../ui/ModuleHeader';
-import PhoneFrame from '../../ui/PhoneFrame';
+import ScreenTemplate from '../../ui/ScreenTemplate';
 import CameraPlaceholder from './CameraPlaceholder';
 import CameraStatus from './CameraStatus';
 
@@ -47,36 +45,29 @@ export default function PhoneCameraModule({ onGoHome }: PhoneCameraModuleProps) 
   };
 
   return (
-    <PhoneFrame>
-      <View className="flex-1 bg-black">
-        <View className="p-4">
-          <ModuleHeader name="CAMERA" color="purple" />
+    <ScreenTemplate title="CAMERA" titleColor="purple" onGoHome={onGoHome}>
+      {Platform.OS === 'web' ? (
+        <CameraStatus status="web" />
+      ) : hasPermission === null ? (
+        <CameraStatus status="loading" />
+      ) : hasPermission === false || error ? (
+        <CameraStatus status="error" error={error || undefined} />
+      ) : (
+        <View className="flex-col p-5">
+          <Text className="text-green-400 text-center text-lg mb-4">📷 Camera Module: ACTIVE</Text>
           
-          {Platform.OS === 'web' ? (
-            <CameraStatus status="web" />
-          ) : hasPermission === null ? (
-            <CameraStatus status="loading" />
-          ) : hasPermission === false || error ? (
-            <CameraStatus status="error" error={error || undefined} />
-          ) : (
-            <View className="flex-col p-5">
-              <Text className="text-green-400 text-center text-lg mb-4">📷 Camera Module: ACTIVE</Text>
-              
-              {/* Camera Component */}
-              <View className="mb-6">
-                <CameraPlaceholder />
-              </View>
-              
-              <View className="space-y-3">
-                <Text className="text-green-400 text-center text-sm">Camera: READY</Text>
-                <Text className="text-purple-400 text-center text-xs">Live feed from device camera</Text>
-                <Text className="text-gray-500 text-center text-xs">Tap to capture photos</Text>
-              </View>
-            </View>
-          )}
+          {/* Camera Component */}
+          <View className="mb-6">
+            <CameraPlaceholder />
+          </View>
+          
+          <View className="space-y-3">
+            <Text className="text-green-400 text-center text-sm">Camera: READY</Text>
+            <Text className="text-purple-400 text-center text-xs">Live feed from device camera</Text>
+            <Text className="text-gray-500 text-center text-xs">Tap to capture photos</Text>
+          </View>
         </View>
-        <HomeButton active={true} onPress={onGoHome} />
-      </View>
-    </PhoneFrame>
+      )}
+    </ScreenTemplate>
   );
 } 

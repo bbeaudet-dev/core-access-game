@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { usePuzzle } from '../../../contexts/PuzzleContext';
-import HomeButton from '../../ui/HomeButton';
-import ModuleHeader from '../../ui/ModuleHeader';
-import PhoneFrame from '../../ui/PhoneFrame';
+import { playSound } from '../../../utils/soundManager';
+import ScreenTemplate from '../../ui/ScreenTemplate';
 
 interface TerminalModuleProps {
   onGoHome: () => void;
@@ -57,6 +56,7 @@ export default function TerminalModule({ onGoHome }: TerminalModuleProps) {
   };
 
   const executeCommand = (cmd: string) => {
+    playSound('ui_button_tap');
     const command = cmd.trim().toLowerCase();
     
     switch (command) {
@@ -147,67 +147,59 @@ export default function TerminalModule({ onGoHome }: TerminalModuleProps) {
   };
 
   return (
-    <PhoneFrame>
-      <View className="flex-1 bg-black">
-        <View className="p-4">
-          <ModuleHeader name="TERMINAL" color="green" />
-          
-          <ScrollView 
-            ref={scrollViewRef}
-            className="flex-1 bg-gray-900 rounded-lg p-4 mb-4 min-h-[400px]"
-            showsVerticalScrollIndicator={false}
-          >
-            {history.map((item, index) => (
-              <View key={index} className="mb-2">
-                <Text className="text-green-400 text-sm font-mono">$ {item.command}</Text>
-                <Text className={`text-sm font-mono ${getColorClass(item.color)}`}>
-                  {item.output}
-                </Text>
-              </View>
-            ))}
-            <Text className="text-green-400 text-sm font-mono">$ </Text>
-          </ScrollView>
-
-          {/* Input Section */}
-          <View className="flex-row items-center bg-gray-900 rounded-lg p-2">
-            <Text className="text-green-400 text-sm font-mono mr-2">$</Text>
-            <TextInput
-              value={input}
-              onChangeText={setInput}
-              onSubmitEditing={handleSubmit}
-              className="flex-1 text-green-400 text-sm font-mono"
-              placeholder="Enter command..."
-              placeholderTextColor="#6b7280"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <TouchableOpacity
-              onPress={handleSubmit}
-              className="bg-green-600 px-3 py-1 rounded"
-            >
-              <Text className="text-white text-sm font-mono">EXEC</Text>
-            </TouchableOpacity>
+    <ScreenTemplate title="TERMINAL" titleColor="green" onGoHome={onGoHome}>
+      <ScrollView 
+        ref={scrollViewRef}
+        className="flex-1 bg-gray-900 rounded-lg p-4 mb-4 min-h-[400px]"
+        showsVerticalScrollIndicator={false}
+      >
+        {history.map((item, index) => (
+          <View key={index} className="mb-2">
+            <Text className="text-green-400 text-sm font-mono">$ {item.command}</Text>
+            <Text className={`text-sm font-mono ${getColorClass(item.color)}`}>
+              {item.output}
+            </Text>
           </View>
+        ))}
+        <Text className="text-green-400 text-sm font-mono">$ </Text>
+      </ScrollView>
 
-          {/* Quick Commands */}
-          <View className="mt-4">
-            <Text className="text-gray-400 text-xs font-mono mb-2">QUICK COMMANDS:</Text>
-            <View className="flex-row flex-wrap">
-              {['help', 'status', 'inspect', 'clear'].map(cmd => (
-                <TouchableOpacity
-                  key={cmd}
-                  onPress={() => executeCommand(cmd)}
-                  className="bg-gray-800 px-3 py-1 rounded mr-2 mb-2"
-                >
-                  <Text className="text-green-400 text-xs font-mono">{cmd}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        </View>
-        
-        <HomeButton active={true} onPress={onGoHome} />
+      {/* Input Section */}
+      <View className="flex-row items-center bg-gray-900 rounded-lg p-2">
+        <Text className="text-green-400 text-sm font-mono mr-2">$</Text>
+        <TextInput
+          value={input}
+          onChangeText={setInput}
+          onSubmitEditing={handleSubmit}
+          className="flex-1 text-green-400 text-sm font-mono"
+          placeholder="Enter command..."
+          placeholderTextColor="#6b7280"
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        <TouchableOpacity
+          onPress={handleSubmit}
+          className="bg-green-600 px-3 py-1 rounded"
+        >
+          <Text className="text-white text-sm font-mono">EXEC</Text>
+        </TouchableOpacity>
       </View>
-    </PhoneFrame>
+
+      {/* Quick Commands */}
+      <View className="mt-4">
+        <Text className="text-gray-400 text-xs font-mono mb-2">QUICK COMMANDS:</Text>
+        <View className="flex-row flex-wrap">
+          {['help', 'status', 'inspect', 'clear'].map(cmd => (
+            <TouchableOpacity
+              key={cmd}
+              onPress={() => executeCommand(cmd)}
+              className="bg-gray-800 px-3 py-1 rounded mr-2 mb-2"
+            >
+              <Text className="text-green-400 text-xs font-mono">{cmd}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+    </ScreenTemplate>
   );
 } 

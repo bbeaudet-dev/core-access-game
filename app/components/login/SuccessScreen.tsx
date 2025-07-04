@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { playSound } from '../../utils/soundManager';
 
 interface SuccessScreenProps {
   type: 'signup' | 'signin' | 'guest';
@@ -7,6 +9,11 @@ interface SuccessScreenProps {
 }
 
 export default function SuccessScreen({ type, guestUsername, onContinue }: SuccessScreenProps) {
+  useEffect(() => {
+    // Play success sound when component mounts
+    playSound('ui_login_success');
+  }, []);
+
   const getTitle = () => {
     switch (type) {
       case 'signup':

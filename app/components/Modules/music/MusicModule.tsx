@@ -2,9 +2,7 @@ import { setAudioModeAsync } from 'expo-audio'
 import { useEffect, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
 import { SOUND_EFFECTS, SoundManager, pauseBackgroundMusic, playBackgroundMusic, resumeBackgroundMusic, setSoundMuted, setSoundVolume, stopBackgroundMusic } from '../../../utils/soundManager'
-import HomeButton from '../../ui/HomeButton'
-import ModuleHeader from '../../ui/ModuleHeader'
-import PhoneFrame from '../../ui/PhoneFrame'
+import ScreenTemplate from '../../ui/ScreenTemplate'
 import AudioControls from './AudioControls'
 import MusicTracks from './MusicTracks'
 
@@ -88,11 +86,7 @@ export default function MusicModule({ onGoHome }: MusicModuleProps) {
   const musicTracks = SOUND_EFFECTS.filter(sound => sound.category === 'music')
 
   return (
-    <PhoneFrame>
-      <View className="flex-1 bg-black">
-        <View className="p-4">
-          <ModuleHeader name="MUSIC" color="purple" />
-          
+    <ScreenTemplate title="MUSIC" titleColor="purple" onGoHome={onGoHome}>
           {hasPermission === null ? (
             <View className="flex-1 p-5 justify-center">
               <Text className="text-purple-400 text-center text-base mb-2">Requesting speaker permission...</Text>
@@ -110,10 +104,10 @@ export default function MusicModule({ onGoHome }: MusicModuleProps) {
                   isMuted={isMuted}
                   volume={volume}
                   currentTrack={currentTrack}
-                  isPlaying={isPlaying}
+              isPlaying={isPlaying}
                   onMuteToggle={handleMuteToggle}
                   onVolumeChange={handleVolumeChange}
-                  onPauseResume={handlePauseResume}
+              onPauseResume={handlePauseResume}
                   soundEffects={SOUND_EFFECTS}
                 />
 
@@ -128,9 +122,6 @@ export default function MusicModule({ onGoHome }: MusicModuleProps) {
               </View>
             </ScrollView>
           )}
-        </View>
-        <HomeButton active={true} onPress={onGoHome} />
-      </View>
-    </PhoneFrame>
+    </ScreenTemplate>
   )
 } 

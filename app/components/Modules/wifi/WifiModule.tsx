@@ -1,9 +1,7 @@
 import * as Network from 'expo-network';
 import { useEffect, useState } from 'react';
 import { Platform, Text, View } from 'react-native';
-import HomeButton from '../../ui/HomeButton';
-import ModuleHeader from '../../ui/ModuleHeader';
-import PhoneFrame from '../../ui/PhoneFrame';
+import ScreenTemplate from '../../ui/ScreenTemplate';
 import ConnectionStatus from './ConnectionStatus';
 import NetworkList from './NetworkList';
 import NetworkScanner from './NetworkScanner';
@@ -105,31 +103,24 @@ export default function WifiModule({ onGoHome }: WifiModuleProps) {
   };
 
   return (
-    <PhoneFrame>
-      <View className="flex-1 bg-black">
-        <View className="p-4">
-          <ModuleHeader name="WIFI" color="blue" />
-          
-          {error && !connection.isConnected ? (
-            <View className="flex-1 justify-center items-center">
-              <Text className="text-red-400 text-center font-mono mb-4">
-                {error}
-              </Text>
-              <Text className="text-gray-400 text-center font-mono text-sm">
-                Try on a physical device
-              </Text>
-            </View>
-          ) : (
-            <View className="space-y-4">
-              <ConnectionStatus connection={connection} />
-              <NetworkScanner isScanning={isScanning} onScan={scanNetworks} />
-              <NetworkList networks={availableNetworks} />
-              <NetworkStats networks={availableNetworks} />
-            </View>
-          )}
+    <ScreenTemplate title="WIFI" titleColor="blue" onGoHome={onGoHome}>
+      {error && !connection.isConnected ? (
+        <View className="flex-1 justify-center items-center">
+          <Text className="text-red-400 text-center font-mono mb-4">
+            {error}
+          </Text>
+          <Text className="text-gray-400 text-center font-mono text-sm">
+            Try on a physical device
+          </Text>
         </View>
-        <HomeButton active={true} onPress={onGoHome} />
-      </View>
-    </PhoneFrame>
+      ) : (
+        <View className="space-y-4">
+          <ConnectionStatus connection={connection} />
+          <NetworkScanner isScanning={isScanning} onScan={scanNetworks} />
+          <NetworkList networks={availableNetworks} />
+          <NetworkStats networks={availableNetworks} />
+        </View>
+      )}
+    </ScreenTemplate>
   );
 } 

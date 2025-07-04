@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import HomeButton from '../../ui/HomeButton';
-import ModuleHeader from '../../ui/ModuleHeader';
-import PhoneFrame from '../../ui/PhoneFrame';
+import { playSound } from '../../../utils/soundManager';
+import ScreenTemplate from '../../ui/ScreenTemplate';
 
 interface CalculatorModuleProps {
   onGoHome: () => void;
@@ -46,6 +45,7 @@ export default function CalculatorModule({ onGoHome }: CalculatorModuleProps) {
   }, []);
 
   const inputDigit = (digit: string) => {
+    playSound('ui_button_tap');
     if (waitingForOperand) {
       setDisplay(digit);
       setWaitingForOperand(false);
@@ -55,6 +55,7 @@ export default function CalculatorModule({ onGoHome }: CalculatorModuleProps) {
   };
 
   const inputDecimal = () => {
+    playSound('ui_button_tap');
     if (waitingForOperand) {
       setDisplay('0.');
       setWaitingForOperand(false);
@@ -64,11 +65,13 @@ export default function CalculatorModule({ onGoHome }: CalculatorModuleProps) {
   };
 
   const clearDisplay = () => {
+    playSound('ui_button_tap');
     setDisplay('0');
     setWaitingForOperand(false);
   };
 
   const clearAll = () => {
+    playSound('ui_button_tap');
     setDisplay('0');
     setPreviousValue(null);
     setOperation(null);
@@ -76,6 +79,7 @@ export default function CalculatorModule({ onGoHome }: CalculatorModuleProps) {
   };
 
   const performOperation = (nextOperation: string) => {
+    playSound('ui_button_tap');
     const inputValue = parseFloat(display);
 
     if (previousValue === null) {
@@ -108,6 +112,7 @@ export default function CalculatorModule({ onGoHome }: CalculatorModuleProps) {
   };
 
   const handleEquals = () => {
+    playSound('ui_button_tap');
     if (!previousValue || !operation) return;
 
     const inputValue = parseFloat(display);
@@ -150,73 +155,64 @@ export default function CalculatorModule({ onGoHome }: CalculatorModuleProps) {
   };
 
   return (
-    <PhoneFrame>
-      <View className="flex-1 bg-black">
-        <View className="p-4">
-          <ModuleHeader name="CALCULATOR" color="orange" />
+    <ScreenTemplate title="CALCULATOR" titleColor="orange" onGoHome={onGoHome}>
+      <View className="flex flex-col space-y-4">
+        {/* Display */}
+        <View className="bg-gray-900 p-6 rounded-lg">
+          <Text className="text-gray-400 text-sm font-mono mb-2">DISPLAY</Text>
+          <Text className="text-orange-400 text-3xl font-mono text-right">
+            {display}
+          </Text>
+          {operation && (
+            <Text className="text-gray-500 text-sm font-mono text-right">
+              {previousValue} {operation}
+            </Text>
+          )}
+        </View>
+
+        {/* Calculator Buttons */}
+        <View className="bg-gray-900 p-6 rounded-lg">
+          <Text className="text-gray-400 text-sm font-mono mb-4">CALCULATOR</Text>
           
-          <View className="flex flex-col space-y-4">
-            {/* Display */}
-            <View className="bg-gray-900 p-6 rounded-lg">
-              <Text className="text-gray-400 text-sm font-mono mb-2">DISPLAY</Text>
-              <Text className="text-orange-400 text-3xl font-mono text-right">
-                {display}
-              </Text>
-              {operation && (
-                <Text className="text-gray-500 text-sm font-mono text-right">
-                  {previousValue} {operation}
-                </Text>
-              )}
-            </View>
-
-            {/* Calculator Buttons */}
-            <View className="bg-gray-900 p-6 rounded-lg">
-              <Text className="text-gray-400 text-sm font-mono mb-4">CALCULATOR</Text>
-              
-              {/* Row 1 */}
-              <View className="flex-row justify-center mb-2">
-                {renderButton('C', clearAll, 'function')}
-                {renderButton('CE', clearDisplay, 'function')}
-                {renderButton('÷', () => performOperation('/'), 'operation')}
-              </View>
-              
-              {/* Row 2 */}
-              <View className="flex-row justify-center mb-2">
-                {renderButton('7', () => inputDigit('7'))}
-                {renderButton('8', () => inputDigit('8'))}
-                {renderButton('9', () => inputDigit('9'))}
-                {renderButton('×', () => performOperation('*'), 'operation')}
-              </View>
-              
-              {/* Row 3 */}
-              <View className="flex-row justify-center mb-2">
-                {renderButton('4', () => inputDigit('4'))}
-                {renderButton('5', () => inputDigit('5'))}
-                {renderButton('6', () => inputDigit('6'))}
-                {renderButton('-', () => performOperation('-'), 'operation')}
-              </View>
-              
-              {/* Row 4 */}
-              <View className="flex-row justify-center mb-2">
-                {renderButton('1', () => inputDigit('1'))}
-                {renderButton('2', () => inputDigit('2'))}
-                {renderButton('3', () => inputDigit('3'))}
-                {renderButton('+', () => performOperation('+'), 'operation')}
-              </View>
-              
-              {/* Row 5 */}
-              <View className="flex-row justify-center">
-                {renderButton('0', () => inputDigit('0'))}
-                {renderButton('.', inputDecimal)}
-                {renderButton('=', handleEquals, 'operation')}
-              </View>
-            </View>
-
+          {/* Row 1 */}
+          <View className="flex-row justify-center mb-2">
+            {renderButton('C', clearAll, 'function')}
+            {renderButton('CE', clearDisplay, 'function')}
+            {renderButton('÷', () => performOperation('/'), 'operation')}
+          </View>
+          
+          {/* Row 2 */}
+          <View className="flex-row justify-center mb-2">
+            {renderButton('7', () => inputDigit('7'))}
+            {renderButton('8', () => inputDigit('8'))}
+            {renderButton('9', () => inputDigit('9'))}
+            {renderButton('×', () => performOperation('*'), 'operation')}
+          </View>
+          
+          {/* Row 3 */}
+          <View className="flex-row justify-center mb-2">
+            {renderButton('4', () => inputDigit('4'))}
+            {renderButton('5', () => inputDigit('5'))}
+            {renderButton('6', () => inputDigit('6'))}
+            {renderButton('-', () => performOperation('-'), 'operation')}
+          </View>
+          
+          {/* Row 4 */}
+          <View className="flex-row justify-center mb-2">
+            {renderButton('1', () => inputDigit('1'))}
+            {renderButton('2', () => inputDigit('2'))}
+            {renderButton('3', () => inputDigit('3'))}
+            {renderButton('+', () => performOperation('+'), 'operation')}
+          </View>
+          
+          {/* Row 5 */}
+          <View className="flex-row justify-center">
+            {renderButton('0', () => inputDigit('0'))}
+            {renderButton('.', inputDecimal)}
+            {renderButton('=', handleEquals, 'operation')}
           </View>
         </View>
-        
-        <HomeButton active={true} onPress={onGoHome} />
       </View>
-    </PhoneFrame>
+    </ScreenTemplate>
   );
 } 

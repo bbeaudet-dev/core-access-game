@@ -80,7 +80,7 @@ export default function AudioControls({
               className="text-purple-300 font-bold mt-1"
             />
           ) : (
-            <Text className="text-purple-300 font-bold">
+          <Text className="text-purple-300 font-bold">
               {currentTrackData.name}
             </Text>
           )}

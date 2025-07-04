@@ -2,9 +2,8 @@ import * as Brightness from 'expo-brightness';
 import * as Haptics from 'expo-haptics';
 import { useEffect, useRef, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import HomeButton from '../../ui/HomeButton';
-import ModuleHeader from '../../ui/ModuleHeader';
-import PhoneFrame from '../../ui/PhoneFrame';
+import { playSound } from '../../../utils/soundManager';
+import ScreenTemplate from '../../ui/ScreenTemplate';
 
 interface FlashlightModuleProps {
   onGoHome: () => void;
@@ -38,6 +37,7 @@ export default function FlashlightModule({ onGoHome }: FlashlightModuleProps) {
   }, []);
 
   const toggleFlashlight = async () => {
+    playSound('ui_button_tap');
     try {
       if (isOn) {
         // Restore original brightness
@@ -57,6 +57,7 @@ export default function FlashlightModule({ onGoHome }: FlashlightModuleProps) {
   const playMorseCode = async () => {
     if (isPlayingMorse) return;
     
+    playSound('ui_button_tap');
     setIsPlayingMorse(true);
     
     // SOS pattern: ... --- ... (3 dots, 3 dashes, 3 dots)
@@ -114,6 +115,7 @@ export default function FlashlightModule({ onGoHome }: FlashlightModuleProps) {
   const playCustomMorseCode = async () => {
     if (isPlayingMorse) return;
     
+    playSound('ui_button_tap');
     setIsPlayingMorse(true);
     const message = morseMessage;
     
@@ -179,74 +181,66 @@ export default function FlashlightModule({ onGoHome }: FlashlightModuleProps) {
   };
 
   return (
-    <PhoneFrame>
-      <View className="flex-1 bg-black">
-        <View className="p-4">
-          <ModuleHeader name="FLASHLIGHT" color="yellow" />
-          
-          <View className="flex flex-col items-center justify-center">
-            {/* Flashlight Status */}
-            <View className="bg-gray-900 p-6 rounded-lg mb-8 w-full">
-              <Text className="text-gray-400 text-sm font-mono mb-2 text-center">FLASHLIGHT STATUS</Text>
-              <Text className={`text-2xl font-mono text-center ${isOn ? 'text-yellow-400' : 'text-gray-600'}`}>
-                {isOn ? '🔦 ON' : '🔦 OFF'}
-              </Text>
-            </View>
-
-            {/* SOS Morse Code Section */}
-            <View className="bg-gray-900 p-6 rounded-lg mb-8 w-full">
-              <Text className="text-gray-400 text-sm font-mono mb-2 text-center">SOS EMERGENCY SIGNAL</Text>
-              <Text className="text-red-400 text-lg font-mono text-center mb-4">
-                Pattern: ... --- ... (75% ↔ 50% brightness)
-              </Text>
-              <TouchableOpacity
-                onPress={playMorseCode}
-                disabled={isPlayingMorse}
-                className={`px-6 py-3 rounded-lg mx-auto ${isPlayingMorse ? 'bg-gray-600' : 'bg-red-600'}`}
-              >
-                <Text className="text-white text-center font-mono">
-                  {isPlayingMorse ? 'TRANSMITTING SOS...' : 'TRANSMIT SOS'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Custom Morse Code Section */}
-            <View className="bg-gray-900 p-6 rounded-lg mb-8 w-full">
-              <Text className="text-gray-400 text-sm font-mono mb-2 text-center">CUSTOM MORSE CODE</Text>
-              <Text className="text-yellow-400 text-lg font-mono text-center mb-4">
-                Message: {morseMessage}
-              </Text>
-              <TouchableOpacity
-                onPress={playCustomMorseCode}
-                disabled={isPlayingMorse}
-                className={`px-6 py-3 rounded-lg mx-auto ${isPlayingMorse ? 'bg-gray-600' : 'bg-yellow-600'}`}
-              >
-                <Text className="text-white text-center font-mono">
-                  {isPlayingMorse ? 'TRANSMITTING...' : 'TRANSMIT MORSE'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Manual Control */}
-            <View className="bg-gray-900 p-6 rounded-lg mb-8 w-full">
-              <Text className="text-gray-400 text-sm font-mono mb-4 text-center">MANUAL CONTROL</Text>
-              <TouchableOpacity
-                onPress={toggleFlashlight}
-                className={`w-24 h-24 rounded-full justify-center items-center mx-auto ${
-                  isOn ? 'bg-yellow-500' : 'bg-gray-600'
-                }`}
-                activeOpacity={0.8}
-              >
-                <Text className="text-white text-3xl">
-                  {isOn ? '🔦' : '⚫'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+    <ScreenTemplate title="FLASHLIGHT" titleColor="yellow" onGoHome={onGoHome}>
+      <View className="flex flex-col items-center justify-center">
+        {/* Flashlight Status */}
+        <View className="bg-gray-900 p-6 rounded-lg mb-8 w-full">
+          <Text className="text-gray-400 text-sm font-mono mb-2 text-center">FLASHLIGHT STATUS</Text>
+          <Text className={`text-2xl font-mono text-center ${isOn ? 'text-yellow-400' : 'text-gray-600'}`}>
+            {isOn ? '🔦 ON' : '🔦 OFF'}
+          </Text>
         </View>
-        
-        <HomeButton active={true} onPress={onGoHome} />
+
+        {/* SOS Morse Code Section */}
+        <View className="bg-gray-900 p-6 rounded-lg mb-8 w-full">
+          <Text className="text-gray-400 text-sm font-mono mb-2 text-center">SOS EMERGENCY SIGNAL</Text>
+          <Text className="text-red-400 text-lg font-mono text-center mb-4">
+            Pattern: ... --- ... (75% ↔ 50% brightness)
+          </Text>
+          <TouchableOpacity
+            onPress={playMorseCode}
+            disabled={isPlayingMorse}
+            className={`px-6 py-3 rounded-lg mx-auto ${isPlayingMorse ? 'bg-gray-600' : 'bg-red-600'}`}
+          >
+            <Text className="text-white text-center font-mono">
+              {isPlayingMorse ? 'TRANSMITTING SOS...' : 'TRANSMIT SOS'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Custom Morse Code Section */}
+        <View className="bg-gray-900 p-6 rounded-lg mb-8 w-full">
+          <Text className="text-gray-400 text-sm font-mono mb-2 text-center">CUSTOM MORSE CODE</Text>
+          <Text className="text-yellow-400 text-lg font-mono text-center mb-4">
+            Message: {morseMessage}
+          </Text>
+          <TouchableOpacity
+            onPress={playCustomMorseCode}
+            disabled={isPlayingMorse}
+            className={`px-6 py-3 rounded-lg mx-auto ${isPlayingMorse ? 'bg-gray-600' : 'bg-yellow-600'}`}
+          >
+            <Text className="text-white text-center font-mono">
+              {isPlayingMorse ? 'TRANSMITTING...' : 'TRANSMIT MORSE'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Manual Control */}
+        <View className="bg-gray-900 p-6 rounded-lg mb-8 w-full">
+          <Text className="text-gray-400 text-sm font-mono mb-4 text-center">MANUAL CONTROL</Text>
+          <TouchableOpacity
+            onPress={toggleFlashlight}
+            className={`w-24 h-24 rounded-full justify-center items-center mx-auto ${
+              isOn ? 'bg-yellow-500' : 'bg-gray-600'
+            }`}
+            activeOpacity={0.8}
+          >
+            <Text className="text-white text-3xl">
+              {isOn ? '🔦' : '⚫'}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </PhoneFrame>
+    </ScreenTemplate>
   );
 } 

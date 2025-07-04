@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 
-import HomeButton from '../../ui/HomeButton';
-import ModuleHeader from '../../ui/ModuleHeader';
-import PhoneFrame from '../../ui/PhoneFrame';
+import ScreenTemplate from '../../ui/ScreenTemplate';
 import RealClock from './RealClock';
 import Stopwatch from './Stopwatch';
 import Timer from './Timer';
@@ -119,36 +117,28 @@ export default function ClockModule({ onGoHome }: ClockModuleProps) {
   }, [stopwatchInterval, timerInterval]);
 
   return (
-    <PhoneFrame>
-      <View className="flex-1 bg-black">
-        <View className="p-4">
-          <ModuleHeader name="CLOCK" color="yellow" />
-          
-          <ScrollView className="flex-col" showsVerticalScrollIndicator={false}>
-            <View className="space-y-4">
-
-              <RealClock />
-              <Stopwatch
-                isActive={stopwatchActive}
-                onToggle={toggleStopwatch}
-                onReset={resetStopwatch}
-                onLap={lapStopwatch}
-                time={stopwatchTime}
-                laps={stopwatchLaps}
-              />
-              <Timer
-                isActive={timerActive}
-                onToggle={toggleTimer}
-                onReset={resetTimer}
-                onSetTime={setTimerTime}
-                timeLeft={timerTimeLeft}
-                totalTime={timerTotalTime}
-              />
-            </View>
-          </ScrollView>
+    <ScreenTemplate title="CLOCK" titleColor="yellow" onGoHome={onGoHome}>
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <View className="space-y-4">
+          <RealClock />
+          <Stopwatch
+            isActive={stopwatchActive}
+            onToggle={toggleStopwatch}
+            onReset={resetStopwatch}
+            onLap={lapStopwatch}
+            time={stopwatchTime}
+            laps={stopwatchLaps}
+          />
+          <Timer
+            isActive={timerActive}
+            onToggle={toggleTimer}
+            onReset={resetTimer}
+            onSetTime={setTimerTime}
+            timeLeft={timerTimeLeft}
+            totalTime={timerTotalTime}
+          />
         </View>
-        <HomeButton active={true} onPress={onGoHome} />
-      </View>
-    </PhoneFrame>
+      </ScrollView>
+    </ScreenTemplate>
   );
 } 

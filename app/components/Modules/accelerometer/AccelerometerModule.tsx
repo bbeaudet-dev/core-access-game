@@ -3,10 +3,8 @@ import { Accelerometer } from 'expo-sensors';
 import { useEffect, useState } from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { usePuzzle } from '../../../contexts/PuzzleContext';
-import HomeButton from '../../ui/HomeButton';
 import AccelerometerPlot from '../../ui/LiveDataPlot';
-import ModuleHeader from '../../ui/ModuleHeader';
-import PhoneFrame from '../../ui/PhoneFrame';
+import ScreenTemplate from '../../ui/ScreenTemplate';
 import AccelerometerControls from './AccelerometerControls';
 import AccelerometerData from './AccelerometerData';
 import AccelerometerUnavailable from './AccelerometerUnavailable';
@@ -235,11 +233,7 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
   }
 
   return (
-    <PhoneFrame>
-      <View className="flex-1 bg-black">
-        <View className="p-4">
-          <ModuleHeader name="ACCELEROMETER" color="purple" />
-          
+    <ScreenTemplate title="ACCELEROMETER" titleColor="purple" onGoHome={onGoHome}>
           <View className="flex flex-row justify-between">
             {/* Unit Toggle Button */}
             <View className="bg-gray-900 p-3 rounded-lg mb-4">
@@ -297,9 +291,6 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
               color="purple"
             />
           </View>
-        </View>
-        <HomeButton active={true} onPress={onGoHome} />
-      </View>
-    </PhoneFrame>
+    </ScreenTemplate>
   );
 } 

@@ -1,9 +1,7 @@
 import * as Battery from 'expo-battery';
 import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
-import HomeButton from '../../ui/HomeButton';
-import ModuleHeader from '../../ui/ModuleHeader';
-import PhoneFrame from '../../ui/PhoneFrame';
+import ScreenTemplate from '../../ui/ScreenTemplate';
 
 interface BatteryModuleProps {
   onGoHome: () => void;
@@ -74,11 +72,7 @@ export default function BatteryModule({ onGoHome }: BatteryModuleProps) {
   };
 
   return (
-    <PhoneFrame>
-      <View className="flex-1 bg-black">
-        <View className="p-4">
-          <ModuleHeader name="BATTERY" color="green" />
-          
+    <ScreenTemplate title="BATTERY" titleColor="green" onGoHome={onGoHome}>
           {!isAvailable ? (
             <View className="flex-1 p-5 justify-center">
               <Text className="text-green-400 text-center text-base mb-2">Battery monitoring not available</Text>
@@ -127,10 +121,6 @@ export default function BatteryModule({ onGoHome }: BatteryModuleProps) {
               </View>
             </View>
           )}
-        </View>
-        
-        <HomeButton active={true} onPress={onGoHome} />
-      </View>
-    </PhoneFrame>
+    </ScreenTemplate>
   );
 } 

@@ -1,8 +1,8 @@
 import React from 'react';
 import { View } from 'react-native';
+import BatteryIndicator from './BatteryIndicator';
 import HomeButton from './HomeButton';
 import ModuleHeader from './ModuleHeader';
-import PhoneFrame from './PhoneFrame';
 
 interface ScreenTemplateProps {
   title: string;
@@ -22,18 +22,23 @@ export default function ScreenTemplate({
   className = ''
 }: ScreenTemplateProps) {
   return (
-    <PhoneFrame>
-      <View className={`flex-1 bg-black ${className}`}>
-        <ModuleHeader name={title} color={titleColor} />
-        
-        <View className="flex-1 p-4">
-          {children}
+    <View className={`flex-1 bg-black ${className}`}>
+      {/* Top area with notch margin */}
+      <View className="pt-12 px-4">
+        {/* Header with battery indicator */}
+        <View className="flex-row justify-between items-center mb-6">
+          <ModuleHeader name={title} color={titleColor} />
+          <BatteryIndicator />
         </View>
-        
-        {showHomeButton && onGoHome && (
-          <HomeButton active={true} onPress={onGoHome} />
-        )}
       </View>
-    </PhoneFrame>
+      
+      <View className="flex-1 px-4">
+        {children}
+      </View>
+      
+      {showHomeButton && onGoHome && (
+        <HomeButton active={true} onPress={onGoHome} />
+      )}
+    </View>
   );
 } 

@@ -7,7 +7,7 @@ export const musicTracks: SoundEffect[] = [
     category: 'music',
     description: '100 BPM cyberpunk bass made on Roland S1',
     artist: 'Sadiquecat',
-    file: require('../../../assets/sounds/ui/784904__sadiquecat__100-bpm-cyberpunk-bass-1-roland-s1.wav'),
+    file: require('../../../assets/sounds/ui/784904__sadiquecat__100-bpm-cyberpunk-bass-1-roland-s1.mp3'),
   },
   {
     id: 'cyberpunk_ambient',
@@ -15,6 +15,6 @@ export const musicTracks: SoundEffect[] = [
     category: 'music',
     description: 'Funky ambient drum & bass beat',
     artist: 'Szegvari',
-    file: require('../../../assets/sounds/ui/611305__szegvari__new-york-cyberpunk-synth-analogue-drums-bass-dance-retro-atmo-ambience-pad-drone-cinematic-action-music-surround.wav'),
+    file: require('../../../assets/sounds/ui/611305__szegvari__new-york-cyberpunk-synth-analogue-drums-bass-dance-retro-atmo-ambience-pad-drone-cinematic-action-music-surround.mp3'),
   },
 ] 
