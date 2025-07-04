@@ -8,7 +8,21 @@ import ConnectionStatus from './ConnectionStatus';
 import NetworkList from './NetworkList';
 import NetworkScanner from './NetworkScanner';
 import NetworkStats from './NetworkStats';
-import { ConnectionStatus as ConnectionStatusType, NetworkInfo } from './types';
+
+interface NetworkInfo {
+  name: string;
+  strength: number;
+  security: string;
+  frequency: string;
+  channel: number;
+}
+
+interface ConnectionStatusType {
+  isConnected: boolean;
+  networkName: string;
+  ipAddress: string;
+  signalStrength: number;
+}
 
 interface WifiModuleProps {
   onGoHome: () => void;

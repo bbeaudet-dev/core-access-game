@@ -1,11 +1,46 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Text, TouchableOpacity, View } from 'react-native';
+import { View } from 'react-native';
 import CircuitBoard from './CircuitBoard';
 import GameControls from './GameControls';
 import GameHeader from './GameHeader';
 import GameOverScreen from './GameOverScreen';
 import TowerSelector from './TowerSelector';
-import { Bug, GameState } from './types';
+
+interface Bug {
+  id: number;
+  x: number;
+  y: number;
+  health: number;
+  maxHealth: number;
+  pathIndex: number;
+  speed: number;
+}
+
+interface Tower {
+  id: number;
+  x: number;
+  y: number;
+  type: 'defender';
+  damage: number;
+  range: number;
+  lastShot: number;
+}
+
+interface GameState {
+  level: number;
+  lives: number;
+  money: number;
+  bugs: Bug[];
+  towers: Tower[];
+  wave: number;
+  waveInProgress: boolean;
+  gameOver: boolean;
+}
+
+interface CircuitPathPoint {
+  x: number;
+  y: number;
+}
 
 interface TowerDefenseGameProps {
   onEmergencyMode: () => void;
@@ -43,7 +78,7 @@ export default function TowerDefenseGame({ onEmergencyMode }: TowerDefenseGamePr
   const TOWER_RANGE = 60;
 
   // Circuit board path coordinates (simplified path)
-  const circuitPath = [
+  const circuitPath: CircuitPathPoint[] = [
     { x: 0, y: 100 },   // Start
     { x: 50, y: 100 },  // Right
     { x: 50, y: 50 },   // Up
@@ -207,75 +242,62 @@ export default function TowerDefenseGame({ onEmergencyMode }: TowerDefenseGamePr
     }
   };
 
-  // Remove projectiles after a short time
-  useEffect(() => {
-    if (projectiles.length > 0) {
-      const timeout = setTimeout(() => {
-        setProjectiles(prev => prev.slice(1));
-      }, 200);
-      return () => clearTimeout(timeout);
-    }
-  }, [projectiles]);
-
-  // Exit button handler
   const handleExit = () => {
-    window.location.reload(); // For now, reloads to login (can be improved)
+    onEmergencyMode();
   };
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setProjectiles([]);
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [projectiles]);
+
   if (gameState.gameOver) {
-    return <GameOverScreen level={gameState.level} />;
+    return (
+      <GameOverScreen 
+        level={gameState.level}
+      />
+    );
   }
 
   return (
-    <View className="flex-1 bg-black p-4">
+    <View className="flex-1 bg-black">
       <GameHeader 
+        level={gameState.level}
         lives={gameState.lives}
         money={gameState.money}
-        level={gameState.level}
       />
-      {/* Exit Button */}
-      <TouchableOpacity className="absolute right-4 top-4 z-20 bg-red-700 px-4 py-2 rounded" onPress={handleExit}>
-        <Text className="text-white font-mono">Exit</Text>
-      </TouchableOpacity>
-      <CircuitBoard
-        bugs={gameState.bugs}
-        towers={gameState.towers}
-        selectedTower={selectedTower}
-        towerPositions={towerPositions}
-        towerRange={TOWER_RANGE}
-        onPlaceTower={placeTower}
-        corePulse={corePulse}
-        lastPlaced={lastPlaced}
-      />
-      {/* Projectiles/flash effect */}
-      {projectiles.map(p => (
-        <Animated.View
-          key={p.id}
-          style={{
-            position: 'absolute',
-            left: p.x - 8,
-            top: p.y - 8,
-            width: 16,
-            height: 16,
-            borderRadius: 8,
-            backgroundColor: 'rgba(255,255,0,0.7)',
-            opacity: 0.7,
-            zIndex: 30,
-          }}
+      
+      <View className="flex-1 relative">
+        <CircuitBoard 
+          bugs={gameState.bugs}
+          towers={gameState.towers}
+          circuitPath={circuitPath}
+          coreX={coreX}
+          coreY={coreY}
+          corePulse={corePulse}
+          projectiles={projectiles}
+          lastPlaced={lastPlaced}
+          onPlaceTower={placeTower}
         />
-      ))}
-      <TowerSelector
-        selectedTower={selectedTower}
-        onSelectTower={setSelectedTower}
-        towerCost={TOWER_COST}
-      />
-      <GameControls
-        wave={gameState.wave}
-        bugsCount={gameState.bugs.length}
-        waveInProgress={gameState.waveInProgress}
-        level={gameState.level}
-        onStartWave={startWave}
-      />
+      </View>
+      
+      <View className="p-4 space-y-4">
+        <TowerSelector 
+          selectedTower={selectedTower}
+          onSelectTower={setSelectedTower}
+          towerCost={TOWER_COST}
+        />
+        
+        <GameControls 
+          wave={gameState.wave}
+          bugsCount={gameState.bugs.length}
+          waveInProgress={gameState.waveInProgress}
+          level={gameState.level}
+          onStartWave={startWave}
+        />
+      </View>
     </View>
   );
 } 

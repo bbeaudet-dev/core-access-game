@@ -1,5 +1,5 @@
 import { Barometer } from 'expo-sensors';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import HomeButton from '../ui/HomeButton';
 import PressurePlot from '../ui/LiveDataPlot';
@@ -53,7 +53,7 @@ export default function BarometerModule({ onGoHome }: BarometerModuleProps) {
         setPressure(data.pressure || null);
         setRelativeAltitude(data.relativeAltitude || null);
         
-        // Update pressure history
+        // Update pressure history less frequently to avoid UI blocking
         setPressureHistory(prev => {
           const next = [...prev, data.pressure];
           return next.length > HISTORY_LENGTH ? next.slice(next.length - HISTORY_LENGTH) : next;
@@ -68,18 +68,20 @@ export default function BarometerModule({ onGoHome }: BarometerModuleProps) {
         });
       })
     );
-    Barometer.setUpdateInterval(100); // 10Hz
+    Barometer.setUpdateInterval(500); // 
   };
 
-  const _unsubscribe = () => {
-    subscription && subscription.remove();
-    setSubscription(null);
-  };
+  const _unsubscribe = useCallback(() => {
+    if (subscription) {
+      subscription.remove();
+      setSubscription(null);
+    }
+  }, [subscription]);
 
-  const resetMaxPressure = () => {
+  const resetMaxPressure = useCallback(() => {
     setMaxPressure(0);
     setBlowDetected(false);
-  };
+  }, []);
 
   return (
     <PhoneFrame>
@@ -117,20 +119,6 @@ export default function BarometerModule({ onGoHome }: BarometerModuleProps) {
                 </Text>
               </View>
 
-              {/* Blow Detection - Note about using microphone */}
-              <View className="bg-gray-900 p-6 rounded-lg">
-                <Text className="text-gray-400 text-sm font-mono mb-2">BLOW DETECTION</Text>
-                <View className="flex flex-col items-center justify-center">
-                  <Text className="text-4xl mb-4">💨</Text>
-                  <Text className="text-yellow-400 text-lg font-mono text-center mb-2">
-                    Use Microphone Module
-                  </Text>
-                  <Text className="text-gray-500 text-sm font-mono text-center">
-                    Barometer measures air pressure, not airflow
-                  </Text>
-                </View>
-              </View>
-
               {/* Pressure Plot */}
               <PressurePlot 
                 speedHistory={pressureHistory}
@@ -149,6 +137,7 @@ export default function BarometerModule({ onGoHome }: BarometerModuleProps) {
                   <TouchableOpacity
                     onPress={resetMaxPressure}
                     className="bg-blue-600 px-4 py-2 rounded-lg"
+                    activeOpacity={0.7}
                   >
                     <Text className="text-white text-center font-mono">Reset Max</Text>
                   </TouchableOpacity>

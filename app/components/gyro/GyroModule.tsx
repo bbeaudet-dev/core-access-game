@@ -1,6 +1,6 @@
 import { Gyroscope } from 'expo-sensors';
-import { useEffect, useState } from 'react';
-import { Platform, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { useHints } from '../../contexts/HintContext';
 import { usePuzzle } from '../../contexts/PuzzleContext';
 
@@ -23,14 +23,22 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
   const [isAvailable, setIsAvailable] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const [angularVelocityHistory, setAngularVelocityHistory] = useState<number[]>([]); // For sparkline
+  const [angularVelocityHistory, setAngularVelocityHistory] = useState<number[]>([]);
+
+  // Spin counter puzzle state
+  const [totalRotation, setTotalRotation] = useState(0);
+  const [spinCount, setSpinCount] = useState(0);
+  const [isSpinPuzzleActive, setIsSpinPuzzleActive] = useState(false);
+  const [spinPuzzleComplete, setSpinPuzzleComplete] = useState(false);
+  const [targetSpins, setTargetSpins] = useState(100);
+  const lastUpdateTimeRef = useRef(Date.now());
 
   const { checkGyroAchievement } = useHints();
   const { updatePuzzleProgress, completePuzzle } = usePuzzle();
 
-  // Angular velocity threshold to unlock puzzle (in degrees/second)
   const UNLOCK_THRESHOLD = 50; // deg/s
-  const HISTORY_LENGTH = 200; // 20 seconds at 10Hz
+  const HISTORY_LENGTH = 200;
+  const MIN_ANGULAR_VELOCITY_THRESHOLD = 10; // deg/s minimum to count as spinning
 
   useEffect(() => {
     checkGyroscopeAvailability();
@@ -40,7 +48,6 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
   const checkGyroscopeAvailability = async () => {
     try {
       if (Platform.OS === 'web') {
-        // Web doesn't have gyroscope
         setIsAvailable(false);
         setError('Gyroscope not available on web');
         return;
@@ -72,24 +79,54 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
           data.z * data.z
         );
         setCurrentAngularVelocity(angularVelocity);
+        
         setAngularVelocityHistory(prev => {
           const next = [...prev, angularVelocity];
-          // Keep only the last HISTORY_LENGTH samples
           return next.length > HISTORY_LENGTH ? next.slice(next.length - HISTORY_LENGTH) : next;
         });
-        // Update max angular velocity if current is higher
+
+        // Update max angular velocity
         setMaxAngularVelocity(prevMax => {
           if (angularVelocity > prevMax) {
-            // Check if we should unlock puzzle
             if (angularVelocity >= UNLOCK_THRESHOLD && !isUnlocked) {
               setIsUnlocked(true);
               completePuzzle('gyroscope_rotation');
             }
-            
             return angularVelocity;
           }
           return prevMax;
         });
+
+        // Spin counter logic
+        if (isSpinPuzzleActive && angularVelocity > MIN_ANGULAR_VELOCITY_THRESHOLD) {
+          const now = Date.now();
+          const timeDiff = (now - lastUpdateTimeRef.current) / 1000; // seconds
+          
+          // Calculate rotation in this time step
+          const rotationInStep = angularVelocity * timeDiff;
+          
+          // Determine direction based on Z-axis (most reliable for phone rotation)
+          const rotationDirection = data.z >= 0 ? 1 : -1;
+          const signedRotation = rotationInStep * rotationDirection;
+          
+          setTotalRotation(prev => {
+            const newTotal = prev + signedRotation;
+            
+            // Count complete rotations (360 degrees)
+            const newSpinCount = Math.floor(Math.abs(newTotal) / 360);
+            setSpinCount(newSpinCount);
+            
+            // Check if puzzle is complete
+            if (newSpinCount >= targetSpins && !spinPuzzleComplete) {
+              setSpinPuzzleComplete(true);
+              completePuzzle('gyroscope_spin_count');
+            }
+            
+            return newTotal;
+          });
+          
+          lastUpdateTimeRef.current = now;
+        }
       })
     );
     Gyroscope.setUpdateInterval(100); // 10Hz
@@ -114,7 +151,25 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
     setAngularVelocityHistory([]);
   };
 
-  // Check for achievements whenever max angular velocity changes
+  const startSpinPuzzle = () => {
+    setIsSpinPuzzleActive(true);
+    setSpinPuzzleComplete(false);
+    setTotalRotation(0);
+    setSpinCount(0);
+    lastUpdateTimeRef.current = Date.now();
+  };
+
+  const stopSpinPuzzle = () => {
+    setIsSpinPuzzleActive(false);
+    setSpinPuzzleComplete(false);
+  };
+
+  const resetSpinPuzzle = () => {
+    setTotalRotation(0);
+    setSpinCount(0);
+    setSpinPuzzleComplete(false);
+  };
+
   useEffect(() => {
     checkGyroAchievement(maxAngularVelocity);
   }, [maxAngularVelocity, checkGyroAchievement]);
@@ -136,10 +191,56 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
             </View>
           ) : (
             <>
-              
               <View className="space-y-4">
                 {/* Angular Velocity Display Components */}
                 <SpeedDisplay currentSpeed={currentAngularVelocity} maxSpeed={maxAngularVelocity} />
+
+                {/* Spin Counter Puzzle */}
+                <View className="bg-gray-900 p-4 rounded-lg">
+                  <Text className="text-gray-400 text-sm font-mono mb-2 text-center">SPIN COUNTER PUZZLE</Text>
+                  
+                  {!isSpinPuzzleActive ? (
+                    <View className="space-y-2">
+                      <Text className="text-green-400 text-center font-mono">
+                        Spin the device {targetSpins} times
+                      </Text>
+                      <TouchableOpacity
+                        onPress={startSpinPuzzle}
+                        className="bg-green-600 px-4 py-2 rounded-lg mx-auto"
+                      >
+                        <Text className="text-white font-mono text-center">START SPIN PUZZLE</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <View className="space-y-2">
+                      <Text className="text-yellow-400 text-center font-mono">
+                        Spins: {spinCount} / {targetSpins}
+                      </Text>
+                      <Text className="text-green-400 text-center font-mono">
+                        Total Rotation: {totalRotation.toFixed(1)}°
+                      </Text>
+                      {spinPuzzleComplete && (
+                        <Text className="text-green-400 text-center font-mono font-bold">
+                          SPIN PUZZLE COMPLETE!
+                        </Text>
+                      )}
+                      <View className="flex-row justify-center space-x-2">
+                        <TouchableOpacity
+                          onPress={stopSpinPuzzle}
+                          className="bg-red-600 px-4 py-2 rounded-lg"
+                        >
+                          <Text className="text-white font-mono">STOP</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={resetSpinPuzzle}
+                          className="bg-blue-600 px-4 py-2 rounded-lg"
+                        >
+                          <Text className="text-white font-mono">RESET</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  )}
+                </View>
 
                 {/* Angular Velocity Plot Component */}
                 <GyroPlot 

@@ -39,3 +39,6 @@ yarn-error.*
 
 app-example
 .vscode
+
+expo-env.d.ts
+

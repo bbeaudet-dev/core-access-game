@@ -14,7 +14,7 @@ export default function HelpModule({ onGoHome }: HelpModuleProps) {
         <View className="p-4">
           <ModuleHeader name="HELP" color="blue" />
           
-          <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+          <ScrollView className="flex-col" showsVerticalScrollIndicator={false}>
             <View className="space-y-4">
               {/* Welcome */}
               <View className="bg-gray-900 p-4 rounded-lg">

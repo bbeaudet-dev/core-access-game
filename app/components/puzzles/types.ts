@@ -27,8 +27,10 @@ export const PUZZLE_TYPES = {
   LOCATION_NAVIGATE: 'location_navigate',
   ACCELEROMETER_MOVEMENT: 'accelerometer_movement',
   GYROSCOPE_ROTATION: 'gyroscope_rotation',
+  GYROSCOPE_SPIN_COUNT: 'gyroscope_spin_count',
   MICROPHONE_LEVEL: 'microphone_level',
   COMPASS_ORIENTATION: 'compass_orientation',
+  COMPASS_DIRECTION_HOLD: 'compass_direction_hold',
   CALCULATOR_PUZZLE: 'calculator_puzzle',
 } as const;
 
@@ -89,6 +91,15 @@ export const DEFAULT_PUZZLES: Record<string, PuzzleConfig> = {
     isComplete: false,
     color: 'orange',
   },
+  [PUZZLE_TYPES.GYROSCOPE_SPIN_COUNT]: {
+    id: PUZZLE_TYPES.GYROSCOPE_SPIN_COUNT,
+    name: 'Spin Counter',
+    description: 'Spin the device 100 times to calibrate rotation sensors',
+    moduleId: 'gyro',
+    targetAction: 'count_spins',
+    isComplete: false,
+    color: 'green',
+  },
   [PUZZLE_TYPES.MICROPHONE_LEVEL]: {
     id: PUZZLE_TYPES.MICROPHONE_LEVEL,
     name: 'Audio System Test',
@@ -106,6 +117,15 @@ export const DEFAULT_PUZZLES: Record<string, PuzzleConfig> = {
     targetRange: [0, 45], // North direction with tolerance
     isComplete: false,
     color: 'cyan',
+  },
+  [PUZZLE_TYPES.COMPASS_DIRECTION_HOLD]: {
+    id: PUZZLE_TYPES.COMPASS_DIRECTION_HOLD,
+    name: 'Direction Hold',
+    description: 'Hold the device facing a specific direction for 5 seconds',
+    moduleId: 'compass',
+    targetAction: 'hold_direction',
+    isComplete: false,
+    color: 'blue',
   },
   [PUZZLE_TYPES.CALCULATOR_PUZZLE]: {
     id: PUZZLE_TYPES.CALCULATOR_PUZZLE,
