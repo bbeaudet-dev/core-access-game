@@ -89,7 +89,7 @@ export default function HomeButton({ active, onPress }: HomeButtonProps) {
           `}
           style={{ opacity: active ? 1 : 0.5 }}
         >
-          <Text className="text-white text-3xl font-bold">⌂</Text>
+          <Text className="text-white text-4xl font-bold">⌂</Text>
         </TouchableOpacity>
       </Animated.View>
     </View>
