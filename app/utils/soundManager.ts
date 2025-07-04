@@ -216,4 +216,16 @@ export const setSoundMuted = (muted: boolean) => {
 
 export const setSoundVolume = (volume: number) => {
   SoundManager.getInstance().setVolume(volume)
-} 
+}
+
+// Add default export
+export default {
+  playSound,
+  playBackgroundMusic,
+  stopBackgroundMusic,
+  pauseBackgroundMusic,
+  resumeBackgroundMusic,
+  isBackgroundMusicPlaying,
+  setSoundMuted,
+  setSoundVolume
+}; 

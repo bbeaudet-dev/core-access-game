@@ -25,7 +25,7 @@ export default function LogsModule({ onGoHome }: LogsModuleProps) {
         <Text className="text-yellow-400 text-base font-mono mb-2">[2024-01-15 14:24:00] WARNING: Gyroscope readings abnormal</Text>
         <Text className="text-green-400 text-base font-mono mb-2">[2024-01-15 14:24:05] Compass calibration: REQUIRED</Text>
         <Text className="text-green-400 text-base font-mono mb-2">[2024-01-15 14:24:10] Clock synchronization: OK</Text>
-        <Text className="text-green-400 text-base font-mono mb-2">[2024-01-15 14:24:15] HIDDEN: Password hint: "core defender"</Text>
+        <Text className="text-green-400 text-base font-mono mb-2">[2024-01-15 14:24:15] HIDDEN: Core defender protocol active</Text>
         <Text className="text-red-400 text-base font-mono mb-2">[2024-01-15 14:24:20] ERROR: Network connection lost</Text>
         <Text className="text-green-400 text-base font-mono mb-2">[2024-01-15 14:24:25] Backup systems: ONLINE</Text>
         <Text className="text-green-400 text-base font-mono mb-2">[2024-01-15 14:24:30] HIDDEN: Try voice commands</Text>

@@ -239,4 +239,7 @@ export function useModuleUnlock() {
     throw new Error('useModuleUnlock must be used within a ModuleUnlockProvider');
   }
   return context;
-} 
+}
+
+// Add default export
+export default ModuleUnlockProvider; 

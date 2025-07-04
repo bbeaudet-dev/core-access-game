@@ -107,4 +107,7 @@ export function usePuzzle() {
     throw new Error('usePuzzle must be used within a PuzzleProvider');
   }
   return context;
-} 
+}
+
+// Add default export
+export default PuzzleProvider; 

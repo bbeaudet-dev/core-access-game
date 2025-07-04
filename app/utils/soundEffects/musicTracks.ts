@@ -1,4 +1,4 @@
-import { SoundEffect } from '../soundManager'
+import { SoundEffect } from '../soundManager';
 
 export const musicTracks: SoundEffect[] = [
   {
@@ -17,4 +17,7 @@ export const musicTracks: SoundEffect[] = [
     artist: 'Szegvari',
     file: require('../../../assets/sounds/ui/611305__szegvari__new-york-cyberpunk-synth-analogue-drums-bass-dance-retro-atmo-ambience-pad-drone-cinematic-action-music-surround.mp3'),
   },
-] 
+]
+
+// Add default export
+export default musicTracks; 

@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Animated, View } from 'react-native';
-import AboutScreen from './components/Modules/about/AboutScreen';
-import CoreVitalsScreen from './components/Modules/about/CoreVitalsScreen';
-import SystemModule from './components/Modules/about/System/SystemModule';
 import HomeScreen from './components/HomeScreen';
 import InfectionSequence from './components/InfectionSequence';
 import LoginScreen from './components/login/LoginScreen';
+import AboutScreen from './components/Modules/about/AboutScreen';
+import CoreVitalsScreen from './components/Modules/about/CoreVitalsScreen';
+import SystemModule from './components/Modules/about/System/SystemModule';
 import AccelerometerModule from './components/Modules/accelerometer/AccelerometerModule';
 import BarometerModule from './components/Modules/barometer/BarometerModule';
 import BatteryModule from './components/Modules/battery/BatteryModule';

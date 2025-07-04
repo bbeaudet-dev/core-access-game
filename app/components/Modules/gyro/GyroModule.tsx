@@ -1,7 +1,6 @@
 import { Gyroscope } from 'expo-sensors';
 import { useEffect, useRef, useState } from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
-import { useHints } from '../../../contexts/HintContext';
 import { usePuzzle } from '../../../contexts/PuzzleContext';
 import { playSound } from '../../../utils/soundManager';
 
@@ -32,8 +31,7 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
   const [targetSpins, setTargetSpins] = useState(100);
   const lastUpdateTimeRef = useRef(Date.now());
 
-  const { checkGyroAchievement } = useHints();
-  const { updatePuzzleProgress, completePuzzle } = usePuzzle();
+  const { completePuzzle } = usePuzzle();
 
   const UNLOCK_THRESHOLD = 50; // deg/s
   const HISTORY_LENGTH = 200;
@@ -174,10 +172,6 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
     setSpinCount(0);
     setSpinPuzzleComplete(false);
   };
-
-  useEffect(() => {
-    checkGyroAchievement(maxAngularVelocity);
-  }, [maxAngularVelocity, checkGyroAchievement]);
 
   return (
     <ScreenTemplate title="GYRO" titleColor="green" onGoHome={onGoHome}>

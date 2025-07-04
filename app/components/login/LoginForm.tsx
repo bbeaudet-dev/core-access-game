@@ -12,6 +12,7 @@ interface LoginFormProps {
   onNameChange: (text: string) => void;
   onSubmit: () => void;
   onToggleMode: () => void;
+  onGuestMode: () => void;
 }
 
 export default function LoginForm({
@@ -25,7 +26,8 @@ export default function LoginForm({
   onPasswordChange,
   onNameChange,
   onSubmit,
-  onToggleMode
+  onToggleMode,
+  onGuestMode
 }: LoginFormProps) {
   return (
     <View className="w-full max-w-sm">
@@ -96,6 +98,15 @@ export default function LoginForm({
             ? 'Already have an account? Sign In' 
             : "Don't have an account? Sign Up"
           }
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        className="w-full p-4 mt-4"
+        onPress={onGuestMode}
+      >
+        <Text className="text-blue-400 text-center">
+          Continue as Guest
         </Text>
       </TouchableOpacity>
     </View>

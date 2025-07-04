@@ -136,4 +136,9 @@ export const DEFAULT_PUZZLES: Record<string, PuzzleConfig> = {
     isComplete: false,
     color: 'orange',
   },
+};
+
+// Add default export
+export default {
+  DEFAULT_PUZZLES
 }; 

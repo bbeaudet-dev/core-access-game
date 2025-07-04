@@ -1,4 +1,4 @@
-import { SoundEffect } from '../soundManager'
+import { SoundEffect } from '../soundManager';
 
 export const gameSounds: SoundEffect[] = [
   {
@@ -29,4 +29,7 @@ export const gameSounds: SoundEffect[] = [
     description: 'Milestone reached',
     file: require('../../../assets/sounds/ui/660871__silverillusionist__level-upmission-complete-1-cyberpunk.wav'),
   },
-] 
+]
+
+// Add default export
+export default gameSounds; 

@@ -1,4 +1,4 @@
-import { SoundEffect } from '../soundManager'
+import { SoundEffect } from '../soundManager';
 
 export const uiSounds: SoundEffect[] = [
   {
@@ -113,4 +113,7 @@ export const uiSounds: SoundEffect[] = [
     description: 'Soft tap sound',
     file: require('../../../assets/sounds/ui/322900__rhodesmas__tap-01.wav'),
   },
-] 
+]
+
+// Add default export
+export default uiSounds; 

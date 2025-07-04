@@ -27,8 +27,12 @@ export default function ScreenTemplate({
       <View className="pt-12 px-4">
         {/* Header with battery indicator */}
         <View className="flex-row justify-between items-center mb-6">
-          <ModuleHeader name={title} color={titleColor} />
-          <BatteryIndicator />
+          <View className="flex-1">
+            <ModuleHeader name={title} color={titleColor} />
+          </View>
+          <View className="ml-4">
+            <BatteryIndicator />
+          </View>
         </View>
       </View>
       

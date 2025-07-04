@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
+import AnimatedBackground from '../ui/AnimatedBackground';
 import GlitchText from '../ui/GlitchText';
-import GuestMode from './GuestMode';
 import LoginForm from './LoginForm';
 import SuccessScreen from './SuccessScreen';
 
@@ -157,52 +157,67 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: 'black' }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={80}
+    <AnimatedBackground 
+      source={require('../../../assets/animations/red_eye_anim1.mp4')}
+      opacity={1.0}
+      isVideo={true}
+      shouldLoop={true}
+      shouldPlay={true}
     >
-      <ScrollView
-        contentContainerStyle={{ 
-          flexGrow: 1, 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          paddingHorizontal: 24,
-          paddingTop: 50
-        }}
-        keyboardShouldPersistTaps="handled"
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={80}
       >
-        <View style={{ marginBottom: 40 }}>
-          <GlitchText 
-            text="CORE_ACCESS"
-            fontSize={32}
-            width={400}
-            height={200}
-            animationSpeed={100}
-            animationInterval={1800}
-            primaryColor="#E5484D"
-            secondaryColor="#12A594"
-            baseColor="white"
-            opacity={0.9}
+        <ScrollView
+          contentContainerStyle={{ 
+            flexGrow: 1, 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            paddingHorizontal: 24,
+            paddingTop: 50
+          }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={{ marginBottom: 40 }}>
+            <View style={{
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.8,
+              shadowRadius: 8,
+              elevation: 10,
+            }}>
+              <GlitchText 
+                text="CORE_ACCESS"
+                fontSize={42}
+                width={400}
+                height={200}
+                animationSpeed={100}
+                animationInterval={1800}
+                primaryColor="#E5484D"
+                secondaryColor="#12A594"
+                baseColor="white"
+                opacity={0.9}
+              />
+            </View>
+          </View>
+          
+          <LoginForm
+            email={email}
+            password={password}
+            name={name}
+            isSignUp={isSignUp}
+            isLoading={isLoading}
+            error={error}
+            onEmailChange={handleEmailChange}
+            onPasswordChange={handlePasswordChange}
+            onNameChange={handleNameChange}
+            onSubmit={handleSubmit}
+            onToggleMode={handleToggleMode}
+            onGuestMode={handleGuestMode}
           />
-        </View>
-        
-        <LoginForm
-          email={email}
-          password={password}
-          name={name}
-          isSignUp={isSignUp}
-          isLoading={isLoading}
-          error={error}
-          onEmailChange={handleEmailChange}
-          onPasswordChange={handlePasswordChange}
-          onNameChange={handleNameChange}
-          onSubmit={handleSubmit}
-          onToggleMode={handleToggleMode}
-        />
-
-        <GuestMode onGuestMode={handleGuestMode} />
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </AnimatedBackground>
   );
 } 

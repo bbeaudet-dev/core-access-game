@@ -49,7 +49,7 @@ export default function HomeScreen({ onOpenModule }: HomeScreenProps) {
 
   return (
     <ScreenTemplate title="HOME" titleColor="red" showHomeButton={false}>
-      <View className="flex-row flex-wrap justify-center">
+      <View className="flex-row flex-wrap justify-center pt-4">
         {ALL_MODULES.map(module => (
           <View key={module.name} className="w-1/4 p-2">
             <AppIconWithHalo

@@ -32,4 +32,9 @@ export const MusicTrackText: React.FC<MusicTrackTextProps> = ({
       </Text>
     </View>
   )
-} 
+}
+
+// Add default export
+export default {
+  MusicTrackText
+}; 
