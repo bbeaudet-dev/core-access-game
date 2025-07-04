@@ -1,7 +1,7 @@
-import { Audio } from 'expo-av'
+import { setAudioModeAsync } from 'expo-audio'
 import { useEffect, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
-import { SOUND_EFFECTS, SoundManager, playBackgroundMusic, setSoundMuted, setSoundVolume, stopBackgroundMusic } from '../../../utils/soundManager'
+import { SOUND_EFFECTS, SoundManager, pauseBackgroundMusic, playBackgroundMusic, resumeBackgroundMusic, setSoundMuted, setSoundVolume, stopBackgroundMusic } from '../../../utils/soundManager'
 import HomeButton from '../../ui/HomeButton'
 import ModuleHeader from '../../ui/ModuleHeader'
 import PhoneFrame from '../../ui/PhoneFrame'
@@ -16,17 +16,17 @@ export default function MusicModule({ onGoHome }: MusicModuleProps) {
   const [isMuted, setIsMuted] = useState(false)
   const [volume, setVolume] = useState(0.7)
   const [currentTrack, setCurrentTrack] = useState<string | null>(null)
+  const [isPlaying, setIsPlaying] = useState(false)
   const [hasPermission, setHasPermission] = useState<boolean | null>(null)
 
   useEffect(() => {
     const setupAudio = async () => {
       try {
-        // For music playback, we don't need special permissions
-        // Just configure the audio mode for playback
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
-          playsInSilentModeIOS: true,
-          staysActiveInBackground: true,
+        // Configure the audio mode for playback
+        await setAudioModeAsync({
+          allowsRecording: false,
+          playsInSilentMode: true,
+          shouldPlayInBackground: true,
         })
         setHasPermission(true)
       } catch (error) {
@@ -42,6 +42,7 @@ export default function MusicModule({ onGoHome }: MusicModuleProps) {
     setIsMuted(soundManager.isMutedState())
     setVolume(soundManager.getVolume())
     setCurrentTrack(soundManager.getCurrentMusicTrack())
+    setIsPlaying(soundManager.isBackgroundMusicPlaying())
   }, [])
 
   const handleMuteToggle = () => {
@@ -57,13 +58,11 @@ export default function MusicModule({ onGoHome }: MusicModuleProps) {
 
   const handlePlayTrack = async (track: typeof SOUND_EFFECTS[0]) => {
     if (track.category === 'music') {
-      // For now, we'll use placeholder URIs - you'll need to add actual sound files
-      const baseUrl = 'https://example.com/sounds' // Replace with your actual sound hosting
-      const uri = `${baseUrl}${track.filePath}`
-      
       try {
-        await playBackgroundMusic(track.id, uri, true)
+        // Use the local file directly
+        await playBackgroundMusic(track.id, track.file, true)
         setCurrentTrack(track.id)
+        setIsPlaying(true)
       } catch (error) {
         console.error('Failed to play track:', error)
       }
@@ -73,6 +72,17 @@ export default function MusicModule({ onGoHome }: MusicModuleProps) {
   const handleStopMusic = async () => {
     await stopBackgroundMusic()
     setCurrentTrack(null)
+    setIsPlaying(false)
+  }
+
+  const handlePauseResume = async () => {
+    if (isPlaying) {
+      await pauseBackgroundMusic()
+      setIsPlaying(false)
+    } else {
+      await resumeBackgroundMusic()
+      setIsPlaying(true)
+    }
   }
 
   const musicTracks = SOUND_EFFECTS.filter(sound => sound.category === 'music')
@@ -100,8 +110,10 @@ export default function MusicModule({ onGoHome }: MusicModuleProps) {
                   isMuted={isMuted}
                   volume={volume}
                   currentTrack={currentTrack}
+                  isPlaying={isPlaying}
                   onMuteToggle={handleMuteToggle}
                   onVolumeChange={handleVolumeChange}
+                  onPauseResume={handlePauseResume}
                   soundEffects={SOUND_EFFECTS}
                 />
 

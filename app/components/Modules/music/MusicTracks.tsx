@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from 'react-native'
+import { MusicTrackText } from '../../../utils/textUtils'
 
 interface MusicTracksProps {
   musicTracks: any[]
@@ -25,12 +26,15 @@ export default function MusicTracks({
             currentTrack === track.id ? 'bg-purple-600 border-purple-400' : 'bg-gray-800 border-gray-600'
           }`}
         >
-          <Text className={`font-bold ${currentTrack === track.id ? 'text-purple-200' : 'text-purple-400'}`}>
+          <Text className={`font-bold mb-1 ${currentTrack === track.id ? 'text-purple-200' : 'text-purple-400'}`}>
             🎵 {track.name}
           </Text>
-          <Text className={`text-xs ${currentTrack === track.id ? 'text-purple-300' : 'text-gray-400'}`}>
-            {track.description}
-          </Text>
+          <MusicTrackText
+            name={track.name}
+            description={track.description}
+            artist={track.artist}
+            className={`text-xs ${currentTrack === track.id ? 'text-purple-300' : 'text-gray-400'}`}
+          />
         </TouchableOpacity>
       ))}
 

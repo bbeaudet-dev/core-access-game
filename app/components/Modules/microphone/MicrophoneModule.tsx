@@ -1,4 +1,8 @@
-import { Audio } from 'expo-av';
+import {
+  AudioRecorder,
+  requestRecordingPermissionsAsync,
+  setAudioModeAsync
+} from 'expo-audio';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Text, TouchableOpacity, View } from 'react-native';
 import { usePuzzle } from '../../../contexts/PuzzleContext';
@@ -14,7 +18,7 @@ interface MicrophoneModuleProps {
 
 export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [recorder, setRecorder] = useState<AudioRecorder | null>(null);
   const [audioLevel, setAudioLevel] = useState(0);
   const [isListening, setIsListening] = useState(false);
   const [maxAudioLevel, setMaxAudioLevel] = useState(0);
@@ -29,14 +33,14 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
   useEffect(() => {
     const requestPermissions = async () => {
       try {
-        const { status } = await Audio.requestPermissionsAsync();
+        const { status } = await requestRecordingPermissionsAsync();
         setHasPermission(status === 'granted');
         
         if (status === 'granted') {
-          await Audio.setAudioModeAsync({
-            allowsRecordingIOS: true,
-            playsInSilentModeIOS: true,
-            staysActiveInBackground: false,
+          await setAudioModeAsync({
+            allowsRecording: true,
+            playsInSilentMode: true,
+            shouldPlayInBackground: false,
           });
         }
       } catch (error) {
@@ -52,40 +56,60 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
     try {
       setIsListening(true);
       
-      // Start recording to get audio levels
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY,
-        (status) => {
-          if (status.isRecording) {
-            const level = status.metering || 0;
-            setAudioLevel(level);
-            
-            // Update max audio level and check for puzzle completion
-            setMaxAudioLevel(prevMax => {
-              if (level > prevMax) {
-                // Check if we should unlock puzzle
-                if (level >= UNLOCK_THRESHOLD && !isUnlocked) {
-                  setIsUnlocked(true);
-                  completePuzzle('microphone_level');
-                }
-                
-                return level;
-              }
-              return prevMax;
-            });
-            
-            // Animate the audio level
-            Animated.timing(audioLevelAnim, {
-              toValue: Math.min(level / 100, 1),
-              duration: 100,
-              useNativeDriver: false,
-            }).start();
-          }
+      // Create recorder with metering enabled
+      const newRecorder = new AudioRecorder({
+        isMeteringEnabled: true,
+        extension: '.wav',
+        sampleRate: 44100,
+        numberOfChannels: 1,
+        bitRate: 128000,
+        android: {
+          outputFormat: 'mpeg4',
+          audioEncoder: 'aac',
         },
-        100 // Update every 100ms
-      );
+        ios: {
+          audioQuality: 96,
+          outputFormat: 'aac ',
+        },
+      });
+
+      // Prepare and start recording
+      await newRecorder.prepareToRecordAsync();
+      newRecorder.record();
+      setRecorder(newRecorder);
+
+      // Set up status listener for audio levels
+      const statusListener = (status: any) => {
+        if (status.isRecording) {
+          const level = status.metering || 0;
+          setAudioLevel(level);
+          
+          // Update max audio level and check for puzzle completion
+          setMaxAudioLevel(prevMax => {
+            if (level > prevMax) {
+              // Check if we should unlock puzzle
+              if (level >= UNLOCK_THRESHOLD && !isUnlocked) {
+                setIsUnlocked(true);
+                completePuzzle('microphone_level');
+              }
+              
+              return level;
+            }
+            return prevMax;
+          });
+          
+          // Animate the audio level
+          Animated.timing(audioLevelAnim, {
+            toValue: Math.min(level / 100, 1),
+            duration: 100,
+            useNativeDriver: false,
+          }).start();
+        }
+      };
+
+      // Listen for status updates
+      newRecorder.addListener('recordingStatusUpdate', statusListener);
       
-      setRecording(recording);
     } catch (error) {
       console.error('Failed to start recording:', error);
       setIsListening(false);
@@ -94,9 +118,9 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
 
   const stopListening = async () => {
     try {
-      if (recording) {
-        await recording.stopAndUnloadAsync();
-        setRecording(null);
+      if (recorder) {
+        await recorder.stop();
+        setRecorder(null);
       }
       setIsListening(false);
       setAudioLevel(0);
@@ -109,17 +133,17 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
       }).start();
       
       // Reset audio mode to allow music to play again
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: false,
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: false,
+      await setAudioModeAsync({
+        allowsRecording: false,
+        playsInSilentMode: true,
+        shouldPlayInBackground: false,
       });
       
       // Re-enable recording for next use
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: false,
+      await setAudioModeAsync({
+        allowsRecording: true,
+        playsInSilentMode: true,
+        shouldPlayInBackground: false,
       });
     } catch (error) {
       console.error('Failed to stop recording:', error);

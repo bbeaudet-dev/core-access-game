@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { playSound } from '../../utils/soundManager';
 
 interface AppIconProps {
   icon: string;
@@ -21,6 +22,13 @@ export default function AppIcon({
   style,
   badge
 }: AppIconProps) {
+  const handlePress = () => {
+    if (!disabled) {
+      playSound('ui_app_launch');
+      onPress();
+    }
+  };
+
   const getSizeClasses = () => {
     switch (size) {
       case 'sm':
@@ -77,7 +85,7 @@ export default function AppIcon({
     <View>
       <TouchableOpacity 
         className={`${getSizeClasses()} ${color} justify-center items-center m-1 rounded-lg relative ${disabled ? 'opacity-50' : ''}`}
-        onPress={onPress}
+        onPress={handlePress}
         disabled={disabled}
         style={style}
       >

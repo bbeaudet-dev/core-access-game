@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { useHints } from '../../../contexts/HintContext';
 import { usePuzzle } from '../../../contexts/PuzzleContext';
+import { playSound } from '../../../utils/soundManager';
 
 import HomeButton from '../../ui/HomeButton';
 import GyroPlot from '../../ui/LiveDataPlot';
@@ -67,6 +68,9 @@ export default function GyroModule({ onGoHome }: GyroModuleProps) {
 
   const _subscribe = () => {
     if (!isAvailable) return;
+
+    // Play sensor activation sound
+    playSound('sensor_activate');
 
     setSubscription(
       Gyroscope.addListener((data) => {

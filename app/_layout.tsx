@@ -10,8 +10,8 @@ export default function RootLayout() {
     <AuthProvider>
       <HintProvider>
         <PuzzleProvider>
-          <StatusBar style="light" hidden={true} />
-          <Stack screenOptions={{ headerShown: false }} />
+        <StatusBar style="light" hidden={true} />
+        <Stack screenOptions={{ headerShown: false }} />
         </PuzzleProvider>
       </HintProvider>
     </AuthProvider>

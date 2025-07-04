@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { Animated, Text, TouchableOpacity, View } from 'react-native'
+import { playSound } from '../../utils/soundManager'
 
 interface HomeButtonProps {
   active: boolean
@@ -13,6 +14,9 @@ export default function HomeButton({ active, onPress }: HomeButtonProps) {
 
   const handlePressIn = () => {
     if (!active) return
+    
+    // Play click sound
+    playSound('ui_click')
     
     setIsPressed(true)
     // Shrink animation
@@ -60,6 +64,13 @@ export default function HomeButton({ active, onPress }: HomeButtonProps) {
     }, 1000)
   }
 
+  const handlePress = () => {
+    if (active && onPress) {
+      playSound('ui_home');
+      onPress();
+    }
+  };
+
   const spin = rotateAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg']
@@ -79,7 +90,7 @@ export default function HomeButton({ active, onPress }: HomeButtonProps) {
       <Animated.View style={{transform: [{ scale: scaleAnim }]}} >
         <TouchableOpacity
           disabled={!active}
-          onPress={active ? onPress : undefined}
+          onPress={handlePress}
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}
           className={`

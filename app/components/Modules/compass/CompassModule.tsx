@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { usePuzzle } from '../../../contexts/PuzzleContext';
 
+import { playSound } from '@/app/utils/soundManager';
 import HomeButton from '../../ui/HomeButton';
 import ModuleHeader from '../../ui/ModuleHeader';
 import PhoneFrame from '../../ui/PhoneFrame';
@@ -99,6 +100,9 @@ export default function CompassModule({ onGoHome }: CompassModuleProps) {
 
   const _subscribe = () => {
     if (!isAvailable) return;
+
+    // Play sensor activation sound
+    playSound('sensor_activate');
 
     setSubscription(
       Magnetometer.addListener((data) => {

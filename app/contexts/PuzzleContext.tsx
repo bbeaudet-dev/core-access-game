@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { DEFAULT_PUZZLES, PuzzleConfig, PuzzleState } from '../components/puzzles/types';
+import { playSound } from '../utils/soundManager';
 
 interface PuzzleContextType {
   puzzleState: PuzzleState;
@@ -42,15 +43,25 @@ export function PuzzleProvider({ children }: { children: React.ReactNode }) {
   };
 
   const completePuzzle = (puzzleId: string) => {
-    setPuzzleState(prev => ({
-      ...prev,
-      [puzzleId]: {
-        ...prev[puzzleId],
-        isComplete: true,
-        progress: 100,
-        lastUpdated: new Date(),
-      },
-    }));
+    setPuzzleState(prev => {
+      const wasComplete = prev[puzzleId]?.isComplete || false;
+      const newState = {
+        ...prev,
+        [puzzleId]: {
+          ...prev[puzzleId],
+          isComplete: true,
+          progress: 100,
+          lastUpdated: new Date(),
+        },
+      };
+      
+      // Play unlock sound if this is a new completion
+      if (!wasComplete) {
+        playSound('ui_unlock');
+      }
+      
+      return newState;
+    });
   };
 
   const getPuzzleConfig = (puzzleId: string): PuzzleConfig | undefined => {

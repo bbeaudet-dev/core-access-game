@@ -1,3 +1,4 @@
+import { playSound } from '@/app/utils/soundManager';
 import { Accelerometer } from 'expo-sensors';
 import { useEffect, useState } from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
@@ -154,6 +155,9 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
 
   const _subscribe = () => {
     if (!isAvailable) return;
+
+    // Play sensor activation sound
+    playSound('sensor_activate');
 
     setSubscription(
       Accelerometer.addListener((data) => {

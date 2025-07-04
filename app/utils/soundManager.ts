@@ -1,19 +1,41 @@
-import { Audio } from 'expo-av'
+import {
+  AudioPlayer,
+  createAudioPlayer,
+  InterruptionMode,
+  InterruptionModeAndroid,
+  setAudioModeAsync
+} from 'expo-audio'
+
+// Import sound effects from separate files
+import { gameSounds } from './soundEffects/gameSounds'
+import { musicTracks } from './soundEffects/musicTracks'
+import { uiSounds } from './soundEffects/uiSounds'
 
 export interface SoundEffect {
   id: string
   name: string
   category: 'ui' | 'game' | 'ambient' | 'music'
   description: string
-  filePath: string
+  artist?: string // Optional field for music tracks
+  file: any // require() result
 }
+
+// Set audio mode for iOS/Android compatibility
+setAudioModeAsync({
+  allowsRecording: false,
+  shouldPlayInBackground: false,
+  interruptionMode: 'mixWithOthers' as InterruptionMode,
+  playsInSilentMode: true,
+  interruptionModeAndroid: 'duckOthers' as InterruptionModeAndroid,
+  shouldRouteThroughEarpiece: false,
+})
 
 export class SoundManager {
   private static instance: SoundManager
-  private sounds: Map<string, Audio.Sound> = new Map()
+  private sounds: Map<string, AudioPlayer> = new Map()
   private isMuted: boolean = false
   private volume: number = 0.7
-  private backgroundMusic: Audio.Sound | null = null
+  private backgroundMusic: AudioPlayer | null = null
   private currentMusicTrack: string | null = null
 
   private constructor() {}
@@ -25,10 +47,10 @@ export class SoundManager {
     return SoundManager.instance
   }
 
-  async preloadSound(soundId: string, uri: string): Promise<void> {
+  async preloadSound(soundId: string, file: any): Promise<void> {
     try {
-      const { sound } = await Audio.Sound.createAsync({ uri })
-      this.sounds.set(soundId, sound)
+      const player = createAudioPlayer(file)
+      this.sounds.set(soundId, player)
     } catch (error) {
       console.error(`Failed to preload sound ${soundId}:`, error)
     }
@@ -37,33 +59,55 @@ export class SoundManager {
   async playSound(soundId: string, volume?: number): Promise<void> {
     if (this.isMuted) return
 
-    const sound = this.sounds.get(soundId)
-    if (sound) {
+    let player = this.sounds.get(soundId)
+    const effect = SOUND_EFFECTS.find(s => s.id === soundId)
+    if (!effect) return
+
+    if (!player) {
       try {
-        await sound.setVolumeAsync(volume ?? this.volume)
-        await sound.replayAsync()
+        player = createAudioPlayer(effect.file)
+        this.sounds.set(soundId, player)
       } catch (error) {
-        console.error(`Failed to play sound ${soundId}:`, error)
+        console.error(`Failed to load sound ${soundId}:`, error)
+        return
       }
+    }
+
+    try {
+      // Set volume by adjusting the player's volume property
+      if (volume !== undefined) {
+        player.volume = volume
+      } else {
+        player.volume = this.volume
+      }
+      
+      // Reset to beginning and play
+      await player.seekTo(0)
+      player.play()
+    } catch (error) {
+      console.error(`Failed to play sound ${soundId}:`, error)
     }
   }
 
-  async playBackgroundMusic(trackId: string, uri: string, loop: boolean = true): Promise<void> {
+  async playBackgroundMusic(trackId: string, source: string | any, loop: boolean = true): Promise<void> {
     if (this.isMuted) return
 
     // Stop current background music
     if (this.backgroundMusic) {
-      await this.backgroundMusic.stopAsync()
-      await this.backgroundMusic.unloadAsync()
+      this.backgroundMusic.pause()
+      this.backgroundMusic.remove()
     }
 
     try {
-      const { sound } = await Audio.Sound.createAsync(
-        { uri },
-        { shouldPlay: true, isLooping: loop }
-      )
-      await sound.setVolumeAsync(this.volume * 0.5) // Background music at half volume
-      this.backgroundMusic = sound
+      // Handle both local files (require() result) and URIs
+      const audioSource = typeof source === 'string' ? { uri: source } : source
+      const player = createAudioPlayer(audioSource)
+      player.volume = this.volume * 0.5 // Background music at half volume
+      if (loop) {
+        player.loop = true
+      }
+      player.play()
+      this.backgroundMusic = player
       this.currentMusicTrack = trackId
     } catch (error) {
       console.error(`Failed to play background music ${trackId}:`, error)
@@ -72,11 +116,27 @@ export class SoundManager {
 
   async stopBackgroundMusic(): Promise<void> {
     if (this.backgroundMusic) {
-      await this.backgroundMusic.stopAsync()
-      await this.backgroundMusic.unloadAsync()
+      this.backgroundMusic.pause()
+      this.backgroundMusic.remove()
       this.backgroundMusic = null
       this.currentMusicTrack = null
     }
+  }
+
+  async pauseBackgroundMusic(): Promise<void> {
+    if (this.backgroundMusic && this.backgroundMusic.playing) {
+      this.backgroundMusic.pause()
+    }
+  }
+
+  async resumeBackgroundMusic(): Promise<void> {
+    if (this.backgroundMusic && !this.backgroundMusic.playing) {
+      this.backgroundMusic.play()
+    }
+  }
+
+  isBackgroundMusicPlaying(): boolean {
+    return this.backgroundMusic?.playing || false
   }
 
   setMuted(muted: boolean): void {
@@ -89,7 +149,7 @@ export class SoundManager {
   setVolume(volume: number): void {
     this.volume = Math.max(0, Math.min(1, volume))
     if (this.backgroundMusic) {
-      this.backgroundMusic.setVolumeAsync(this.volume * 0.5)
+      this.backgroundMusic.volume = this.volume * 0.5
     }
   }
 
@@ -106,10 +166,10 @@ export class SoundManager {
   }
 
   async cleanup(): Promise<void> {
-    // Stop and unload all sounds
-    for (const sound of this.sounds.values()) {
-      await sound.stopAsync()
-      await sound.unloadAsync()
+    // Stop and remove all sounds
+    for (const player of this.sounds.values()) {
+      player.pause()
+      player.remove()
     }
     this.sounds.clear()
 
@@ -118,141 +178,11 @@ export class SoundManager {
   }
 }
 
-// Predefined sound effects
+// Combine all sound effects into one array
 export const SOUND_EFFECTS: SoundEffect[] = [
-  // UI Sounds
-  {
-    id: 'ui_success',
-    name: 'Success',
-    category: 'ui',
-    description: 'Positive action confirmation',
-    filePath: '/sounds/ui/success.mp3'
-  },
-  {
-    id: 'ui_error',
-    name: 'Error',
-    category: 'ui',
-    description: 'Error or failure notification',
-    filePath: '/sounds/ui/error.mp3'
-  },
-  {
-    id: 'ui_back',
-    name: 'Back',
-    category: 'ui',
-    description: 'Navigation back sound',
-    filePath: '/sounds/ui/back.mp3'
-  },
-  {
-    id: 'ui_forward',
-    name: 'Forward',
-    category: 'ui',
-    description: 'Navigation forward sound',
-    filePath: '/sounds/ui/forward.mp3'
-  },
-  {
-    id: 'ui_home',
-    name: 'Home',
-    category: 'ui',
-    description: 'Return to home sound',
-    filePath: '/sounds/ui/home.mp3'
-  },
-  {
-    id: 'ui_unlock',
-    name: 'Unlock',
-    category: 'ui',
-    description: 'Module unlock sound',
-    filePath: '/sounds/ui/unlock.mp3'
-  },
-  {
-    id: 'ui_click',
-    name: 'Click',
-    category: 'ui',
-    description: 'Button click sound',
-    filePath: '/sounds/ui/click.mp3'
-  },
-
-  // Game Sounds
-  {
-    id: 'game_tower_place',
-    name: 'Tower Place',
-    category: 'game',
-    description: 'Tower placement sound',
-    filePath: '/sounds/game/tower_place.mp3'
-  },
-  {
-    id: 'game_enemy_hit',
-    name: 'Enemy Hit',
-    category: 'game',
-    description: 'Enemy taking damage',
-    filePath: '/sounds/game/enemy_hit.mp3'
-  },
-  {
-    id: 'game_victory',
-    name: 'Victory',
-    category: 'game',
-    description: 'Level completion',
-    filePath: '/sounds/game/victory.mp3'
-  },
-  {
-    id: 'game_defeat',
-    name: 'Defeat',
-    category: 'game',
-    description: 'Level failure',
-    filePath: '/sounds/game/defeat.mp3'
-  },
-
-  // Ambient Sounds
-  {
-    id: 'ambient_whisper',
-    name: 'Whisper',
-    category: 'ambient',
-    description: 'Eerie whisper sound',
-    filePath: '/sounds/ambient/whisper.mp3'
-  },
-  {
-    id: 'ambient_creak',
-    name: 'Creak',
-    category: 'ambient',
-    description: 'Mysterious creaking',
-    filePath: '/sounds/ambient/creak.mp3'
-  },
-  {
-    id: 'ambient_wind',
-    name: 'Wind',
-    category: 'ambient',
-    description: 'Distant wind sound',
-    filePath: '/sounds/ambient/wind.mp3'
-  },
-  {
-    id: 'ambient_glitch',
-    name: 'Glitch',
-    category: 'ambient',
-    description: 'Digital glitch effect',
-    filePath: '/sounds/ambient/glitch.mp3'
-  },
-
-  // Music Tracks
-  {
-    id: 'music_main_theme',
-    name: 'Main Theme',
-    category: 'music',
-    description: 'Primary background music',
-    filePath: '/sounds/music/main_theme.mp3'
-  },
-  {
-    id: 'music_tension',
-    name: 'Tension',
-    category: 'music',
-    description: 'High tension background',
-    filePath: '/sounds/music/tension.mp3'
-  },
-  {
-    id: 'music_mystery',
-    name: 'Mystery',
-    category: 'music',
-    description: 'Mysterious ambient track',
-    filePath: '/sounds/music/mystery.mp3'
-  }
+  ...uiSounds,
+  ...gameSounds,
+  ...musicTracks,
 ]
 
 // Convenience functions
@@ -260,12 +190,24 @@ export const playSound = (soundId: string, volume?: number) => {
   SoundManager.getInstance().playSound(soundId, volume)
 }
 
-export const playBackgroundMusic = (trackId: string, uri: string, loop?: boolean) => {
-  SoundManager.getInstance().playBackgroundMusic(trackId, uri, loop)
+export const playBackgroundMusic = (trackId: string, source: string | any, loop?: boolean) => {
+  SoundManager.getInstance().playBackgroundMusic(trackId, source, loop)
 }
 
 export const stopBackgroundMusic = () => {
   SoundManager.getInstance().stopBackgroundMusic()
+}
+
+export const pauseBackgroundMusic = () => {
+  SoundManager.getInstance().pauseBackgroundMusic()
+}
+
+export const resumeBackgroundMusic = () => {
+  SoundManager.getInstance().resumeBackgroundMusic()
+}
+
+export const isBackgroundMusicPlaying = () => {
+  return SoundManager.getInstance().isBackgroundMusicPlaying()
 }
 
 export const setSoundMuted = (muted: boolean) => {

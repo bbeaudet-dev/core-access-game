@@ -1,11 +1,14 @@
 import { Text, TouchableOpacity, View } from 'react-native'
+import { MusicTrackText } from '../../../utils/textUtils'
 
 interface AudioControlsProps {
   isMuted: boolean
   volume: number
   currentTrack: string | null
+  isPlaying: boolean
   onMuteToggle: () => void
   onVolumeChange: (volume: number) => void
+  onPauseResume: () => void
   soundEffects: any[]
 }
 
@@ -13,10 +16,14 @@ export default function AudioControls({
   isMuted,
   volume,
   currentTrack,
+  isPlaying,
   onMuteToggle,
   onVolumeChange,
+  onPauseResume,
   soundEffects
 }: AudioControlsProps) {
+  const currentTrackData = soundEffects.find(s => s.id === currentTrack)
+
   return (
     <View className="space-y-4 mb-8">
       <Text className="text-purple-400 text-lg font-bold">Audio Controls</Text>
@@ -30,6 +37,18 @@ export default function AudioControls({
           {isMuted ? '🔇 MUTED' : '🔊 UNMUTED'}
         </Text>
       </TouchableOpacity>
+
+      {/* Pause/Resume Button - Only show if there's a current track */}
+      {currentTrack && (
+        <TouchableOpacity
+          onPress={onPauseResume}
+          className={`p-3 rounded-lg border ${isPlaying ? 'bg-yellow-900 border-yellow-500' : 'bg-blue-900 border-blue-500'}`}
+        >
+          <Text className={`text-center font-bold ${isPlaying ? 'text-yellow-400' : 'text-blue-400'}`}>
+            {isPlaying ? '⏸️ PAUSE' : '▶️ RESUME'}
+          </Text>
+        </TouchableOpacity>
+      )}
 
       {/* Volume Control */}
       <View className="space-y-2">
@@ -50,11 +69,23 @@ export default function AudioControls({
       </View>
 
       {/* Current Track Display */}
-      {currentTrack && (
+      {currentTrack && currentTrackData && (
         <View className="bg-purple-900 p-3 rounded-lg">
           <Text className="text-purple-400 text-sm">Now Playing:</Text>
-          <Text className="text-purple-300 font-bold">
-            {soundEffects.find(s => s.id === currentTrack)?.name || 'Unknown Track'}
+          {currentTrackData.category === 'music' ? (
+            <MusicTrackText
+              name={currentTrackData.name}
+              description={currentTrackData.description}
+              artist={currentTrackData.artist}
+              className="text-purple-300 font-bold mt-1"
+            />
+          ) : (
+            <Text className="text-purple-300 font-bold">
+              {currentTrackData.name}
+            </Text>
+          )}
+          <Text className="text-purple-400 text-xs mt-1">
+            Status: {isPlaying ? '▶️ Playing' : '⏸️ Paused'}
           </Text>
         </View>
       )}

@@ -1,6 +1,7 @@
 import { Barometer } from 'expo-sensors';
 import { useCallback, useEffect, useState } from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
+import { playSound } from '../../../utils/soundManager';
 import HomeButton from '../../ui/HomeButton';
 import PressurePlot from '../../ui/LiveDataPlot';
 import ModuleHeader from '../../ui/ModuleHeader';
@@ -47,6 +48,9 @@ export default function BarometerModule({ onGoHome }: BarometerModuleProps) {
 
   const _subscribe = () => {
     if (!isAvailable) return;
+
+    // Play sensor activation sound
+    playSound('sensor_activate');
 
     setSubscription(
       Barometer.addListener((data) => {

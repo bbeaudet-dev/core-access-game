@@ -38,7 +38,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-audio"
     ],
     "experiments": {
       "typedRoutes": true
@@ -47,7 +48,7 @@
       {
         "asset": "./assets/fonts/OCRA.ttf",
         "family": "OCR-A"
-    }
+      }
     ]
   }
 }
