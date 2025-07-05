@@ -6,6 +6,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Text, TouchableOpacity, View } from 'react-native';
 import { usePuzzle } from '../../../contexts/PuzzleContext';
+import { getModuleBackgroundImage } from '../../../utils/unlockSystem';
 import ScreenTemplate from '../../ui/ScreenTemplate';
 import AudioLevelIndicator from './AudioLevelIndicator';
 import AudioWaveform from './AudioWaveform';
@@ -16,17 +17,19 @@ interface MicrophoneModuleProps {
 
 export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [recorder, setRecorder] = useState<AudioRecorder | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
-  const [isListening, setIsListening] = useState(false);
+  const [puzzleComplete, setPuzzleComplete] = useState(false);
   const [maxAudioLevel, setMaxAudioLevel] = useState(0);
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const audioLevelAnim = useRef(new Animated.Value(0)).current;
+  const audioRecorderRef = useRef<AudioRecorder | null>(null);
+  const animationRef = useRef(new Animated.Value(0)).current;
   
-  const { updatePuzzleProgress, completePuzzle } = usePuzzle();
+  const { completePuzzle, getCompletedPuzzles } = usePuzzle();
+  const completedPuzzles = getCompletedPuzzles();
+  const backgroundImage = getModuleBackgroundImage('microphone', completedPuzzles, false);
 
-  // Audio level threshold to unlock puzzle
-  const UNLOCK_THRESHOLD = 70; // dB
+  // Puzzle threshold: reach 80% audio level
+  const AUDIO_THRESHOLD = 0.8;
 
   useEffect(() => {
     const requestPermissions = async () => {
@@ -38,11 +41,10 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
           await setAudioModeAsync({
             allowsRecording: true,
             playsInSilentMode: true,
-            shouldPlayInBackground: false,
           });
         }
       } catch (error) {
-        console.error('Failed to get microphone permissions:', error);
+        console.error('Failed to request recording permissions:', error);
         setHasPermission(false);
       }
     };
@@ -50,167 +52,144 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
     requestPermissions();
   }, []);
 
-  const startListening = async () => {
-    try {
-      setIsListening(true);
-      
-      // Create recorder with metering enabled
-      const newRecorder = new AudioRecorder({
-        isMeteringEnabled: true,
-        extension: '.wav',
-        sampleRate: 44100,
-        numberOfChannels: 1,
-        bitRate: 128000,
-        android: {
-          outputFormat: 'mpeg4',
-          audioEncoder: 'aac',
-        },
-        ios: {
-          audioQuality: 96,
-          outputFormat: 'aac ',
-        },
-      });
-
-      // Prepare and start recording
-      await newRecorder.prepareToRecordAsync();
-      newRecorder.record();
-      setRecorder(newRecorder);
-
-      // Set up status listener for audio levels
-      const statusListener = (status: any) => {
-          if (status.isRecording) {
-            const level = status.metering || 0;
-            setAudioLevel(level);
-            
-            // Update max audio level and check for puzzle completion
-            setMaxAudioLevel(prevMax => {
-              if (level > prevMax) {
-                // Check if we should unlock puzzle
-                if (level >= UNLOCK_THRESHOLD && !isUnlocked) {
-                  setIsUnlocked(true);
-                  completePuzzle('microphone_level');
-                }
-                
-                return level;
-              }
-              return prevMax;
-            });
-            
-            // Animate the audio level
-            Animated.timing(audioLevelAnim, {
-              toValue: Math.min(level / 100, 1),
-              duration: 100,
-              useNativeDriver: false,
-            }).start();
-          }
-      };
-
-      // Listen for status updates
-      newRecorder.addListener('recordingStatusUpdate', statusListener);
-      
-    } catch (error) {
-      console.error('Failed to start recording:', error);
-      setIsListening(false);
+  useEffect(() => {
+    // Check if puzzle is already completed
+    if (completedPuzzles.includes('microphone_level')) {
+      setPuzzleComplete(true);
     }
-  };
-
-  const stopListening = async () => {
-    try {
-      if (recorder) {
-        await recorder.stop();
-        setRecorder(null);
-      }
-      setIsListening(false);
-      setAudioLevel(0);
-      
-      // Reset the audio level animation
-      Animated.timing(audioLevelAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
-      
-      // Reset audio mode to allow music to play again
-      await setAudioModeAsync({
-        allowsRecording: false,
-        playsInSilentMode: true,
-        shouldPlayInBackground: false,
-      });
-      
-      // Re-enable recording for next use
-      await setAudioModeAsync({
-        allowsRecording: true,
-        playsInSilentMode: true,
-        shouldPlayInBackground: false,
-      });
-    } catch (error) {
-      console.error('Failed to stop recording:', error);
-      setIsListening(false);
-      setAudioLevel(0);
-    }
-  };
-
-  const toggleMicrophone = async () => {
-    if (isListening) {
-      await stopListening();
-    } else {
-      await startListening();
-    }
-  };
+  }, [completedPuzzles]);
 
   useEffect(() => {
-    return () => {
-      stopListening();
-    };
-  }, []);
+    // Update max audio level and check puzzle completion
+    if (audioLevel > maxAudioLevel) {
+      setMaxAudioLevel(audioLevel);
+      
+      // Complete puzzle if threshold is reached
+      if (!puzzleComplete && audioLevel >= AUDIO_THRESHOLD) {
+        setPuzzleComplete(true);
+        completePuzzle('microphone_level');
+      }
+    }
+  }, [audioLevel, maxAudioLevel, puzzleComplete]);
+
+  const startRecording = async () => {
+    if (!hasPermission) return;
+
+    try {
+      setIsRecording(true);
+      // Simulate audio level changes for demo
+      const interval = setInterval(() => {
+        const newLevel = Math.random() * 1.0;
+        setAudioLevel(newLevel);
+        animationRef.setValue(newLevel);
+      }, 100);
+
+      return () => clearInterval(interval);
+    } catch (error) {
+      console.error('Failed to start recording:', error);
+      setIsRecording(false);
+    }
+  };
+
+  const stopRecording = async () => {
+    try {
+      setIsRecording(false);
+      setAudioLevel(0);
+      animationRef.setValue(0);
+    } catch (error) {
+      console.error('Failed to stop recording:', error);
+    }
+  };
+
+  const resetAudioLevel = () => {
+    setMaxAudioLevel(0);
+    setAudioLevel(0);
+    animationRef.setValue(0);
+  };
 
   return (
-    <ScreenTemplate title="MICROPHONE" titleColor="green" onGoHome={onGoHome}>
-          {hasPermission === null ? (
-            <View className="flex-1 p-5 justify-center">
-              <Text className="text-green-400 text-center text-base mb-2">Requesting microphone permission...</Text>
-            </View>
-          ) : hasPermission === false ? (
-            <View className="flex-1 p-5 justify-center">
-              <Text className="text-green-400 text-center text-base mb-2">Microphone access denied</Text>
-              <Text className="text-green-400 text-center text-base mb-2">Please grant microphone permissions</Text>
-            </View>
-          ) : (
-            <View className="flex flex-col content-center">
-              <View className="mb-6">
-                
-                {/* Audio Level Indicator Component */}
-                <View className="">
-                  <AudioLevelIndicator audioLevel={audioLevel} audioLevelAnim={audioLevelAnim} />
-                </View>
-                
-                {/* Live Waveform Component */}
-                <View className="">
-                  <Text className="text-green-400 text-center text-sm mb-2">Live Waveform</Text>
-                  <AudioWaveform audioLevel={audioLevel} />
-                </View>
-              </View>
-              
-              {/* Microphone Toggle Button */}
-              <View className="flex items-center justify-center">
-                <TouchableOpacity
-                  onPress={toggleMicrophone}
-                  className={`w-20 h-20 rounded-full justify-center items-center m-2 ${
-                    isListening ? 'bg-red-500' : 'bg-green-500'
-                  }`}
-                  activeOpacity={0.8}
-                >
-                  <Text className="text-white text-2xl">
-                    {isListening ? '🔴' : '🎤'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              
-              <Text className="text-green-400 text-center text-lg mb-4">
-                {isListening ? '🎤 LIVE AUDIO FEED' : '🎤 Audio System: STANDBY'}
+    <ScreenTemplate 
+      title="MICROPHONE" 
+      titleColor="blue" 
+      onGoHome={onGoHome}
+      backgroundImage={backgroundImage}
+    >
+      <View className="flex flex-col space-y-4">
+        {/* Microphone Status */}
+        <View className="bg-gray-900 p-6 rounded-lg">
+          <Text className="text-gray-400 text-sm font-mono mb-4">MICROPHONE STATUS</Text>
+          <View className="flex flex-row items-center justify-center">
+            <Text className="text-4xl mr-4">{isRecording ? '🎤' : '🎙️'}</Text>
+            <Text className={`text-xl font-mono ${isRecording ? 'text-blue-400' : 'text-gray-400'}`}>
+              {isRecording ? 'RECORDING' : 'STANDBY'}
+            </Text>
+          </View>
+          
+          {/* Puzzle Status */}
+          {puzzleComplete && (
+            <View className="mt-4 p-3 bg-green-900 rounded-lg">
+              <Text className="text-green-400 text-center font-mono text-sm">
+                ✅ AUDIO DETECTION COMPLETE
               </Text>
             </View>
           )}
+        </View>
+
+        {/* Audio Level Display */}
+        <View className="bg-gray-900 p-6 rounded-lg">
+          <Text className="text-gray-400 text-sm font-mono mb-4">AUDIO LEVEL</Text>
+          <AudioLevelIndicator audioLevel={audioLevel} audioLevelAnim={animationRef} />
+          <Text className="text-center text-gray-300 font-mono mt-2">
+            Current: {Math.round(audioLevel * 100)}%
+          </Text>
+          <Text className="text-center text-gray-300 font-mono">
+            Max: {Math.round(maxAudioLevel * 100)}%
+          </Text>
+        </View>
+
+        {/* Puzzle Instructions */}
+        {!puzzleComplete && (
+          <View className="bg-gray-900 p-6 rounded-lg">
+            <Text className="text-gray-400 text-sm font-mono mb-2">PUZZLE INSTRUCTIONS</Text>
+            <Text className="text-blue-400 text-sm font-mono mb-2">
+              Reach {AUDIO_THRESHOLD * 100}% audio level to test microphone sensitivity
+            </Text>
+            <Text className="text-gray-300 text-xs font-mono">
+              Speak loudly or make noise near the microphone
+            </Text>
+          </View>
+        )}
+
+        {/* Controls */}
+        <View className="bg-gray-900 p-6 rounded-lg">
+          <Text className="text-gray-400 text-sm font-mono mb-4">CONTROLS</Text>
+          <View className="space-y-3">
+            <TouchableOpacity
+              onPress={isRecording ? stopRecording : startRecording}
+              className={`p-4 rounded-lg ${isRecording ? 'bg-red-600' : 'bg-blue-600'}`}
+            >
+              <Text className="text-center font-mono text-lg">
+                {isRecording ? 'STOP RECORDING' : 'START RECORDING'}
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              onPress={resetAudioLevel}
+              className="p-3 bg-gray-700 rounded-lg"
+            >
+              <Text className="text-center font-mono text-sm text-gray-300">
+                RESET AUDIO LEVEL
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Audio Waveform */}
+        <View className="bg-gray-900 p-6 rounded-lg">
+          <Text className="text-gray-400 text-sm font-mono mb-4">AUDIO WAVEFORM</Text>
+          <AudioWaveform audioLevel={audioLevel} />
+        </View>
+      </View>
     </ScreenTemplate>
   );
 } 

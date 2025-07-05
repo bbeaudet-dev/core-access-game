@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
+import { usePuzzle } from '../../../contexts/PuzzleContext';
+import { getModuleBackgroundImage } from '../../../utils/unlockSystem';
+import ScreenTemplate from '../../ui/ScreenTemplate';
 
 interface CoreVitalsScreenProps {
   onGoBack: () => void;
@@ -10,6 +13,15 @@ export default function CoreVitalsScreen({ onGoBack }: CoreVitalsScreenProps) {
   const [heartRate, setHeartRate] = useState(73);
   const [neuralActivity, setNeuralActivity] = useState(87);
   const [consciousness, setConsciousness] = useState(92);
+
+  const { getCompletedPuzzles } = usePuzzle();
+  const completedPuzzles = getCompletedPuzzles();
+  
+  // Check if final boss is defeated (all puzzles completed)
+  const isFinalBossDefeated = completedPuzzles.length >= 13; // Total puzzles
+  const backgroundImage = isFinalBossDefeated 
+    ? getModuleBackgroundImage('system', completedPuzzles)
+    : require('../../../../assets/images/red frame.png');
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -24,15 +36,12 @@ export default function CoreVitalsScreen({ onGoBack }: CoreVitalsScreenProps) {
   }, []);
 
   return (
-    <View className="flex-1 bg-black">
-      <View className="p-5 pt-15 flex-row justify-between items-center">
-        <TouchableOpacity onPress={onGoBack}>
-          <Text className="text-red-500 text-lg font-bold">← Back</Text>
-        </TouchableOpacity>
-        <Text className="text-red-500 text-lg font-bold">Core Vitals</Text>
-        <View className="w-12" />
-      </View>
-      
+    <ScreenTemplate 
+      title="CORE VITALS" 
+      titleColor="red" 
+      onGoHome={onGoBack}
+      backgroundImage={backgroundImage}
+    >
       <ScrollView className="flex-1 p-5">
         <View className="mb-6">
           <Text className="text-red-500 text-lg font-bold mb-3">LIFE SIGNS</Text>
@@ -151,6 +160,6 @@ export default function CoreVitalsScreen({ onGoBack }: CoreVitalsScreenProps) {
           </View>
         </View>
       </ScrollView>
-    </View>
+    </ScreenTemplate>
   );
 } 

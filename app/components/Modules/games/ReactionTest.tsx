@@ -1,123 +1,127 @@
-import { useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { useInfection } from '../../../contexts/InfectionContext';
 import { usePuzzle } from '../../../contexts/PuzzleContext';
 import { playSound } from '../../../utils/soundManager';
 
 interface ReactionTestProps {
   onBackToMenu: () => void;
+  onComplete?: () => void;
 }
 
-interface ReactionState {
-  startTime: number | null;
-  reactionTime: number | null;
-  isWaiting: boolean;
-  bestTime: number | null;
-}
-
-export default function ReactionTest({ onBackToMenu }: ReactionTestProps) {
+export default function ReactionTest({ onBackToMenu, onComplete }: ReactionTestProps) {
   const { updatePuzzleProgress } = usePuzzle();
-  const [gameState, setGameState] = useState<ReactionState>({
-    startTime: null,
-    reactionTime: null,
-    isWaiting: false,
-    bestTime: null,
-  });
+  const { completePuzzle } = useInfection();
+  const [gameState, setGameState] = useState<'waiting' | 'ready' | 'finished'>('waiting');
+  const [startTime, setStartTime] = useState(0);
+  const [reactionTime, setReactionTime] = useState(0);
+  const [round, setRound] = useState(1);
+  const [times, setTimes] = useState<number[]>([]);
 
-  const startTest = () => {
-    playSound('ui_button_tap');
+  const startRound = () => {
+    setGameState('waiting');
     const delay = Math.random() * 3000 + 1000; // 1-4 seconds
     
-    setGameState(prev => ({
-      ...prev,
-      isWaiting: true,
-      reactionTime: null,
-    }));
-
     setTimeout(() => {
-      setGameState(prev => ({
-        ...prev,
-        startTime: Date.now(),
-        isWaiting: false,
-      }));
+      setGameState('ready');
+      setStartTime(Date.now());
     }, delay);
   };
 
-  const handleReactionTap = () => {
-    if (!gameState.startTime || gameState.isWaiting) return;
-
+  const handlePress = () => {
+    if (gameState !== 'ready') return;
+    
     playSound('ui_button_tap');
-    const reactionTime = Date.now() - gameState.startTime;
-    const newBestTime = gameState.bestTime === null || reactionTime < gameState.bestTime 
-      ? reactionTime 
-      : gameState.bestTime;
+    const endTime = Date.now();
+    const time = endTime - startTime;
+    
+    setReactionTime(time);
+    setGameState('finished');
+    setTimes(prev => [...prev, time]);
+  };
 
-    setGameState(prev => ({
-      ...prev,
-      reactionTime,
-      bestTime: newBestTime,
-      startTime: null,
-    }));
-
-    if (reactionTime < 200) {
+  const nextRound = () => {
+    if (round >= 5) {
+      // Game complete
+      const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
       updatePuzzleProgress('games_reaction', 100, true);
+      completePuzzle('reaction_test'); // Update infection progress
+      onComplete?.(); // Call the onComplete callback
+      Alert.alert('Game Complete!', `Average reaction time: ${avgTime.toFixed(0)}ms`);
+      setTimeout(() => {
+        onBackToMenu();
+      }, 2000);
+    } else {
+      setRound(prev => prev + 1);
+      setGameState('waiting');
+      setTimeout(startRound, 1000);
     }
   };
 
-  const resetGame = () => {
-    playSound('ui_button_tap');
-    setGameState({
-      startTime: null,
-      reactionTime: null,
-      isWaiting: false,
-      bestTime: gameState.bestTime,
-    });
-  };
+  useEffect(() => {
+    if (gameState === 'waiting') {
+      startRound();
+    }
+  }, []);
 
   return (
     <View className="flex-1 justify-center items-center p-4">
-      <Text className="text-white text-lg mb-4">
-        Reaction Time Test
+      <Text className="text-purple-400 text-2xl mb-6 text-center font-mono">
+        REACTION TEST
       </Text>
       
-      {gameState.bestTime && (
-        <Text className="text-green-400 text-sm mb-4">
-          Best: {gameState.bestTime}ms
+      <Text className="text-white text-lg mb-4 text-center">
+        Round {round}/5
+      </Text>
+      
+      {gameState === 'waiting' && (
+        <Text className="text-yellow-400 text-lg mb-8 text-center">
+          Wait for the screen to turn green...
         </Text>
       )}
       
-      {gameState.reactionTime && (
-        <Text className="text-yellow-400 text-lg mb-4">
-          Your time: {gameState.reactionTime}ms
+      {gameState === 'ready' && (
+        <Text className="text-green-400 text-lg mb-8 text-center">
+          PRESS NOW!
+        </Text>
+      )}
+      
+      {gameState === 'finished' && (
+        <Text className="text-blue-400 text-lg mb-8 text-center">
+          Reaction time: {reactionTime}ms
         </Text>
       )}
       
       <TouchableOpacity
-        onPress={gameState.isWaiting || gameState.startTime ? handleReactionTap : startTest}
+        onPress={handlePress}
+        disabled={gameState !== 'ready'}
         className={`w-48 h-48 rounded-full items-center justify-center ${
-          gameState.isWaiting 
-            ? 'bg-yellow-600' 
-            : gameState.startTime 
-            ? 'bg-green-600' 
-            : 'bg-blue-600'
+          gameState === 'ready' ? 'bg-green-600' : 'bg-gray-600'
         }`}
       >
-        <Text className="text-white text-xl text-center font-mono">
-          {gameState.isWaiting 
-            ? 'WAIT...' 
-            : gameState.startTime 
-            ? 'TAP NOW!' 
-            : 'START TEST'
-          }
+        <Text className="text-white text-2xl font-mono">
+          {gameState === 'ready' ? 'PRESS!' : 'WAIT'}
         </Text>
       </TouchableOpacity>
       
-      {gameState.reactionTime && (
+      {gameState === 'finished' && (
         <TouchableOpacity
-          onPress={resetGame}
-          className="bg-gray-600 px-6 py-3 rounded-lg mt-6"
+          onPress={nextRound}
+          className="bg-purple-600 px-6 py-3 rounded-lg mt-8"
         >
-          <Text className="text-white text-center font-mono">TRY AGAIN</Text>
+          <Text className="text-white font-mono">
+            {round >= 5 ? 'FINISH' : 'NEXT ROUND'}
+          </Text>
         </TouchableOpacity>
+      )}
+      
+      {times.length > 0 && (
+        <View className="mt-8">
+          <Text className="text-gray-400 text-sm text-center mb-2">Times:</Text>
+          <Text className="text-gray-400 text-xs text-center">
+            {times.map((time, i) => `${time}ms`).join(' | ')}
+          </Text>
+        </View>
       )}
     </View>
   );

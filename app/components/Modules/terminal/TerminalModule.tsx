@@ -1,7 +1,9 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { usePuzzle } from '../../../contexts/PuzzleContext';
 import { playSound } from '../../../utils/soundManager';
+import { getModuleBackgroundImage } from '../../../utils/unlockSystem';
 import ScreenTemplate from '../../ui/ScreenTemplate';
 
 interface TerminalModuleProps {
@@ -12,24 +14,26 @@ interface TerminalCommand {
   command: string;
   output: string;
   color?: string;
+  timestamp: number;
 }
+
+const TERMINAL_HISTORY_KEY = 'terminal_history';
 
 export default function TerminalModule({ onGoHome }: TerminalModuleProps) {
   const [input, setInput] = useState('');
-  const [history, setHistory] = useState<TerminalCommand[]>([
-    { command: 'system status', output: 'System: COMPROMISED\nCore: LOCKED\nAccess: DENIED' },
-    { command: 'help', output: 'Available commands: status, unlock, inspect, help, solve, clear' },
-  ]);
+  const [history, setHistory] = useState<TerminalCommand[]>([]);
   const [currentLine, setCurrentLine] = useState('$ ');
   const scrollViewRef = useRef<ScrollView>(null);
-  const { puzzleState, completePuzzle, getPuzzleConfig } = usePuzzle();
+  const { puzzleState, completePuzzle, getPuzzleConfig, getCompletedPuzzles } = usePuzzle();
+
+  const completedPuzzles = getCompletedPuzzles();
+  const backgroundImage = getModuleBackgroundImage('terminal', completedPuzzles, false);
 
   // Terminal codes that unlock puzzles
   const terminalCodes = {
     'SOS': { puzzleId: 'flashlight_morse', message: 'Morse code transmission verified. Flashlight module unlocked.' },
     '42': { puzzleId: 'calculator_puzzle', message: 'Mathematical calculation verified. Calculator module unlocked.' },
     'NORTH': { puzzleId: 'compass_orientation', message: 'Directional calibration verified. Compass module unlocked.' },
-    'BLOW': { puzzleId: 'barometer_blow', message: 'Pressure test verified. Barometer module unlocked.' },
     'CHARGE': { puzzleId: 'battery_charge', message: 'Power restoration verified. Battery module unlocked.' },
     'MOVE': { puzzleId: 'accelerometer_movement', message: 'Motion detection verified. Accelerometer module unlocked.' },
     'ROTATE': { puzzleId: 'gyroscope_rotation', message: 'Rotation calibration verified. Gyroscope module unlocked.' },
@@ -40,6 +44,65 @@ export default function TerminalModule({ onGoHome }: TerminalModuleProps) {
   // Final puzzle code that reveals the secret message
   const finalPuzzleCode = 'RESTORE';
   const secretMessage = 'SYSTEM RESTORED - ALL MODULES ONLINE';
+
+  // Load terminal history from AsyncStorage
+  useEffect(() => {
+    loadTerminalHistory();
+  }, []);
+
+  // Save terminal history to AsyncStorage whenever it changes
+  useEffect(() => {
+    saveTerminalHistory();
+  }, [history]);
+
+  const loadTerminalHistory = async () => {
+    try {
+      const savedHistory = await AsyncStorage.getItem(TERMINAL_HISTORY_KEY);
+      if (savedHistory) {
+        const parsedHistory = JSON.parse(savedHistory);
+        setHistory(parsedHistory);
+      } else {
+        // Initialize with default history if none exists
+        const defaultHistory: TerminalCommand[] = [
+          { 
+            command: 'system status', 
+            output: 'System: COMPROMISED\nCore: LOCKED\nAccess: DENIED',
+            timestamp: Date.now() - 60000
+          },
+          { 
+            command: 'help', 
+            output: 'Available commands: status, unlock, inspect, help, solve, clear',
+            timestamp: Date.now() - 30000
+          },
+        ];
+        setHistory(defaultHistory);
+      }
+    } catch (error) {
+      console.error('Failed to load terminal history:', error);
+      // Fallback to default history
+      const defaultHistory: TerminalCommand[] = [
+        { 
+          command: 'system status', 
+          output: 'System: COMPROMISED\nCore: LOCKED\nAccess: DENIED',
+          timestamp: Date.now() - 60000
+        },
+        { 
+          command: 'help', 
+          output: 'Available commands: status, unlock, inspect, help, solve, clear',
+          timestamp: Date.now() - 30000
+        },
+      ];
+      setHistory(defaultHistory);
+    }
+  };
+
+  const saveTerminalHistory = async () => {
+    try {
+      await AsyncStorage.setItem(TERMINAL_HISTORY_KEY, JSON.stringify(history));
+    } catch (error) {
+      console.error('Failed to save terminal history:', error);
+    }
+  };
 
   useEffect(() => {
     scrollToBottom();
@@ -52,16 +115,29 @@ export default function TerminalModule({ onGoHome }: TerminalModuleProps) {
   };
 
   const addToHistory = (command: string, output: string, color: string = 'text-green-400') => {
-    setHistory(prev => [...prev, { command, output, color }]);
+    const newEntry: TerminalCommand = {
+      command,
+      output,
+      color,
+      timestamp: Date.now()
+    };
+    setHistory(prev => [...prev, newEntry]);
   };
 
   const executeCommand = (cmd: string) => {
     playSound('ui_button_tap');
     const command = cmd.trim().toLowerCase();
     
+    // Check for terminal access puzzle completion
+    if (command === 'access' && !puzzleState['terminal_access']?.isComplete) {
+      completePuzzle('terminal_access');
+      addToHistory(cmd, 'Terminal access granted. Adjacent modules unlocked.', 'text-green-400');
+      return;
+    }
+    
     switch (command) {
       case 'help':
-        addToHistory(cmd, 'Available commands:\n- status: Show system status\n- unlock: Attempt to unlock core\n- inspect: Inspect modules\n- solve [code]: Solve puzzle with code\n- clear: Clear terminal\n- help: Show this help');
+        addToHistory(cmd, 'Available commands:\n- status: Show system status\n- unlock: Attempt to unlock core\n- inspect: Inspect modules\n- solve [code]: Solve puzzle with code\n- access: Gain terminal access (puzzle)\n- clear: Clear terminal\n- help: Show this help');
         break;
         
       case 'status':
@@ -146,15 +222,29 @@ export default function TerminalModule({ onGoHome }: TerminalModuleProps) {
     }
   };
 
+  const formatTimestamp = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString();
+  };
+
   return (
-    <ScreenTemplate title="TERMINAL" titleColor="green" onGoHome={onGoHome}>
+    <ScreenTemplate 
+      title="TERMINAL" 
+      titleColor="green" 
+      onGoHome={onGoHome}
+      backgroundImage={backgroundImage}
+      className="p-3"
+    >
       <ScrollView 
         ref={scrollViewRef}
-        className="flex-1 bg-gray-900 rounded-lg p-4 mb-4 min-h-[400px]"
+        className="flex-1 bg-gray-900 rounded-lg p-4 mb-4 min-h-[300px] max-h-[450px]"
         showsVerticalScrollIndicator={false}
       >
         {history.map((item, index) => (
           <View key={index} className="mb-2">
+            <Text className="text-gray-500 text-xs font-mono mb-1">
+              [{formatTimestamp(item.timestamp)}]
+            </Text>
             <Text className="text-green-400 text-sm font-mono">$ {item.command}</Text>
             <Text className={`text-sm font-mono ${getColorClass(item.color)}`}>
               {item.output}

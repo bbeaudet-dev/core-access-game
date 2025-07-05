@@ -1,6 +1,8 @@
 import * as Battery from 'expo-battery';
 import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
+import { usePuzzle } from '../../../contexts/PuzzleContext';
+import { getModuleBackgroundImage } from '../../../utils/unlockSystem';
 import ScreenTemplate from '../../ui/ScreenTemplate';
 
 interface BatteryModuleProps {
@@ -12,6 +14,14 @@ export default function BatteryModule({ onGoHome }: BatteryModuleProps) {
   const [isCharging, setIsCharging] = useState<boolean | null>(null);
   const [isLowPowerMode, setIsLowPowerMode] = useState<boolean | null>(null);
   const [isAvailable, setIsAvailable] = useState(false);
+  const [puzzleComplete, setPuzzleComplete] = useState(false);
+  
+  const { completePuzzle, getCompletedPuzzles } = usePuzzle();
+  const completedPuzzles = getCompletedPuzzles();
+  const backgroundImage = getModuleBackgroundImage('battery', completedPuzzles, false);
+
+  // Battery level threshold to unlock puzzle
+  const UNLOCK_THRESHOLD = 0.8; // 80%
 
   useEffect(() => {
     const checkBatteryAvailability = async () => {
@@ -29,9 +39,21 @@ export default function BatteryModule({ onGoHome }: BatteryModuleProps) {
           setIsCharging(batteryState === Battery.BatteryState.CHARGING);
           setIsLowPowerMode(isLowPowerMode);
           
+          // Check if puzzle should be completed
+          if (batteryLevel >= UNLOCK_THRESHOLD && !puzzleComplete) {
+            setPuzzleComplete(true);
+            completePuzzle('battery_charge');
+          }
+          
           // Set up battery monitoring
           const batteryLevelSubscription = Battery.addBatteryLevelListener(({ batteryLevel }) => {
             setBatteryLevel(batteryLevel);
+            
+            // Check if puzzle should be completed
+            if (batteryLevel >= UNLOCK_THRESHOLD && !puzzleComplete) {
+              setPuzzleComplete(true);
+              completePuzzle('battery_charge');
+            }
           });
           
           const batteryStateSubscription = Battery.addBatteryStateListener(({ batteryState }) => {
@@ -55,7 +77,7 @@ export default function BatteryModule({ onGoHome }: BatteryModuleProps) {
     };
 
     checkBatteryAvailability();
-  }, []);
+  }, [puzzleComplete]);
 
   const getBatteryColor = (level: number) => {
     if (level <= 0.2) return 'text-red-400';
@@ -72,55 +94,61 @@ export default function BatteryModule({ onGoHome }: BatteryModuleProps) {
   };
 
   return (
-    <ScreenTemplate title="BATTERY" titleColor="green" onGoHome={onGoHome}>
-          {!isAvailable ? (
-            <View className="flex-1 p-5 justify-center">
-              <Text className="text-green-400 text-center text-base mb-2">Battery monitoring not available</Text>
+    <ScreenTemplate 
+      title="BATTERY" 
+      titleColor="green" 
+      onGoHome={onGoHome}
+      backgroundImage={backgroundImage}
+    >
+      {!isAvailable ? (
+        <View className="flex-1 p-5 justify-center">
+          <Text className="text-green-400 text-center text-base mb-2">Battery monitoring not available</Text>
+        </View>
+      ) : (
+        <View className="flex flex-col space-y-4">
+          {/* Battery Status */}
+          <View className="bg-gray-900 p-6 rounded-lg">
+            <Text className="text-gray-400 text-sm font-mono mb-4">BATTERY STATUS</Text>
+            <View className="flex flex-row items-center justify-center">
+              <Text className="text-4xl mr-4">{getBatteryIcon(batteryLevel || 0)}</Text>
+              <Text className={`text-4xl font-mono ${getBatteryColor(batteryLevel || 0)}`}>
+                {batteryLevel !== null ? `${Math.round(batteryLevel * 100)}%` : '--'}
+              </Text>
             </View>
-          ) : (
-            <View className="flex flex-col space-y-4">
-              {/* Battery Status */}
-              <View className="bg-gray-900 p-6 rounded-lg">
-                <Text className="text-gray-400 text-sm font-mono mb-4">BATTERY STATUS</Text>
-                <View className="flex flex-row items-center justify-center">
-                  <Text className="text-4xl mr-4">{getBatteryIcon(batteryLevel || 0)}</Text>
-                  <Text className={`text-4xl font-mono ${getBatteryColor(batteryLevel || 0)}`}>
-                    {batteryLevel !== null ? `${Math.round(batteryLevel * 100)}%` : '--'}
-                  </Text>
-                </View>
+          </View>
+          
+          <View className="bg-gray-900 p-6 rounded-lg">
+            <View className="space-y-2">
+              <View className="flex flex-row justify-between">
+                <Text className="text-gray-300 font-mono">Charging:</Text>
+                <Text className={`font-mono ${isCharging ? 'text-green-400' : 'text-red-400'}`}>
+                  {isCharging ? '⚡ JUICING UP' : '❌ UNPLUGGED'}
+                </Text>
               </View>
-              <View className="bg-gray-900 p-6 rounded-lg">
-                <View className="space-y-2">
-                  <View className="flex flex-row justify-between">
-                    <Text className="text-gray-300 font-mono">Charging:</Text>
-                    <Text className={`font-mono ${isCharging ? 'text-green-400' : 'text-red-400'}`}>
-                      {isCharging ? '⚡ JUICING UP' : '❌ UNPLUGGED'}
-                    </Text>
-                  </View>
-                  <View className="flex flex-row justify-between">
-                    <Text className="text-gray-300 font-mono">Low Power Mode:</Text>
-                    <Text className={`font-mono ${isLowPowerMode ? 'text-gray-400' : 'text-yellow-400'}`}>
-                      {isLowPowerMode ? '✅ ENABLED' : '⚠️ DISABLED'}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-
-              {/* Battery Health */}
-              <View className="bg-gray-900 p-6 rounded-lg">
-                <Text className="text-gray-400 text-sm font-mono mb-2">BATTERY HEALTH</Text>
-                <View className="w-full bg-gray-800 rounded-full h-4 mb-2">
-                  <View 
-                    className={`h-4 rounded-full ${getBatteryColor(batteryLevel || 0).replace('text-', 'bg-')}`}
-                    style={{ width: `${(batteryLevel || 0) * 100}%` }}
-                  />
-                </View>
-                <Text className="text-gray-300 text-xs font-mono text-center">
-                  {batteryLevel !== null ? `${Math.round(batteryLevel * 100)}%` : '--'} remaining
+              <View className="flex flex-row justify-between">
+                <Text className="text-gray-300 font-mono">Low Power Mode:</Text>
+                <Text className={`font-mono ${isLowPowerMode ? 'text-gray-400' : 'text-yellow-400'}`}>
+                  {isLowPowerMode ? '✅ ENABLED' : '⚠️ DISABLED'}
                 </Text>
               </View>
             </View>
-          )}
+          </View>
+
+          {/* Battery Health */}
+          <View className="bg-gray-900 p-6 rounded-lg">
+            <Text className="text-gray-400 text-sm font-mono mb-2">BATTERY HEALTH</Text>
+            <View className="w-full bg-gray-800 rounded-full h-4 mb-2">
+              <View 
+                className={`h-4 rounded-full ${getBatteryColor(batteryLevel || 0).replace('text-', 'bg-')}`}
+                style={{ width: `${(batteryLevel || 0) * 100}%` }}
+              />
+            </View>
+            <Text className="text-gray-300 text-xs font-mono text-center">
+              {batteryLevel !== null ? `${Math.round(batteryLevel * 100)}%` : '--'} remaining
+            </Text>
+          </View>
+        </View>
+      )}
     </ScreenTemplate>
   );
 } 

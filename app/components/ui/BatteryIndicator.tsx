@@ -67,7 +67,7 @@ export default function BatteryIndicator() {
   };
 
   return (
-    <View className="flex-row items-center space-x-2">
+    <View className="flex-row items-center space-x-2 m-10">
       <Text className="text-xs text-gray-400 font-mono"></Text>
       {isCharging && <Text className="text-sm">⚡</Text>}
       <View className="flex-row items-center">

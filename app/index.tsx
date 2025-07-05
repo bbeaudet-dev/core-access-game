@@ -1,36 +1,36 @@
 import { useState } from 'react';
 import { Animated, View } from 'react-native';
 import HomeScreen from './components/HomeScreen';
-import InfectionSequence from './components/InfectionSequence';
+import InfectionSequence from './components/infection/InfectionSequence';
 import LoginScreen from './components/login/LoginScreen';
+import WelcomeGameScreen from './components/login/WelcomeGameScreen';
 import AboutScreen from './components/Modules/about/AboutScreen';
 import CoreVitalsScreen from './components/Modules/about/CoreVitalsScreen';
 import SystemModule from './components/Modules/about/System/SystemModule';
 import AccelerometerModule from './components/Modules/accelerometer/AccelerometerModule';
-import BarometerModule from './components/Modules/barometer/BarometerModule';
 import BatteryModule from './components/Modules/battery/BatteryModule';
 import CalculatorModule from './components/Modules/calculator/CalculatorModule';
 import PhoneCameraModule from './components/Modules/camera/PhoneCameraModule';
 import ClockModule from './components/Modules/clock/ClockModule';
 import CompassModule from './components/Modules/compass/CompassModule';
+import FinalBossModule from './components/Modules/finalboss/FinalBossModule';
 import FlashlightModule from './components/Modules/flashlight/FlashlightModule';
 import GamesModule from './components/Modules/games/GamesModule';
 import GyroModule from './components/Modules/gyro/GyroModule';
-import HelpModule from './components/Modules/help/HelpModule';
-import LogsModule from './components/Modules/logs/LogsModule';
 import MapsModule from './components/Modules/maps/MapsModule';
 import MicrophoneModule from './components/Modules/microphone/MicrophoneModule';
 import MusicModule from './components/Modules/music/MusicModule';
 import TerminalModule from './components/Modules/terminal/TerminalModule';
+import TutorialModule from './components/Modules/tutorial/TutorialModule';
 import WeatherModule from './components/Modules/weather/WeatherModule';
 import WifiModule from './components/Modules/wifi/WifiModule';
-import FakeGameMenu from './components/towerdefense/FakeGameMenu';
-import TowerDefenseGame from './components/towerdefense/TowerDefenseGame';
 import { useAuth } from './contexts/AuthContext';
+import { InfectionProvider } from './contexts/InfectionContext';
+import { PuzzleProvider } from './contexts/PuzzleContext';
 import { startInfectionSequence } from './utils/infectionSequence';
 
 // Define module names type
-type ModuleName = 'terminal' | 'system' | 'clock' | 'gyro' | 'compass' | 'microphone' | 'camera' | 'accelerometer' | 'wifi' | 'logs' | 'help' | 'music' | 'flashlight' | 'battery' | 'barometer' | 'maps' | 'calculator' | 'weather' | 'games';
+type ModuleName = 'terminal' | 'system' | 'clock' | 'gyro' | 'compass' | 'microphone' | 'camera' | 'accelerometer' | 'wifi' | 'tutorial' | 'music' | 'flashlight' | 'battery' | 'maps' | 'calculator' | 'weather' | 'games' | 'finalboss';
 
 // Module mapping object - much cleaner than repetitive if statements
 const MODULE_COMPONENTS = {
@@ -42,37 +42,37 @@ const MODULE_COMPONENTS = {
   camera: PhoneCameraModule,
   accelerometer: AccelerometerModule,
   wifi: WifiModule,
-  logs: LogsModule,
-  help: HelpModule,
+  tutorial: TutorialModule,
   music: MusicModule,
   flashlight: FlashlightModule,
   battery: BatteryModule,
-  barometer: BarometerModule,
   maps: MapsModule,
   calculator: CalculatorModule,
   weather: WeatherModule,
   games: GamesModule,
+  finalboss: FinalBossModule,
 } as const;
 
 function AppContent() {
-  const { isAuthenticated } = useAuth();
-  const [gameState, setGameState] = useState('menu');
+  const { isAuthenticated, user } = useAuth();
+  const [gameState, setGameState] = useState('welcome');
+  const [loginType, setLoginType] = useState<'signup' | 'signin' | 'guest'>('signin');
+  const [guestUsername, setGuestUsername] = useState<string>('');
   const [glitchLevel, setGlitchLevel] = useState(0);
   const [terminalText, setTerminalText] = useState('');
   const [fadeAnim] = useState(new Animated.Value(1));
 
   // Show login screen if not authenticated
   if (!isAuthenticated) {
-    return <LoginScreen onLoginSuccess={() => setGameState('menu')} />
+    return <LoginScreen onLoginSuccess={(type, username) => {
+      setLoginType(type);
+      setGuestUsername(username || '');
+      setGameState('welcome');
+    }} />
   }
   
-  const startFakeGame = () => {
-    // Go directly to tower defense after fake menu
-    setGameState('tower-defense');
-  };
-
-  const handleTowerDefenseComplete = () => {
-    // Start infection sequence when user clicks any tower square
+  const handleDownload = () => {
+    // Start infection sequence directly when download button is pressed
     setGameState('infected');
     
     startInfectionSequence(
@@ -88,7 +88,7 @@ function AppContent() {
   const navigate = (destination: string) => {
     if (destination === 'self-destruct') {
       // Reset all game state
-      setGameState('menu');
+      setGameState('welcome');
       setGlitchLevel(0);
       setTerminalText('');
     } else {
@@ -101,10 +101,14 @@ function AppContent() {
   };
 
   // Render different components based on game state
-  if (gameState === 'menu') {
+  if (gameState === 'welcome') {
     return (
       <View className="flex-1">
-        <FakeGameMenu onStartGame={startFakeGame} />        
+        <WelcomeGameScreen 
+          type={loginType}
+          guestUsername={guestUsername}
+          onDownload={handleDownload}
+        />        
       </View>
     );
   }
@@ -117,14 +121,6 @@ function AppContent() {
           terminalText={terminalText}
           fadeAnim={fadeAnim}
         />
-      </View>
-    );
-  }
-
-  if (gameState === 'tower-defense') {
-    return (
-      <View className="flex-1">
-        <TowerDefenseGame onEmergencyMode={handleTowerDefenseComplete} />
       </View>
     );
   }
@@ -181,5 +177,11 @@ function AppContent() {
 }
 
 export default function Index() {
-  return <AppContent />;
+  return (
+    <InfectionProvider>
+      <PuzzleProvider>
+        <AppContent />
+      </PuzzleProvider>
+    </InfectionProvider>
+  );
 }

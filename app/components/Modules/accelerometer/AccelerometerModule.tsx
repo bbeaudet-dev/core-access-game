@@ -3,6 +3,7 @@ import { Accelerometer } from 'expo-sensors';
 import { useEffect, useState } from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { usePuzzle } from '../../../contexts/PuzzleContext';
+import { getModuleBackgroundImage } from '../../../utils/unlockSystem';
 import AccelerometerPlot from '../../ui/LiveDataPlot';
 import ScreenTemplate from '../../ui/ScreenTemplate';
 import AccelerometerControls from './AccelerometerControls';
@@ -28,8 +29,11 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
   const [accelerationHistory, setAccelerationHistory] = useState<number[]>([]); // For sparkline
   const [unitType, setUnitType] = useState<UnitType>('m/s²'); // Changed default to m/s²
   const [normalized, setNormalized] = useState(false); // Normalized graph toggle
+  const [puzzleComplete, setPuzzleComplete] = useState(false);
   
-  const { updatePuzzleProgress, completePuzzle } = usePuzzle();
+  const { updatePuzzleProgress, completePuzzle, getCompletedPuzzles } = usePuzzle();
+  const completedPuzzles = getCompletedPuzzles();
+  const backgroundImage = getModuleBackgroundImage('accelerometer', completedPuzzles);
 
   // Acceleration threshold to unlock puzzle (in m/s²)
   const UNLOCK_THRESHOLD = 15; // 15 m/s²
@@ -87,6 +91,12 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
     checkAccelerometerAvailability();
     return () => _unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (completedPuzzles.includes('accelerometer_movement') && !puzzleComplete) {
+      setPuzzleComplete(true);
+    }
+  }, [completedPuzzles, puzzleComplete]);
 
   const checkAccelerometerAvailability = async () => {
     try {
@@ -233,7 +243,29 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
   }
 
   return (
-    <ScreenTemplate title="ACCELEROMETER" titleColor="purple" onGoHome={onGoHome}>
+    <ScreenTemplate 
+      title="ACCELEROMETER" 
+      titleColor="purple" 
+      onGoHome={onGoHome}
+      backgroundImage={backgroundImage}
+    >
+      {/* Puzzle Instructions */}
+      {!puzzleComplete && (
+        <View className="bg-gray-900 p-4 rounded-lg mb-4">
+          <Text className="text-gray-400 text-sm font-mono mb-2">PUZZLE INSTRUCTIONS</Text>
+          <Text className="text-purple-400 text-sm font-mono mb-2">
+            Shake or move your device quickly to reach at least 15 m/s² acceleration
+          </Text>
+        </View>
+      )}
+      {/* Puzzle Complete Message */}
+      {puzzleComplete && (
+        <View className="bg-green-900 p-4 rounded-lg mb-4">
+          <Text className="text-green-400 text-center font-mono text-sm">
+            ✅ MOTION SYSTEMS ONLINE
+          </Text>
+        </View>
+      )}
           <View className="flex flex-row justify-between">
             {/* Unit Toggle Button */}
             <View className="bg-gray-900 p-3 rounded-lg mb-4">

@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
+import { Animated, KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import AnimatedBackground from '../ui/AnimatedBackground';
 import GlitchText from '../ui/GlitchText';
 import LoginForm from './LoginForm';
-import SuccessScreen from './SuccessScreen';
 
 interface LoginScreenProps {
-  onLoginSuccess: () => void;
+  onLoginSuccess: (type: 'signup' | 'signin' | 'guest', username?: string) => void;
 }
 
 // Words related to the game - tower defense, cybersecurity, hacking, etc.
@@ -48,8 +47,9 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [name, setName] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState<'none' | 'signup' | 'signin' | 'guest'>('none');
-  const [guestUsername, setGuestUsername] = useState('');
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [welcomeMessage, setWelcomeMessage] = useState('');
+  const [welcomeType, setWelcomeType] = useState<'signup' | 'signin' | 'guest'>('signin');
   
   // Animation states
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
@@ -99,10 +99,22 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     try {
       if (isSignUp) {
         await signUp(email, password, name);
-        setSuccess('signup');
+        completeAuth();
+        setWelcomeType('signup');
+        setWelcomeMessage(`Welcome, ${name}! Your account has been successfully created.`);
+        setShowWelcome(true);
+        setTimeout(() => {
+        onLoginSuccess('signup');
+        }, 3000);
       } else {
         await signIn(email, password);
-        setSuccess('signin');
+        completeAuth();
+        setWelcomeType('signin');
+        setWelcomeMessage(`Welcome back! Authentication successful.`);
+        setShowWelcome(true);
+        setTimeout(() => {
+        onLoginSuccess('signin');
+        }, 3000);
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Authentication failed. Please try again.');
@@ -111,19 +123,13 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
 
   const handleGuestMode = () => {
     const username = generateGuestUsername();
-    setGuestUsername(username);
-    setSuccess('guest');
-  };
-
-  const handleContinue = () => {
-    if (success === 'guest') {
-      // For guest mode, we need to set authentication state
-      completeAuth();
-      onLoginSuccess();
-    } else {
-      completeAuth();
-      onLoginSuccess();
-    }
+    completeAuth();
+    setWelcomeType('guest');
+    setWelcomeMessage(`Welcome, ${username}! You are now in guest mode.`);
+    setShowWelcome(true);
+    setTimeout(() => {
+    onLoginSuccess('guest', username);
+    }, 3000);
   };
 
   const handleEmailChange = (text: string) => {
@@ -146,23 +152,14 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     setError('');
   };
 
-  if (success !== 'none') {
-    return (
-      <SuccessScreen
-        type={success}
-        guestUsername={guestUsername}
-        onContinue={handleContinue}
-      />
-    );
-  }
-
   return (
     <AnimatedBackground 
-      source={require('../../../assets/animations/red_eye_anim1.mp4')}
+      source={require('../../../assets/images/glowing-green-neon-with-stars-29-09-2024-1727679307-hd-wallpaper.jpg')}
       opacity={1.0}
-      isVideo={true}
-      shouldLoop={true}
-      shouldPlay={true}
+      isVideo={false}
+      shouldLoop={false}
+      shouldPlay={false}
+      resizeMode="cover"
     >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -174,7 +171,7 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             flexGrow: 1, 
             justifyContent: 'center', 
             alignItems: 'center', 
-            paddingHorizontal: 24,
+            paddingHorizontal: 50,
             paddingTop: 50
           }}
           keyboardShouldPersistTaps="handled"
@@ -198,10 +195,22 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                 secondaryColor="#12A594"
                 baseColor="white"
                 opacity={0.9}
+
               />
             </View>
           </View>
           
+          {showWelcome ? (
+            <View className="bg-black/80 py-6 px-8 rounded-lg border border-green-400 mb-8">
+              <Text className="text-3xl font-bold text-green-400 text-center mb-3">
+                {welcomeType === 'signup' ? 'ACCOUNT_CREATED' : 
+                 welcomeType === 'signin' ? 'ACCESS_GRANTED' : 'GUEST_ACCESS'}
+              </Text>
+              <Text className="text-white text-center leading-6">
+                {welcomeMessage}
+              </Text>
+            </View>
+          ) : (
           <LoginForm
             email={email}
             password={password}
@@ -216,6 +225,7 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             onToggleMode={handleToggleMode}
             onGuestMode={handleGuestMode}
           />
+          )}
         </ScrollView>
       </KeyboardAvoidingView>
     </AnimatedBackground>

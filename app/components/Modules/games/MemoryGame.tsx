@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { useInfection } from '../../../contexts/InfectionContext';
 import { usePuzzle } from '../../../contexts/PuzzleContext';
 import { playSound } from '../../../utils/soundManager';
 
 interface MemoryGameProps {
   onBackToMenu: () => void;
+  onComplete?: () => void;
 }
 
 interface MemoryState {
@@ -14,8 +16,9 @@ interface MemoryState {
   showingSequence: boolean;
 }
 
-export default function MemoryGame({ onBackToMenu }: MemoryGameProps) {
+export default function MemoryGame({ onBackToMenu, onComplete }: MemoryGameProps) {
   const { updatePuzzleProgress } = usePuzzle();
+  const { completePuzzle } = useInfection();
   const [gameState, setGameState] = useState<MemoryState>({
     sequence: [],
     playerSequence: [],
@@ -87,6 +90,8 @@ export default function MemoryGame({ onBackToMenu }: MemoryGameProps) {
       
       if (newLevel >= 5) {
         updatePuzzleProgress('games_memory', 100, true);
+        completePuzzle('memory_game'); // Update infection progress
+        onComplete?.(); // Call the onComplete callback
         Alert.alert('Congratulations!', 'You completed 5 levels!');
         setTimeout(() => {
           onBackToMenu();

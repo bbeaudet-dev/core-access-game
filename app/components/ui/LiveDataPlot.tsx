@@ -94,13 +94,22 @@ export default function SpeedPlot({
     }
   };
 
-  if (speedHistory.length < 2) {
+  let plotData: number[] = [];
+  if (speedHistory.length < historyLength) {
+    // Pad with zeros at the start
+    plotData = Array(historyLength - speedHistory.length).fill(0).concat(speedHistory);
+  } else {
+    // Only show the most recent historyLength points
+    plotData = speedHistory.slice(speedHistory.length - historyLength);
+  }
+
+  if (plotData.length < 2) {
     return (
       <View className="bg-gray-900 p-6 rounded-lg">
         <Text className="text-gray-400 text-sm font-mono mb-2">{title}</Text>
         <View className="h-20 bg-gray-800 rounded-lg flex items-center justify-center">
           <Text className="text-gray-500 text-xs font-mono">
-            Insufficient data ({speedHistory.length} readings)
+            Insufficient data ({plotData.length} readings)
           </Text>
         </View>
       </View>
@@ -109,16 +118,16 @@ export default function SpeedPlot({
 
   const expectedGravity = getExpectedGravity(unitType);
   const baseline = normalized ? expectedGravity : 0;
-  const maxValue = Math.max(maxSpeed, ...speedHistory);
-  const minValue = Math.min(0, ...speedHistory);
+  const maxValue = Math.max(maxSpeed, ...plotData);
+  const minValue = Math.min(0, ...plotData);
   const range = maxValue - minValue;
   
   const width = 300;
   const height = 80;
   const padding = 10;
 
-  const points = speedHistory.map((speed, index) => {
-    const x = padding + (index / (speedHistory.length - 1)) * (width - 2 * padding);
+  const points = plotData.map((speed, index) => {
+    const x = padding + (index / (plotData.length - 1)) * (width - 2 * padding);
     const normalizedSpeed = range > 0 ? (speed - minValue) / range : 0.5;
     const y = height - padding - normalizedSpeed * (height - 2 * padding);
     return `${x},${y}`;
@@ -133,7 +142,7 @@ export default function SpeedPlot({
           Max: {maxSpeed.toFixed(1)} {getUnitLabel(unitType)}
         </Text>
         <Text className="text-gray-500 text-xs font-mono">
-          {speedHistory.length} readings
+          {plotData.length} readings
         </Text>
       </View>
 

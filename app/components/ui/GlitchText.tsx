@@ -14,6 +14,7 @@ interface GlitchTextProps {
   secondaryColor?: string;
   baseColor?: string;
   opacity?: number;
+  fontFamily?: string;
   style?: any;
 }
 
@@ -41,6 +42,7 @@ export default function GlitchText({
   secondaryColor = '#12A594',
   baseColor = 'white',
   opacity = 0.9,
+  fontFamily,
   style
 }: GlitchTextProps) {
   const [currentText, setCurrentText] = useState(text);
@@ -53,8 +55,16 @@ export default function GlitchText({
 
   const fontMgr = Skia.FontMgr.System();
 
-  // Try common font families that are more likely to exist
-  let typeface = fontMgr.matchFamilyStyle('Times New Roman', FontStyle.Normal);
+  // Try to use the specified font family first, then fall back to system fonts
+  let typeface = null;
+  if (fontFamily) {
+    typeface = fontMgr.matchFamilyStyle(fontFamily, FontStyle.Normal);
+  }
+  
+  // Fallback to common font families if specified font not found
+  if (!typeface) {
+    typeface = fontMgr.matchFamilyStyle('Times New Roman', FontStyle.Normal);
+  }
   if (!typeface) {
     typeface = fontMgr.matchFamilyStyle('Times', FontStyle.Normal);
   }

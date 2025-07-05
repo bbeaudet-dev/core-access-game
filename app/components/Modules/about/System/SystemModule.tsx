@@ -1,4 +1,6 @@
 import { ScrollView } from 'react-native';
+import { usePuzzle } from '../../../../contexts/PuzzleContext';
+import { getModuleBackgroundImage } from '../../../../utils/unlockSystem';
 import ScreenTemplate from '../../../ui/ScreenTemplate';
 import DangerZoneSection from './DangerZoneSection';
 import DeviceSection from './DeviceSection';
@@ -19,9 +21,18 @@ export default function SystemModule({
   onGoToCoreVitals, 
   onSelfDestruct 
 }: SystemModuleProps) {
+  const { getCompletedPuzzles } = usePuzzle();
+  const completedPuzzles = getCompletedPuzzles();
+  const backgroundImage = getModuleBackgroundImage('system', completedPuzzles, false);
+
   return (
-    <ScreenTemplate title="SYSTEM" titleColor="red" onGoHome={onGoHome}>
-      <ScrollView className="flex-1 p-5">
+    <ScreenTemplate 
+      title="SYSTEM" 
+      titleColor="red" 
+      onGoHome={onGoHome}
+      backgroundImage={backgroundImage}
+    >
+      <ScrollView className="flex-1 px-8">
         <DeviceSection onGoToAbout={onGoToAbout} onGoToCoreVitals={onGoToCoreVitals} />
         <SecuritySection />
         <HardwareSection />

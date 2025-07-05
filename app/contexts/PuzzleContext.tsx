@@ -1,6 +1,9 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { DEFAULT_PUZZLES, PuzzleConfig, PuzzleState } from '../components/puzzles/types';
+import notificationManager from '../utils/notificationManager';
 import { playSound } from '../utils/soundManager';
+import { PUZZLE_TO_MODULE, getModulesToUnlock } from '../utils/unlockSystem';
+import { useModuleUnlock } from './ModuleUnlockContext';
 
 interface PuzzleContextType {
   puzzleState: PuzzleState;
@@ -10,19 +13,26 @@ interface PuzzleContextType {
   getCompletedPuzzles: () => string[];
   getTotalPuzzles: () => number;
   getCompletionPercentage: () => number;
+  // Module visit tracking
+  visitedModules: Set<string>;
+  markModuleAsVisited: (moduleName: string) => void;
+  isFirstVisit: (moduleName: string) => boolean;
 }
 
 const PuzzleContext = createContext<PuzzleContextType | undefined>(undefined);
 
 export function PuzzleProvider({ children }: { children: React.ReactNode }) {
   const [puzzleState, setPuzzleState] = useState<PuzzleState>({});
+  const [visitedModules, setVisitedModules] = useState<Set<string>>(new Set());
+  const { unlockModule, unlockedModules } = useModuleUnlock();
 
   // Initialize puzzle state from default puzzles
   useEffect(() => {
     const initialState: PuzzleState = {};
     Object.keys(DEFAULT_PUZZLES).forEach(puzzleId => {
+      const config = DEFAULT_PUZZLES[puzzleId];
       initialState[puzzleId] = {
-        isComplete: false,
+        isComplete: false, // All puzzles start incomplete
         progress: 0,
         lastUpdated: new Date(),
       };
@@ -58,6 +68,30 @@ export function PuzzleProvider({ children }: { children: React.ReactNode }) {
       // Play unlock sound if this is a new completion
       if (!wasComplete) {
         playSound('ui_unlock');
+        
+        // Send notification for puzzle completion
+        const puzzleConfig = getPuzzleConfig(puzzleId);
+        const moduleName = PUZZLE_TO_MODULE[puzzleId];
+        
+        if (puzzleConfig && moduleName) {
+          notificationManager.sendPuzzleCompletionNotification(
+            puzzleConfig.name,
+            moduleName.toUpperCase()
+          );
+        }
+        
+        // Unlock adjacent modules
+        const modulesToUnlock = getModulesToUnlock(puzzleId, unlockedModules);
+        modulesToUnlock.forEach(moduleName => {
+          unlockModule(moduleName as any);
+        });
+        
+        // Check if this was the final puzzle (all 13 completed)
+        const completedCount = Object.values(newState).filter(p => p.isComplete).length;
+        if (completedCount >= 13) {
+          // Send final boss defeated notification
+          notificationManager.sendFinalBossDefeatedNotification();
+        }
       }
       
       return newState;
@@ -84,6 +118,15 @@ export function PuzzleProvider({ children }: { children: React.ReactNode }) {
     return total > 0 ? (completed / total) * 100 : 0;
   };
 
+  // Module visit tracking functions
+  const markModuleAsVisited = (moduleName: string) => {
+    setVisitedModules(prev => new Set([...prev, moduleName]));
+  };
+
+  const isFirstVisit = (moduleName: string): boolean => {
+    return !visitedModules.has(moduleName);
+  };
+
   const value: PuzzleContextType = {
     puzzleState,
     updatePuzzleProgress,
@@ -92,6 +135,9 @@ export function PuzzleProvider({ children }: { children: React.ReactNode }) {
     getCompletedPuzzles,
     getTotalPuzzles,
     getCompletionPercentage,
+    visitedModules,
+    markModuleAsVisited,
+    isFirstVisit,
   };
 
   return (
