@@ -32,7 +32,7 @@ export default function SystemModule({
       onGoHome={onGoHome}
       backgroundImage={backgroundImage}
     >
-      <ScrollView className="flex-1 px-8">
+      <ScrollView className="flex-1">
         <DeviceSection onGoToAbout={onGoToAbout} onGoToCoreVitals={onGoToCoreVitals} />
         <SecuritySection />
         <HardwareSection />

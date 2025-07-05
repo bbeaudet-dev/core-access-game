@@ -38,6 +38,7 @@ export default function ModuleHeader({ name, color }: { name: string, color: str
       secondaryColor={colors.secondary}
       baseColor={colors.base}
       opacity={1}
+      textAlign="left"
     />
   );
 } 

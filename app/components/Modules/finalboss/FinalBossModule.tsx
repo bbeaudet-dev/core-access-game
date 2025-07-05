@@ -41,7 +41,7 @@ const BOSS_STAGES = {
 
 export default function FinalBossModule({ onGoHome }: FinalBossModuleProps) {
   const { resetToCritical } = useInfection();
-  const { getCompletedPuzzles } = usePuzzle();
+  const { getCompletedPuzzles, completePuzzle } = usePuzzle();
   const completedPuzzles = getCompletedPuzzles();
   const backgroundImage = getModuleBackgroundImage('finalboss', completedPuzzles);
   const [bossState, setBossState] = useState<BossState>({
@@ -80,12 +80,20 @@ export default function FinalBossModule({ onGoHome }: FinalBossModuleProps) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  
+  // Add refs to store intervals for cleanup
+  const phaseIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Initialize sensors and permissions
   useEffect(() => {
     initializeBossFight();
     return () => {
       cleanupSensors();
+      // Clear any active intervals
+      if (phaseIntervalRef.current) {
+        clearInterval(phaseIntervalRef.current);
+        phaseIntervalRef.current = null;
+      }
     };
   }, []);
 
@@ -196,12 +204,15 @@ export default function FinalBossModule({ onGoHome }: FinalBossModuleProps) {
     playSound('ui_scan');
     
     // Phase 1: Sensor-based attacks
-    const phase1Interval = setInterval(() => {
+    phaseIntervalRef.current = setInterval(() => {
       const attack = generateSensorAttack();
       executeAttack(attack);
       
       if (bossState.health <= 800) {
-        clearInterval(phase1Interval);
+        if (phaseIntervalRef.current) {
+          clearInterval(phaseIntervalRef.current);
+          phaseIntervalRef.current = null;
+        }
         startPhase2();
       }
     }, 3000);
@@ -212,12 +223,15 @@ export default function FinalBossModule({ onGoHome }: FinalBossModuleProps) {
     playSound('ui_encrypt');
     
     // Phase 2: Environmental attacks
-    const phase2Interval = setInterval(() => {
+    phaseIntervalRef.current = setInterval(() => {
       const attack = generateEnvironmentalAttack();
       executeAttack(attack);
       
       if (bossState.health <= 400) {
-        clearInterval(phase2Interval);
+        if (phaseIntervalRef.current) {
+          clearInterval(phaseIntervalRef.current);
+          phaseIntervalRef.current = null;
+        }
         startPhase3();
       }
     }, 2500);
@@ -228,12 +242,15 @@ export default function FinalBossModule({ onGoHome }: FinalBossModuleProps) {
     playSound('ui_data_transfer');
     
     // Phase 3: Network-based attacks
-    const phase3Interval = setInterval(() => {
+    phaseIntervalRef.current = setInterval(() => {
       const attack = generateNetworkAttack();
       executeAttack(attack);
       
       if (bossState.health <= 200) {
-        clearInterval(phase3Interval);
+        if (phaseIntervalRef.current) {
+          clearInterval(phaseIntervalRef.current);
+          phaseIntervalRef.current = null;
+        }
         startPhase4();
       }
     }, 2000);
@@ -244,12 +261,15 @@ export default function FinalBossModule({ onGoHome }: FinalBossModuleProps) {
     playSound('ui_error');
     
     // Phase 4: Final desperate attacks
-    const phase4Interval = setInterval(() => {
+    phaseIntervalRef.current = setInterval(() => {
       const attack = generateFinalAttack();
       executeAttack(attack);
       
       if (bossState.health <= 0) {
-        clearInterval(phase4Interval);
+        if (phaseIntervalRef.current) {
+          clearInterval(phaseIntervalRef.current);
+          phaseIntervalRef.current = null;
+        }
         victory();
       }
     }, 1500);
@@ -378,13 +398,40 @@ export default function FinalBossModule({ onGoHome }: FinalBossModuleProps) {
     }));
   };
 
+  const handleCheat = () => {
+    // Clear any active intervals
+    if (phaseIntervalRef.current) {
+      clearInterval(phaseIntervalRef.current);
+      phaseIntervalRef.current = null;
+    }
+    
+    // Auto-complete the final boss
+    setBossState(prev => ({ ...prev, health: 0, stage: 'victory' }));
+    playSound('ui_success');
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    
+    // Complete the final boss puzzle instead of resetting infection
+    completePuzzle('finalboss_defeat');
+    
+    // Immediately navigate home so all backgrounds update to green
+    setTimeout(() => {
+      onGoHome();
+    }, 1000);
+  };
+
   const victory = () => {
+    // Clear any active intervals
+    if (phaseIntervalRef.current) {
+      clearInterval(phaseIntervalRef.current);
+      phaseIntervalRef.current = null;
+    }
+    
     setBossState(prev => ({ ...prev, stage: 'victory' }));
     playSound('ui_login_success');
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     
-    // Reset infection progress to 0 (fully cured)
-    resetToCritical(); // This will trigger the final boss reset
+    // Complete the final boss puzzle
+    completePuzzle('finalboss_defeat');
     
     setTimeout(() => {
       Alert.alert(
@@ -540,7 +587,22 @@ export default function FinalBossModule({ onGoHome }: FinalBossModuleProps) {
             </Text>
           </View>
         )}
+
+        {/* Cheat Button */}
+        <View className="mt-8 mb-4">
+          <TouchableOpacity
+            onPress={handleCheat}
+            className="bg-purple-600 py-3 px-4 rounded-lg border-2 border-purple-400"
+          >
+            <Text className="text-white font-bold text-center font-mono">
+              🎮 CHEAT: AUTO-DEFEAT BOSS
+            </Text>
+            <Text className="text-purple-200 text-xs text-center mt-1">
+              Instantly defeat the final boss
+            </Text>
+          </TouchableOpacity>
+        </View>
       </Animated.View>
     </ScreenTemplate>
   );
-} 
+}

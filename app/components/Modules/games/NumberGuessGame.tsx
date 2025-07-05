@@ -62,7 +62,7 @@ export default function NumberGuessGame({ onBackToMenu, onComplete }: NumberGues
   };
 
   return (
-    <View className="flex-1 justify-center items-center p-4">
+    <View className="flex flex-col justify-center items-center p-4">
       <Text className="text-green-400 text-2xl mb-6 text-center font-mono">
         NUMBER GUESS
       </Text>

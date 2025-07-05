@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { usePuzzle } from './PuzzleContext';
 
 interface InfectionContextType {
   infectionProgress: number;
@@ -26,7 +27,7 @@ const PROGRESS_PER_PUZZLE = 100 / TOTAL_PUZZLES; // ~7.69% per puzzle
 
 export function InfectionProvider({ children }: { children: React.ReactNode }) {
   const [infectionProgress, setInfectionProgress] = useState(100); // Start at critical
-  const [completedPuzzles, setCompletedPuzzles] = useState<Set<string>>(new Set());
+  const { getCompletedPuzzles } = usePuzzle();
 
   const infectionStatus = getStatusFromProgress(infectionProgress);
 
@@ -36,8 +37,6 @@ export function InfectionProvider({ children }: { children: React.ReactNode }) {
 
   const resetToCritical = () => {
     setInfectionProgress(100);
-    // Reset completed puzzles for final boss fight
-    setCompletedPuzzles(new Set());
   };
 
   const unlockModule = (moduleName: string) => {
@@ -46,25 +45,21 @@ export function InfectionProvider({ children }: { children: React.ReactNode }) {
   };
 
   const completePuzzle = (puzzleName: string) => {
-    if (completedPuzzles.has(puzzleName)) return;
-    
-    setCompletedPuzzles(prev => new Set([...prev, puzzleName]));
-    
-    // Calculate new progress: start at 100% and subtract progress for each completed puzzle
-    const newCompletedCount = completedPuzzles.size + 1;
-    const newProgress = 100 - (newCompletedCount * PROGRESS_PER_PUZZLE);
-    updateProgress(Math.max(0, newProgress));
+    // This function is kept for compatibility but progress is calculated from PuzzleContext
   };
 
-  // Check if final boss should appear (when progress gets very low)
+  // Sync infection progress with actual puzzle completion
   useEffect(() => {
-    if (infectionProgress <= 5 && infectionProgress > 0) {
-      // Trigger final boss appearance
-      setTimeout(() => {
-        resetToCritical();
-      }, 2000);
-    }
-  }, [infectionProgress]);
+    const completedPuzzles = getCompletedPuzzles();
+    const completedCount = completedPuzzles.length;
+    
+    // Calculate progress: start at 100% and subtract progress for each completed puzzle
+    const newProgress = 100 - (completedCount * PROGRESS_PER_PUZZLE);
+    updateProgress(Math.max(0, newProgress));
+  }, [getCompletedPuzzles]);
+
+  // Check if final boss should appear (when progress gets very low)
+  // Removed automatic reset to critical - let progress stay low when puzzles are completed
 
   return (
     <InfectionContext.Provider value={{

@@ -16,20 +16,8 @@ interface GlitchTextProps {
   opacity?: number;
   fontFamily?: string;
   style?: any;
+  textAlign?: 'left' | 'center' | 'right';
 }
-
-const DEFAULT_WORDS = [
-  'ACCESS',
-  'DEFENDER', 
-  'SECURE',
-  'SYSTEM',
-  'FIREWALL',
-  'TERMINAL',
-  'VAULT',
-  'BREACHED',
-  'LOCKDOWN',
-  'QUARANTINED'
-];
 
 export default function GlitchText({
   text = 'CORE_ACCESS',
@@ -43,10 +31,10 @@ export default function GlitchText({
   baseColor = 'white',
   opacity = 0.9,
   fontFamily,
-  style
+  style,
+  textAlign
 }: GlitchTextProps) {
   const [currentText, setCurrentText] = useState(text);
-  const [wordIndex, setWordIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
   // Use provided dimensions or default to screen dimensions
@@ -88,7 +76,17 @@ export default function GlitchText({
   const textHeight = font.measureText(currentText).height;
   const textWidth = font.measureText(currentText).width;
 
-  const textX = canvasWidth / 2 - textWidth / 2;
+  // Calculate text position based on alignment
+  let textX: number;
+  if (textAlign === 'center') {
+    textX = canvasWidth / 2 - textWidth / 2;
+  } else if (textAlign === 'right') {
+    textX = canvasWidth - textWidth;
+  } else {
+    // Default to left alignment
+    textX = 0;
+  }
+  
   const textY = canvasHeight / 2 + textHeight - lineHeightDifference;
   
   const rectX = textX;
@@ -141,24 +139,11 @@ export default function GlitchText({
     redTextX.value = withAnimation([-2, 5, -4, -6]);
     greenTextX.value = withAnimation([2, -2, 5, -4]);
 
-    // Change text in the middle of the animation
-    setTimeout(() => {
-      if (text.startsWith('CORE_')) {
-        // If it's a CORE_ prefixed text, cycle through words
-        const nextWord = DEFAULT_WORDS[wordIndex % DEFAULT_WORDS.length];
-        setCurrentText(`CORE_${nextWord}`);
-        setWordIndex(prev => prev + 1);
-      } else {
-        // If it's a custom text, just cycle back to original
-        setCurrentText(text);
-      }
-    }, animationSpeed * 2); // Change text halfway through the animation
-
     // Reset animation state
     setTimeout(() => {
       setIsAnimating(false);
     }, animationSpeed * 4);
-  }, [text, wordIndex, animationSpeed, rectX]);
+  }, [animationSpeed, rectX]);
 
   useEffect(() => {
     const interval = setInterval(() => {

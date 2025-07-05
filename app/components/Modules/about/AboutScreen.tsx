@@ -19,7 +19,7 @@ export default function AboutScreen({ onGoBack }: AboutScreenProps) {
       onGoHome={onGoBack}
       backgroundImage={backgroundImage}
     >
-      <ScrollView className="flex-1 p-5">
+      <ScrollView className="flex-1">
         <View className="mb-6">
           <Text className="text-red-500 text-lg font-bold mb-3">DEVICE INFO</Text>
           

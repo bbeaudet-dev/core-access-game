@@ -233,7 +233,6 @@ export default function TerminalModule({ onGoHome }: TerminalModuleProps) {
       titleColor="green" 
       onGoHome={onGoHome}
       backgroundImage={backgroundImage}
-      className="p-3"
     >
       <ScrollView 
         ref={scrollViewRef}

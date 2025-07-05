@@ -21,7 +21,7 @@ export default function BatteryModule({ onGoHome }: BatteryModuleProps) {
   const backgroundImage = getModuleBackgroundImage('battery', completedPuzzles, false);
 
   // Battery level threshold to unlock puzzle
-  const UNLOCK_THRESHOLD = 0.8; // 80%
+  const UNLOCK_THRESHOLD = 0.5; // 50%
 
   useEffect(() => {
     const checkBatteryAvailability = async () => {

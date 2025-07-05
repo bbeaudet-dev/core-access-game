@@ -63,71 +63,54 @@ export default function GamesModule({ onGoHome }: GamesModuleProps) {
           </Text>
         </View>
         
-        {/* Puzzle Status */}
-        {puzzleComplete && (
-          <View className="mt-4 p-3 bg-green-900 rounded-lg">
-            <Text className="text-green-400 text-center font-mono text-sm">
-              ✅ GAMING SYSTEMS ONLINE
-            </Text>
-          </View>
-        )}
+      
       </View>
-
-      {/* Puzzle Instructions */}
-      {!puzzleComplete && (
-        <View className="bg-gray-900 p-6 rounded-lg">
-          <Text className="text-gray-400 text-sm font-mono mb-2">PUZZLE INSTRUCTIONS</Text>
-          <Text className="text-red-400 text-sm font-mono mb-2">
-            Test gaming systems by playing any available game
-          </Text>
-        </View>
-      )}
-
+          
       {/* Game Selection */}
       <View className="bg-gray-900 p-6 rounded-lg">
         <Text className="text-gray-400 text-sm font-mono mb-4">SELECT GAME</Text>
         <View className="space-y-3">
-          <TouchableOpacity
+            <TouchableOpacity
             onPress={() => handleGameSelect('numberGuess')}
             className="p-4 bg-gray-700 rounded-lg"
-          >
+            >
             <View className="flex flex-row items-center">
               <Text className="text-2xl mr-3">🔢</Text>
               <View className="flex-1">
                 <Text className="text-white font-mono text-lg">Number Guess</Text>
                 <Text className="text-gray-400 font-mono text-sm">
                   {gamesPlayed.has('numberGuess') ? '✅ Completed' : 'Guess the number'}
-                </Text>
+              </Text>
               </View>
             </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
+            </TouchableOpacity>
+            
+            <TouchableOpacity
             onPress={() => handleGameSelect('memory')}
             className="p-4 bg-gray-700 rounded-lg"
-          >
+            >
             <View className="flex flex-row items-center">
               <Text className="text-2xl mr-3">🧠</Text>
               <View className="flex-1">
                 <Text className="text-white font-mono text-lg">Memory Game</Text>
                 <Text className="text-gray-400 font-mono text-sm">
                   {gamesPlayed.has('memory') ? '✅ Completed' : 'Match the cards'}
-                </Text>
+              </Text>
               </View>
             </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
+            </TouchableOpacity>
+            
+            <TouchableOpacity
             onPress={() => handleGameSelect('reaction')}
             className="p-4 bg-gray-700 rounded-lg"
-          >
+            >
             <View className="flex flex-row items-center">
               <Text className="text-2xl mr-3">⚡</Text>
               <View className="flex-1">
                 <Text className="text-white font-mono text-lg">Reaction Test</Text>
                 <Text className="text-gray-400 font-mono text-sm">
                   {gamesPlayed.has('reaction') ? '✅ Completed' : 'Test your reflexes'}
-                </Text>
+              </Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -170,7 +153,7 @@ export default function GamesModule({ onGoHome }: GamesModuleProps) {
                 className="px-3 py-1 bg-gray-700 rounded-lg"
               >
                 <Text className="text-gray-300 font-mono text-sm">BACK</Text>
-              </TouchableOpacity>
+            </TouchableOpacity>
             </View>
           </View>
 
@@ -180,6 +163,6 @@ export default function GamesModule({ onGoHome }: GamesModuleProps) {
       ) : (
         renderGameMenu()
       )}
-    </ScreenTemplate>
+      </ScreenTemplate>
   );
 } 

@@ -23,25 +23,31 @@ export default function ScreenTemplate({
   className = '',
   backgroundImage
 }: ScreenTemplateProps) {
+  // Centralized padding control
+  const SIDE_PADDING = 8; // 32px on each side
+  const sidePaddingClass = `px-${SIDE_PADDING}`;
+
   const content = (
     <>
-      {/* Top area with notch margin */}
-      <View className="pt-6 px-4">
+      {/* Top area with safe area margin */}
+      <View className={`pt-12 ${sidePaddingClass}`}>
         {/* Header */}
-        <View className="flex-row justify-between items-center mb-3">
-          <View className="flex-1 justify-center items-center">
+        <View className="flex-row justify-between items-center mb-4">
+          <View className="flex-1 items-start">
             <ModuleHeader name={title} color={titleColor} />
           </View>
-          <View className="flex-1 items-end">
+          <View className="absolute right-0">
             <BatteryIndicator />
           </View>
         </View>
       </View>
       
-      <View className="flex-1 px-4 mx-2">
+      {/* Main content area */}
+      <View className={`flex-1 ${sidePaddingClass} pb-20`}>
         {children}
       </View>
       
+      {/* Home button */}
       {showHomeButton && onGoHome && (
         <HomeButton active={true} onPress={onGoHome} />
       )}

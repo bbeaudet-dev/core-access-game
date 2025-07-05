@@ -124,14 +124,29 @@ export default function SpeedPlot({
   
   const width = 300;
   const height = 80;
-  const padding = 10;
+  const padding = 20; // Increased padding for labels
+  const plotWidth = width - 2 * padding;
+  const plotHeight = height - 2 * padding;
+  const labelWidth = 40; // Width for Y-axis labels
+  const totalWidth = width + labelWidth; // Total width including labels
 
   const points = plotData.map((speed, index) => {
-    const x = padding + (index / (plotData.length - 1)) * (width - 2 * padding);
+    const x = padding + (index / (plotData.length - 1)) * plotWidth;
     const normalizedSpeed = range > 0 ? (speed - minValue) / range : 0.5;
-    const y = height - padding - normalizedSpeed * (height - 2 * padding);
+    const y = height - padding - normalizedSpeed * plotHeight;
     return `${x},${y}`;
   }).join(' ');
+
+  // Generate Y-axis labels
+  const yLabels = [];
+  const numLabels = 5;
+  for (let i = 0; i <= numLabels; i++) {
+    const value = minValue + (maxValue - minValue) * (i / numLabels);
+    yLabels.push({
+      value: value.toFixed(1),
+      y: height - padding - (i / numLabels) * plotHeight
+    });
+  }
 
   return (
     <View className="bg-gray-900 p-6 rounded-lg">
@@ -147,14 +162,26 @@ export default function SpeedPlot({
       </View>
 
       <View className="bg-gray-800 rounded-lg p-2">
-        <Svg width={width} height={height}>
-          <Polyline
-            points={points}
-            stroke={getStrokeColor(color)}
-            strokeWidth="2"
-            fill="none"
-          />
-        </Svg>
+        <View className="flex-row items-center">
+          {/* Y-axis labels outside the plot */}
+          <View className="w-10 flex justify-between items-end pr-2">
+            {yLabels.map((label, index) => (
+              <Text key={index} className="text-gray-500 text-xs font-mono">
+                {label.value}
+              </Text>
+            ))}
+          </View>
+          
+          {/* Plot with proper width */}
+          <Svg width={width} height={height}>
+            <Polyline
+              points={points}
+              stroke={getStrokeColor(color)}
+              strokeWidth="2"
+              fill="none"
+            />
+          </Svg>
+        </View>
       </View>
 
       {normalized && (

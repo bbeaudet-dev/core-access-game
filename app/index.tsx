@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import { Animated, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { View } from 'react-native';
 import HomeScreen from './components/HomeScreen';
-import InfectionSequence from './components/infection/InfectionSequence';
 import LoginScreen from './components/login/LoginScreen';
 import WelcomeGameScreen from './components/login/WelcomeGameScreen';
 import AboutScreen from './components/Modules/about/AboutScreen';
@@ -27,7 +26,7 @@ import WifiModule from './components/Modules/wifi/WifiModule';
 import { useAuth } from './contexts/AuthContext';
 import { InfectionProvider } from './contexts/InfectionContext';
 import { PuzzleProvider } from './contexts/PuzzleContext';
-import { startInfectionSequence } from './utils/infectionSequence';
+import { authApi } from './lib/auth';
 
 // Define module names type
 type ModuleName = 'terminal' | 'system' | 'clock' | 'gyro' | 'compass' | 'microphone' | 'camera' | 'accelerometer' | 'wifi' | 'tutorial' | 'music' | 'flashlight' | 'battery' | 'maps' | 'calculator' | 'weather' | 'games' | 'finalboss';
@@ -54,17 +53,32 @@ const MODULE_COMPONENTS = {
 } as const;
 
 function AppContent() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, guestSignIn } = useAuth();
   const [gameState, setGameState] = useState('welcome');
   const [loginType, setLoginType] = useState<'signup' | 'signin' | 'guest'>('signin');
   const [guestUsername, setGuestUsername] = useState<string>('');
-  const [glitchLevel, setGlitchLevel] = useState(0);
-  const [terminalText, setTerminalText] = useState('');
-  const [fadeAnim] = useState(new Animated.Value(1));
+
+  // Test API connection on startup
+  useEffect(() => {
+    const testApiConnection = async () => {
+      try {
+        console.log('Testing API connection...');
+        const isHealthy = await authApi.checkHealth();
+        console.log('API health check result:', isHealthy);
+      } catch (error) {
+        console.error('API health check failed:', error);
+      }
+    };
+    
+    testApiConnection();
+  }, []);
 
   // Show login screen if not authenticated
   if (!isAuthenticated) {
     return <LoginScreen onLoginSuccess={(type, username) => {
+      if (type === 'guest' && username) {
+        guestSignIn(username);
+      }
       setLoginType(type);
       setGuestUsername(username || '');
       setGameState('welcome');
@@ -72,25 +86,14 @@ function AppContent() {
   }
   
   const handleDownload = () => {
-    // Start infection sequence directly when download button is pressed
-    setGameState('infected');
-    
-    startInfectionSequence(
-      setGlitchLevel,
-      setTerminalText,
-      () => {
-        setGameState('home');
-        setGlitchLevel(0);
-      }
-    );
+    // Go directly to home screen
+    setGameState('home');
   };
 
   const navigate = (destination: string) => {
     if (destination === 'self-destruct') {
       // Reset all game state
       setGameState('welcome');
-      setGlitchLevel(0);
-      setTerminalText('');
     } else {
       setGameState(destination);
     }
@@ -109,18 +112,6 @@ function AppContent() {
           guestUsername={guestUsername}
           onDownload={handleDownload}
         />        
-      </View>
-    );
-  }
-
-  if (gameState === 'infected') {
-    return (
-      <View className="flex-1">
-        <InfectionSequence 
-          glitchLevel={glitchLevel}
-          terminalText={terminalText}
-          fadeAnim={fadeAnim}
-        />
       </View>
     );
   }

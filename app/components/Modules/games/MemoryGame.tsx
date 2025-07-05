@@ -14,6 +14,8 @@ interface MemoryState {
   playerSequence: number[];
   level: number;
   showingSequence: boolean;
+  currentSequenceIndex: number;
+  highlightedButton: number | null;
 }
 
 export default function MemoryGame({ onBackToMenu, onComplete }: MemoryGameProps) {
@@ -24,6 +26,8 @@ export default function MemoryGame({ onBackToMenu, onComplete }: MemoryGameProps
     playerSequence: [],
     level: 1,
     showingSequence: false,
+    currentSequenceIndex: 0,
+    highlightedButton: null,
   });
 
   const startGame = () => {
@@ -34,6 +38,8 @@ export default function MemoryGame({ onBackToMenu, onComplete }: MemoryGameProps
       playerSequence: [],
       level: 1,
       showingSequence: true,
+      currentSequenceIndex: 0,
+      highlightedButton: null,
     });
     
     showSequence(sequence);
@@ -44,13 +50,30 @@ export default function MemoryGame({ onBackToMenu, onComplete }: MemoryGameProps
       setGameState(prev => ({
         ...prev,
         showingSequence: false,
+        highlightedButton: null,
       }));
       return;
     }
 
+    // Highlight the current button in the sequence
+    setGameState(prev => ({
+      ...prev,
+      currentSequenceIndex: index,
+      highlightedButton: sequence[index],
+    }));
+
     setTimeout(() => {
-      showSequence(sequence, index + 1);
-    }, 1000);
+      // Clear the highlight
+      setGameState(prev => ({
+        ...prev,
+        highlightedButton: null,
+      }));
+      
+      // Show next button after a short delay
+      setTimeout(() => {
+        showSequence(sequence, index + 1);
+      }, 200);
+    }, 800);
   };
 
   const addToPlayerSequence = (number: number) => {
@@ -84,6 +107,8 @@ export default function MemoryGame({ onBackToMenu, onComplete }: MemoryGameProps
         playerSequence: [],
         level: newLevel,
         showingSequence: true,
+        currentSequenceIndex: 0,
+        highlightedButton: null,
       });
       
       showSequence(newSequence);
@@ -101,7 +126,7 @@ export default function MemoryGame({ onBackToMenu, onComplete }: MemoryGameProps
   };
 
   return (
-    <View className="flex-1 justify-center items-center p-4">
+    <View className="flex flex-col justify-center items-center p-4">
       <Text className="text-blue-400 text-lg mb-4">
         Level {gameState.level}
       </Text>
@@ -121,7 +146,11 @@ export default function MemoryGame({ onBackToMenu, onComplete }: MemoryGameProps
             onPress={() => addToPlayerSequence(num)}
             disabled={gameState.showingSequence}
             className={`w-20 h-20 rounded-lg items-center justify-center ${
-              gameState.showingSequence ? 'bg-gray-600' : 'bg-blue-600'
+              gameState.showingSequence && gameState.highlightedButton === num
+                ? 'bg-yellow-500'
+                : gameState.showingSequence
+                ? 'bg-gray-600'
+                : 'bg-blue-600'
             }`}
           >
             <Text className="text-white text-2xl">{num}</Text>

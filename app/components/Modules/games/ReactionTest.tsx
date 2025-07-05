@@ -38,6 +38,12 @@ export default function ReactionTest({ onBackToMenu, onComplete }: ReactionTestP
     setReactionTime(time);
     setGameState('finished');
     setTimes(prev => [...prev, time]);
+    
+    // Check if reaction time is under 200ms for completion
+    if (time <= 200 && !times.some(t => t <= 200)) {
+      updatePuzzleProgress('games_reaction', 100, true);
+      completePuzzle('reaction_test');
+    }
   };
 
   const nextRound = () => {
@@ -65,7 +71,7 @@ export default function ReactionTest({ onBackToMenu, onComplete }: ReactionTestP
   }, []);
 
   return (
-    <View className="flex-1 justify-center items-center p-4">
+    <View className="flex flex-col justify-center items-center p-4">
       <Text className="text-purple-400 text-2xl mb-6 text-center font-mono">
         REACTION TEST
       </Text>

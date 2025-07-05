@@ -7,8 +7,8 @@
 // Row 6: Weather | FinalBoss | Accelerometer
 
 export const GRID_LAYOUT = [
-  ['system', 'terminal', 'tutorial'],
-  ['battery', 'clock', 'music'],
+  ['tutorial', 'system', 'battery'],
+  ['terminal', 'clock', 'music'],
   ['flashlight', 'calculator', 'compass'],
   ['gyro', 'camera', 'microphone'],
   ['maps', 'games', 'wifi'],
@@ -32,7 +32,6 @@ export const PUZZLE_TO_MODULE: Record<string, string> = {
   'compass_orientation': 'compass',
   'compass_north': 'compass',
   'gyroscope_rotation': 'gyro',
-  'gyroscope_spin_count': 'gyro',
   'camera_capture': 'camera',
   'microphone_level': 'microphone',
   'location_navigate': 'maps',

@@ -59,7 +59,7 @@ export default function BugAnimation({ onComplete }: BugAnimationProps) {
     const flashSequence = Animated.loop(
       Animated.sequence([
         Animated.timing(flashOpacity, {
-          toValue: 0.3,
+          toValue: 0.5,
           duration: 300,
           useNativeDriver: true,
         }),

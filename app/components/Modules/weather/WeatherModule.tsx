@@ -63,6 +63,7 @@ export default function WeatherModule({ onGoHome }: WeatherModuleProps) {
       if (!puzzleComplete) {
         setPuzzleComplete(true);
         completePuzzle('weather_check');
+        playSound('puzzle_complete');
       }
     } catch (error) {
       console.error('Failed to fetch weather data:', error);
@@ -82,12 +83,12 @@ export default function WeatherModule({ onGoHome }: WeatherModuleProps) {
   };
 
   return (
-    <ScreenTemplate 
-      title="WEATHER" 
+      <ScreenTemplate 
+        title="WEATHER" 
       titleColor="yellow" 
-      onGoHome={onGoHome}
-      backgroundImage={backgroundImage}
-    >
+        onGoHome={onGoHome}
+        backgroundImage={backgroundImage}
+      >
       <View className="flex flex-col space-y-4">
         {/* Weather Status */}
         <View className="bg-gray-900 p-6 rounded-lg">
@@ -122,20 +123,20 @@ export default function WeatherModule({ onGoHome }: WeatherModuleProps) {
         {/* Weather Controls */}
         <View className="bg-gray-900 p-6 rounded-lg">
           <Text className="text-gray-400 text-sm font-mono mb-4">WEATHER CONTROLS</Text>
-          <TouchableOpacity
+            <TouchableOpacity
             onPress={fetchWeatherData}
             disabled={isLoading}
             className={`p-4 rounded-lg ${isLoading ? 'bg-gray-600' : 'bg-yellow-600'}`}
-          >
+            >
             <Text className="text-center font-mono text-lg">
               {isLoading ? 'FETCHING WEATHER...' : 'FETCH WEATHER DATA'}
             </Text>
-          </TouchableOpacity>
-        </View>
+            </TouchableOpacity>
+          </View>
 
         {/* Weather Display */}
         {weather && (
-          <View className="bg-gray-900 p-6 rounded-lg">
+            <View className="bg-gray-900 p-6 rounded-lg">
             <Text className="text-gray-400 text-sm font-mono mb-4">CURRENT WEATHER</Text>
             <View className="space-y-4">
               {/* Main Weather Info */}
@@ -156,7 +157,7 @@ export default function WeatherModule({ onGoHome }: WeatherModuleProps) {
                 <View className="flex flex-row justify-between">
                   <Text className="text-gray-300 font-mono">Feels Like:</Text>
                   <Text className="text-yellow-400 font-mono">{weather.feelsLike}°C</Text>
-                </View>
+            </View>
                 <View className="flex flex-row justify-between">
                   <Text className="text-gray-300 font-mono">Humidity:</Text>
                   <Text className="text-blue-400 font-mono">{weather.humidity}%</Text>
@@ -179,12 +180,12 @@ export default function WeatherModule({ onGoHome }: WeatherModuleProps) {
               {lastUpdated && (
                 <Text className="text-center text-gray-500 font-mono text-xs">
                   Last updated: {lastUpdated.toLocaleTimeString()}
-                </Text>
+                        </Text>
               )}
             </View>
           </View>
         )}
       </View>
-    </ScreenTemplate>
+      </ScreenTemplate>
   );
 } 

@@ -1,12 +1,12 @@
 // API Configuration
 export const API_CONFIG = {
   // Development (local)
-  development: {baseURL: 'https://localhost:3001'},
+  development: {baseURL: 'https://core-access-api.onrender.com'},
   production: {baseURL: 'https://core-access-api.onrender.com'},
 };
 
-// Get the current environment
-const isProduction = process.env.NODE_ENV === 'production';
+// Get the current environment - always use production for now since backend is on Render
+const isProduction = true; // Force production mode since backend is on Render
 
 // Export the current config
 export const currentConfig = isProduction ? API_CONFIG.production : API_CONFIG.development;

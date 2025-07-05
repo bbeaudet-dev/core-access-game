@@ -73,7 +73,7 @@ class NotificationManager {
     try {
       const notification: NotificationData = {
         title: '🎉 Puzzle Complete!',
-        body: `${puzzleName} puzzle solved! ${moduleName} module unlocked.`,
+        body: `${puzzleName} puzzle solved! Check the Home screen for new apps.`,
         data: {
           type: 'puzzle_completion',
           puzzleName,
@@ -124,36 +124,6 @@ class NotificationManager {
       console.log('Final boss defeated notification sent');
     } catch (error) {
       console.error('Failed to send final boss defeated notification:', error);
-    }
-  }
-
-  async sendModuleUnlockedNotification(moduleName: string): Promise<void> {
-    await this.initialize();
-
-    try {
-      const notification: NotificationData = {
-        title: '🔓 Module Unlocked!',
-        body: `${moduleName} module is now available for use.`,
-        data: {
-          type: 'module_unlocked',
-          moduleName,
-        },
-      };
-
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: notification.title,
-          body: notification.body,
-          data: notification.data,
-          sound: 'default',
-          priority: Notifications.AndroidNotificationPriority.DEFAULT,
-        },
-        trigger: null, // Send immediately
-      });
-
-      console.log('Module unlocked notification sent');
-    } catch (error) {
-      console.error('Failed to send module unlocked notification:', error);
     }
   }
 

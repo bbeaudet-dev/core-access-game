@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Text, TouchableOpacity, View } from 'react-native';
 import { playSound } from '../../utils/soundManager';
-import BugAnimation from '../infection/BugAnimation';
 import AnimatedBackground from '../ui/AnimatedBackground';
 
 interface WelcomeGameScreenProps {
@@ -11,10 +10,11 @@ interface WelcomeGameScreenProps {
 }
 
 export default function WelcomeGameScreen({ type, guestUsername, onDownload }: WelcomeGameScreenProps) {
-  const [showBugAnimation, setShowBugAnimation] = useState(false);
   const buttonRef = useRef(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const textPulseAnim = useRef(new Animated.Value(1)).current;
+  const [isAlarmActive, setIsAlarmActive] = useState(false);
+  const flashAnim = useRef(new Animated.Value(0)).current;
   // Pulsing animation for the button
   useEffect(() => {
     const pulse = Animated.loop(
@@ -55,19 +55,51 @@ export default function WelcomeGameScreen({ type, guestUsername, onDownload }: W
     return () => textPulse.stop();
   }, []);
 
-
-
-
-
   const handleDownload = () => {
-    playSound('ui_app_launch');
-    // Cut straight to infection sequence
-    setShowBugAnimation(true);
-  };
-
-  const handleBugAnimationComplete = () => {
-    setShowBugAnimation(false);
-    onDownload();
+    // Enhanced alarm sequence
+    setIsAlarmActive(true);
+    playSound('ui_alert');
+    
+    // Start red flashing light effect
+    const flashSequence = Animated.loop(
+      Animated.sequence([
+        Animated.timing(flashAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(flashAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    flashSequence.start();
+    
+    // Play additional alarm sounds for dramatic effect
+    setTimeout(() => {
+      playSound('ui_alert');
+    }, 400);
+    
+    setTimeout(() => {
+      playSound('ui_alert');
+    }, 800);
+    
+    setTimeout(() => {
+      playSound('ui_alert');
+    }, 1200);
+    
+    setTimeout(() => {
+      playSound('ui_alert');
+    }, 1600);
+    
+    // Go to home screen after extended alarm sequence
+    setTimeout(() => {
+      flashSequence.stop();
+      setIsAlarmActive(false);
+      onDownload();
+    }, 3000); // 3 second delay for enhanced alarm sequence
   };
 
   const getTitle = () => {
@@ -105,6 +137,17 @@ export default function WelcomeGameScreen({ type, guestUsername, onDownload }: W
       shouldPlay={false}
       resizeMode="cover"
     >
+      {/* Red flashing overlay during alarm */}
+      {isAlarmActive && (
+        <Animated.View 
+          className="absolute inset-0 z-10"
+          style={{
+            backgroundColor: 'rgba(220, 38, 38, 0.6)',
+            opacity: flashAnim,
+          }}
+        />
+      )}
+      
       <View className="flex-1 px-10 justify-center">
         {/* Welcome Section */}
         <View className="items-center mb-12">
@@ -134,15 +177,16 @@ export default function WelcomeGameScreen({ type, guestUsername, onDownload }: W
             
             <Animated.View style={{ transform: [{ scale: pulseAnim }], position: 'relative' }}>
             <TouchableOpacity 
-              className="bg-green-600 px-8 py-4 rounded-lg mb-6" 
+              className={`px-8 py-4 rounded-lg mb-6 ${isAlarmActive ? 'bg-red-600' : 'bg-green-600'}`}
               onPress={handleDownload}
-              disabled={showBugAnimation}
             >
                 <Animated.View style={{ transform: [{ scale: textPulseAnim }] }}>
-                  <Text className="text-white font-bold text-xl text-center">DOWNLOAD NOW</Text>
+                  <Text className="text-white font-bold text-lg text-center">
+                    {isAlarmActive ? '⚠️SYSTEM COMPROMISED⚠️' : 'DOWNLOAD NOW'}
+                  </Text>
                 </Animated.View>
                 <Text className="text-white text-sm text-center mt-1">
-                  Free • 4.8★ • 10M+ Downloads
+                  {isAlarmActive ? 'VIRUS DETECTED' : 'Free • 4.8★ • 10M+ Downloads'}
                 </Text>
             </TouchableOpacity>
             </Animated.View>
@@ -156,13 +200,6 @@ export default function WelcomeGameScreen({ type, guestUsername, onDownload }: W
           </View>
         </View>
       </View>
-
-      {/* Bug Animation Overlay */}
-      {showBugAnimation && (
-        <BugAnimation 
-          onComplete={handleBugAnimationComplete} 
-        />
-      )}
     </AnimatedBackground>
   );
 } 

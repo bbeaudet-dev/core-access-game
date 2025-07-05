@@ -19,23 +19,23 @@ export default function MapsModule({ onGoHome }: MapsModuleProps) {
 
   const { completePuzzle, getCompletedPuzzles } = usePuzzle();
   const completedPuzzles = getCompletedPuzzles();
-  const backgroundImage = getModuleBackgroundImage('maps', completedPuzzles, false);
+  const backgroundImage = getModuleBackgroundImage('maps', completedPuzzles);
 
   useEffect(() => {
     const checkPermissions = async () => {
-      try {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        setHasPermission(status === 'granted');
-        
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      setHasPermission(status === 'granted');
+      
         if (status !== 'granted') {
           setErrorMsg('Location permission denied');
-        }
-      } catch (error) {
+      }
+    } catch (error) {
         console.error('Failed to request location permissions:', error);
         setErrorMsg('Failed to request location permissions');
         setHasPermission(false);
-      }
-    };
+    }
+  };
 
     checkPermissions();
   }, []);
@@ -83,23 +83,23 @@ export default function MapsModule({ onGoHome }: MapsModuleProps) {
   };
 
   return (
-    <ScreenTemplate 
-      title="MAPS" 
+      <ScreenTemplate 
+        title="MAPS" 
       titleColor="blue" 
-      onGoHome={onGoHome}
-      backgroundImage={backgroundImage}
-    >
-      <View className="flex flex-col space-y-4">
+        onGoHome={onGoHome}
+        backgroundImage={backgroundImage}
+      >
+          <View className="flex flex-col space-y-4">
         {/* Maps Status */}
-        <View className="bg-gray-900 p-6 rounded-lg">
+            <View className="bg-gray-900 p-6 rounded-lg">
           <Text className="text-gray-400 text-sm font-mono mb-4">MAPS STATUS</Text>
           <View className="flex flex-row items-center justify-center">
             <Text className="text-4xl mr-4">🗺️</Text>
             <Text className={`text-xl font-mono ${hasPermission ? 'text-blue-400' : 'text-red-400'}`}>
               {hasPermission ? 'ACTIVE' : 'INACTIVE'}
-            </Text>
-          </View>
-          
+                  </Text>
+            </View>
+
           {/* Puzzle Status */}
           {puzzleComplete && (
             <View className="mt-4 p-3 bg-green-900 rounded-lg">
@@ -108,30 +108,30 @@ export default function MapsModule({ onGoHome }: MapsModuleProps) {
               </Text>
             </View>
           )}
-        </View>
+            </View>
 
         {/* Puzzle Instructions */}
         {!puzzleComplete && (
-          <View className="bg-gray-900 p-6 rounded-lg">
+            <View className="bg-gray-900 p-6 rounded-lg">
             <Text className="text-gray-400 text-sm font-mono mb-2">PUZZLE INSTRUCTIONS</Text>
             <Text className="text-blue-400 text-sm font-mono mb-2">
               Test location services by getting your current coordinates
-            </Text>
-          </View>
+              </Text>
+            </View>
         )}
 
-        {/* Location Controls */}
-        <View className="bg-gray-900 p-6 rounded-lg">
+            {/* Location Controls */}
+            <View className="bg-gray-900 p-6 rounded-lg">
           <Text className="text-gray-400 text-sm font-mono mb-4">LOCATION CONTROLS</Text>
-          <TouchableOpacity
-            onPress={getCurrentLocation}
+                <TouchableOpacity
+                  onPress={getCurrentLocation}
             disabled={!hasPermission || isLoading}
             className={`p-4 rounded-lg ${hasPermission && !isLoading ? 'bg-blue-600' : 'bg-gray-600'}`}
-          >
+                >
             <Text className="text-center font-mono text-lg">
               {isLoading ? 'GETTING LOCATION...' : 'GET CURRENT LOCATION'}
-            </Text>
-          </TouchableOpacity>
+                  </Text>
+                </TouchableOpacity>
         </View>
 
         {/* Location Display */}
@@ -150,12 +150,12 @@ export default function MapsModule({ onGoHome }: MapsModuleProps) {
               <View className="flex flex-row justify-between">
                 <Text className="text-gray-300 font-mono">Accuracy:</Text>
                 <Text className="text-blue-400 font-mono">{formatCoordinates(location.coords).accuracy}</Text>
-              </View>
+            </View>
               <View className="flex flex-row justify-between">
                 <Text className="text-gray-300 font-mono">Altitude:</Text>
                 <Text className="text-blue-400 font-mono">
                   {location.coords.altitude ? `${location.coords.altitude.toFixed(1)}m` : 'Unknown'}
-                </Text>
+              </Text>
               </View>
             </View>
           </View>
@@ -171,6 +171,6 @@ export default function MapsModule({ onGoHome }: MapsModuleProps) {
           </View>
         )}
       </View>
-    </ScreenTemplate>
+      </ScreenTemplate>
   );
 } 

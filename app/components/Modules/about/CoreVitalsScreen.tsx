@@ -42,7 +42,7 @@ export default function CoreVitalsScreen({ onGoBack }: CoreVitalsScreenProps) {
       onGoHome={onGoBack}
       backgroundImage={backgroundImage}
     >
-      <ScrollView className="flex-1 p-5">
+      <ScrollView className="flex-1">
         <View className="mb-6">
           <Text className="text-red-500 text-lg font-bold mb-3">LIFE SIGNS</Text>
           

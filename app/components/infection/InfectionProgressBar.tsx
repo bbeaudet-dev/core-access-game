@@ -28,7 +28,7 @@ export default function InfectionProgressBar({ progress, status }: InfectionProg
   const barColor = getBarColor(progress);
 
   return (
-    <View className="absolute bottom-0 my-20 mx-10 left-0 right-0 bg-black border-t border-gray-800 p-4 rounded-xl">
+    <View className="absolute bottom-0 my-24 mx-10 left-0 right-0 bg-black border-t border-gray-800 p-4 rounded-xl">
       <Text className="text-red-500 text-sm font-mono mb-2">INFECTION STATUS: <Text className={`text-lg font-mono mb-3 ${statusColor}`}>{status}</Text></Text>
       
       <View className="bg-gray-800 h-3 rounded-full overflow-hidden">

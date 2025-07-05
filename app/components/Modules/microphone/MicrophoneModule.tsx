@@ -63,14 +63,13 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
     // Update max audio level and check puzzle completion
     if (audioLevel > maxAudioLevel) {
       setMaxAudioLevel(audioLevel);
-      
-      // Complete puzzle if threshold is reached
-      if (!puzzleComplete && audioLevel >= AUDIO_THRESHOLD) {
+      // Only complete puzzle if recording and threshold is reached
+      if (!puzzleComplete && isRecording && audioLevel >= AUDIO_THRESHOLD) {
         setPuzzleComplete(true);
         completePuzzle('microphone_level');
       }
     }
-  }, [audioLevel, maxAudioLevel, puzzleComplete]);
+  }, [audioLevel, maxAudioLevel, puzzleComplete, isRecording]);
 
   const startRecording = async () => {
     if (!hasPermission) return;
@@ -103,17 +102,17 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
 
   const resetAudioLevel = () => {
     setMaxAudioLevel(0);
-    setAudioLevel(0);
+      setAudioLevel(0);
     animationRef.setValue(0);
-  };
+    };
 
   return (
-    <ScreenTemplate 
-      title="MICROPHONE" 
+      <ScreenTemplate 
+        title="MICROPHONE" 
       titleColor="blue" 
-      onGoHome={onGoHome}
-      backgroundImage={backgroundImage}
-    >
+        onGoHome={onGoHome}
+        backgroundImage={backgroundImage}
+      >
       <View className="flex flex-col space-y-4">
         {/* Microphone Status */}
         <View className="bg-gray-900 p-6 rounded-lg">
@@ -131,10 +130,10 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
               <Text className="text-green-400 text-center font-mono text-sm">
                 ✅ AUDIO DETECTION COMPLETE
               </Text>
-            </View>
+              </View>
           )}
-        </View>
-
+            </View>
+            
         {/* Audio Level Display */}
         <View className="bg-gray-900 p-6 rounded-lg">
           <Text className="text-gray-400 text-sm font-mono mb-4">AUDIO LEVEL</Text>
@@ -144,21 +143,15 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
           </Text>
           <Text className="text-center text-gray-300 font-mono">
             Max: {Math.round(maxAudioLevel * 100)}%
-          </Text>
-        </View>
+                </Text>
+            </View>
 
-        {/* Puzzle Instructions */}
-        {!puzzleComplete && (
-          <View className="bg-gray-900 p-6 rounded-lg">
-            <Text className="text-gray-400 text-sm font-mono mb-2">PUZZLE INSTRUCTIONS</Text>
-            <Text className="text-blue-400 text-sm font-mono mb-2">
-              Reach {AUDIO_THRESHOLD * 100}% audio level to test microphone sensitivity
-            </Text>
-            <Text className="text-gray-300 text-xs font-mono">
-              Speak loudly or make noise near the microphone
-            </Text>
-          </View>
-        )}
+        {/* Audio Waveform */}
+        <View className="bg-gray-900 p-6 rounded-lg">
+          <Text className="text-gray-400 text-sm font-mono mb-4">AUDIO WAVEFORM</Text>
+          <AudioWaveform audioLevel={audioLevel} />
+        </View>
+      </View>
 
         {/* Controls */}
         <View className="bg-gray-900 p-6 rounded-lg">
@@ -184,12 +177,6 @@ export default function MicrophoneModule({ onGoHome }: MicrophoneModuleProps) {
           </View>
         </View>
 
-        {/* Audio Waveform */}
-        <View className="bg-gray-900 p-6 rounded-lg">
-          <Text className="text-gray-400 text-sm font-mono mb-4">AUDIO WAVEFORM</Text>
-          <AudioWaveform audioLevel={audioLevel} />
-        </View>
-      </View>
-    </ScreenTemplate>
+      </ScreenTemplate>
   );
 } 

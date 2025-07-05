@@ -2,7 +2,7 @@ import { setAudioModeAsync } from 'expo-audio'
 import { useEffect, useState } from 'react'
 import { Text, View } from 'react-native'
 import { usePuzzle } from '../../../contexts/PuzzleContext'
-import { SOUND_EFFECTS, SoundManager, pauseBackgroundMusic, playSound, resumeBackgroundMusic, setSoundMuted, setSoundVolume } from '../../../utils/soundManager'
+import { SOUND_EFFECTS, SoundManager, pauseBackgroundMusic, playBackgroundMusic, playSound, resumeBackgroundMusic, setSoundMuted, setSoundVolume } from '../../../utils/soundManager'
 import { getModuleBackgroundImage } from '../../../utils/unlockSystem'
 import ScreenTemplate from '../../ui/ScreenTemplate'
 import AudioControls from './AudioControls'
@@ -71,6 +71,13 @@ export default function MusicModule({ onGoHome }: MusicModuleProps) {
     setIsPlaying(true);
     playSound('sensor_activate');
     
+    // Find the actual track data to play the music
+    const trackData = musicTracks.find(track => track.name === trackName);
+    if (trackData) {
+      // Play the background music with the track file
+      playBackgroundMusic(trackName, trackData.file, true);
+    }
+    
     // Complete puzzle when any track is played
     if (!puzzleComplete) {
       setPuzzleComplete(true);
@@ -104,49 +111,34 @@ export default function MusicModule({ onGoHome }: MusicModuleProps) {
       backgroundImage={backgroundImage}
     >
       <View className="flex flex-col space-y-4">
-        {/* Music Status */}
-        <View className="bg-gray-900 p-6 rounded-lg">
-          <Text className="text-gray-400 text-sm font-mono mb-4">MUSIC STATUS</Text>
-          <View className="flex flex-row items-center justify-center">
-            <Text className="text-4xl mr-4">{isPlaying ? '🎵' : '🎶'}</Text>
-            <Text className={`text-xl font-mono ${isPlaying ? 'text-green-400' : 'text-gray-400'}`}>
-              {isPlaying ? 'PLAYING' : 'STOPPED'}
-            </Text>
-          </View>
-          
-          {currentTrack && (
-            <Text className="text-center text-gray-300 font-mono mt-2">
-              Track: {currentTrack}
-            </Text>
-          )}
-        </View>
+        
 
         {/* Music Controls */}
         <View className="bg-gray-900 p-6 rounded-lg">
           <Text className="text-gray-400 text-sm font-mono mb-4">MUSIC CONTROLS</Text>
-          <AudioControls
-            isMuted={isMuted}
-            volume={volume}
-            currentTrack={currentTrack}
-            isPlaying={isPlaying}
-            onMuteToggle={handleMuteToggle}
-            onVolumeChange={handleVolumeChange}
-            onPauseResume={handlePauseResume}
-            soundEffects={SOUND_EFFECTS}
-          />
+                <AudioControls
+                  isMuted={isMuted}
+                  volume={volume}
+                  currentTrack={currentTrack}
+              isPlaying={isPlaying}
+                  onMuteToggle={handleMuteToggle}
+                  onVolumeChange={handleVolumeChange}
+              onPauseResume={handlePauseResume}
+                  soundEffects={SOUND_EFFECTS}
+                />
         </View>
 
         {/* Music Tracks */}
         <View className="bg-gray-900 p-6 rounded-lg">
           <Text className="text-gray-400 text-sm font-mono mb-4">MUSIC TRACKS</Text>
-          <MusicTracks
-            musicTracks={musicTracks}
-            currentTrack={currentTrack}
-            onPlayTrack={handlePlayTrack}
+                <MusicTracks
+                  musicTracks={musicTracks}
+                  currentTrack={currentTrack}
+                  onPlayTrack={handlePlayTrack}
             onStopMusic={handleStopTrack}
-          />
+                />
         </View>
-      </View>
+              </View>
     </ScreenTemplate>
   )
 } 

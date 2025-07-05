@@ -15,7 +15,7 @@ export default function Stopwatch() {
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
-    }
+}
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);

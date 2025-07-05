@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { useInfection } from '../contexts/InfectionContext';
 import { usePuzzle } from '../contexts/PuzzleContext';
-import notificationManager from '../utils/notificationManager';
 import { PUZZLE_TO_MODULE, shouldModuleBeUnlocked } from '../utils/unlockSystem';
 import InfectionProgressBar from './infection/InfectionProgressBar';
 import AppIconWithHalo from './ui/AppIconWithHalo';
@@ -82,10 +81,16 @@ const BUG_ASSIGNMENTS: Record<string, 'caterpillar' | 'beetle' | 'spider' | 'ant
 export default function HomeScreen({ onOpenModule }: HomeScreenProps) {
   const { infectionProgress, infectionStatus } = useInfection();
   const { getCompletedPuzzles } = usePuzzle();
-  const [unlockedModules, setUnlockedModules] = useState<string[]>(['tutorial']); 
+  const [unlockedModules, setUnlockedModules] = useState<string[]>(['tutorial']);
   const [unlockAnimations, setUnlockAnimations] = useState<Record<string, boolean>>({});
-  const [notifiedModules, setNotifiedModules] = useState<Set<string>>(new Set(['tutorial']));
   const lastCompletedPuzzlesRef = useRef<string[]>([]);
+
+  // Get background image based on final boss status
+  const completedPuzzles = getCompletedPuzzles();
+  const isFinalBossDefeated = completedPuzzles.length >= 13; // Total puzzles
+  const backgroundImage = isFinalBossDefeated 
+    ? require('../../assets/images/glowing-green-neon-with-stars-29-09-2024-1727679307-hd-wallpaper.jpg')
+    : require('../../assets/images/red frame.png');
 
   // Check for new unlocks when completed puzzles change
   useEffect(() => {
@@ -113,18 +118,6 @@ export default function HomeScreen({ onOpenModule }: HomeScreenProps) {
       // Set new unlocked modules
       setUnlockedModules(newUnlockedModules);
       
-      // Send notifications for newly unlocked modules (only if not already notified)
-      const modulesToNotify = newlyUnlocked.filter(module => !notifiedModules.has(module));
-      modulesToNotify.forEach(moduleName => {
-        const module = ALL_MODULES.find(m => m.name === moduleName);
-        if (module) {
-          notificationManager.sendModuleUnlockedNotification(module.displayName);
-        }
-      });
-      
-      // Update notified modules set
-      setNotifiedModules(prev => new Set([...prev, ...modulesToNotify]));
-      
       // Trigger unlock animations
       const newAnimations: Record<string, boolean> = {};
       newlyUnlocked.forEach(module => {
@@ -140,13 +133,22 @@ export default function HomeScreen({ onOpenModule }: HomeScreenProps) {
       // Update unlocked modules without sending notifications
       setUnlockedModules(newUnlockedModules);
     }
-  }, [unlockedModules, notifiedModules]); // Fixed dependency array
+  }, [unlockedModules]); // Fixed dependency array
 
   const handleAppPress = (moduleName: string) => {
     onOpenModule(moduleName);
   };
 
   const getModuleStatus = (moduleName: string): AppStatus => {
+    // Tutorial is always accessible and shows question mark when unsolved
+    if (moduleName === 'tutorial') {
+      const completedPuzzles = getCompletedPuzzles();
+      const puzzleId = Object.keys(PUZZLE_TO_MODULE).find(puzzle => 
+        PUZZLE_TO_MODULE[puzzle] === moduleName && completedPuzzles.includes(puzzle)
+      );
+      return puzzleId ? 'completed' : 'in-progress';
+    }
+    
     if (unlockedModules.includes(moduleName)) {
       // Check if it has a completed puzzle
       const completedPuzzles = getCompletedPuzzles();
@@ -158,10 +160,7 @@ export default function HomeScreen({ onOpenModule }: HomeScreenProps) {
     return 'locked';
   };
 
-  const isFinalBossDefeated = () => {
-    const completedPuzzles = getCompletedPuzzles();
-    return completedPuzzles.length >= 13; // Total puzzles
-  };
+
 
   const getModuleBadge = (moduleName: string): string | number | undefined => {
     if (unlockedModules.includes(moduleName)) {
@@ -180,11 +179,11 @@ export default function HomeScreen({ onOpenModule }: HomeScreenProps) {
         title="HOME" 
         titleColor="red" 
         showHomeButton={false}
-        backgroundImage={require('../../assets/images/red frame.png')}
+        backgroundImage={backgroundImage}
       >
-        <View className="flex-row flex-wrap justify-center pb-24 px-1.5">
+        <View className="flex-row flex-wrap justify-center pt-4 pb-24">
           {ALL_MODULES.map(module => (
-            <View key={module.name} className="w-28 p-2">
+            <View key={module.name} className="w-28 py-2 px-1 mx-1">
               <AppIconWithHalo
                 icon={module.icon}
                 name={module.displayName}
@@ -194,7 +193,7 @@ export default function HomeScreen({ onOpenModule }: HomeScreenProps) {
                 badge={getModuleBadge(module.name)}
                 bugType={BUG_ASSIGNMENTS[module.name]}
                 showUnlockAnimation={unlockAnimations[module.name] || false}
-                isFinalBossDefeated={isFinalBossDefeated()}
+                isFinalBossDefeated={isFinalBossDefeated}
               />
             </View>
           ))}

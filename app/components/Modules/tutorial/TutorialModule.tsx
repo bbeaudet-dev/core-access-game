@@ -71,7 +71,7 @@ export default function TutorialModule({ onGoHome }: TutorialModuleProps) {
         onGoHome={onGoHome}
         backgroundImage={backgroundImage}
       >
-        <View className="flex-1 justify-center items-center px-8">
+        <View className="flex-1 justify-center items-center">
           <View className="bg-gray-900 p-6 rounded-lg border-2 border-blue-500">
             <Text className="text-blue-400 text-lg font-mono text-center mb-6">
               STEP {currentStep + 1} OF {tutorialSteps.length}
@@ -113,7 +113,7 @@ export default function TutorialModule({ onGoHome }: TutorialModuleProps) {
       onGoHome={onGoHome}
       backgroundImage={backgroundImage}
     >
-      <ScrollView className="flex-1 px-8">
+      <ScrollView className="flex-1">
         {/* Welcome Section */}
         <View className="bg-gray-900 p-6 rounded-lg mb-6">
           <Text className="text-blue-400 text-lg font-mono mb-4">CORE DEFENDER</Text>

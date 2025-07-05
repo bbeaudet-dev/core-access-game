@@ -208,50 +208,6 @@ export default function CompassModule({ onGoHome }: CompassModuleProps) {
           heading={heading ?? 0}
           magnetometerData={magnetometerData}
         />
-        
-        {/* Direction Timer Puzzle */}
-        <View className="bg-gray-900 p-4 rounded-lg m-4 w-full">
-          <Text className="text-gray-400 text-sm font-mono mb-2 text-center">DIRECTION TIMER PUZZLE</Text>
-          
-          {!isDirectionPuzzleActive ? (
-            <View className="space-y-2">
-              <Text className="text-blue-400 text-center font-mono">
-                Hold device facing a direction for 5 seconds
-              </Text>
-              <View className="flex-row justify-center space-x-2">
-                {['N', 'E', 'S', 'W'].map(dir => (
-                  <TouchableOpacity
-                    key={dir}
-                    onPress={() => startDirectionPuzzle(dir)}
-                    className="bg-blue-600 px-4 py-2 rounded-lg"
-                  >
-                    <Text className="text-white font-mono">{dir}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-          ) : (
-            <View className="space-y-2">
-              <Text className="text-yellow-400 text-center font-mono">
-                Target: {targetDirection} | Current: {currentDirection}
-              </Text>
-              <Text className="text-blue-400 text-center font-mono">
-                Time: {(timeInDirection / 1000).toFixed(1)}s / 5.0s
-              </Text>
-              {directionPuzzleComplete && (
-                <Text className="text-green-400 text-center font-mono font-bold">
-                  PUZZLE COMPLETE!
-                </Text>
-              )}
-              <TouchableOpacity
-                onPress={stopDirectionPuzzle}
-                className="bg-red-600 px-4 py-2 rounded-lg mx-auto"
-              >
-                <Text className="text-white font-mono text-center">STOP</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
       </View>
     </ScreenTemplate>
   );

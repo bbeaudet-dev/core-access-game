@@ -1,7 +1,7 @@
 import { playSound } from '@/app/utils/soundManager';
 import { Accelerometer } from 'expo-sensors';
 import { useEffect, useState } from 'react';
-import { Platform, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 import { usePuzzle } from '../../../contexts/PuzzleContext';
 import { getModuleBackgroundImage } from '../../../utils/unlockSystem';
 import AccelerometerPlot from '../../ui/LiveDataPlot';
@@ -36,9 +36,9 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
   const backgroundImage = getModuleBackgroundImage('accelerometer', completedPuzzles);
 
   // Acceleration threshold to unlock puzzle (in m/s²)
-  const UNLOCK_THRESHOLD = 15; // 15 m/s²
+  const UNLOCK_THRESHOLD = 50; // 50 m/s²
   // Sparkline settings
-  const HISTORY_LENGTH = 200; // 20 seconds at 10Hz
+  const HISTORY_LENGTH = 50; // Reduced from 200 to prevent memory issues
 
   // Unit conversion functions
   const convertToUnit = (valueInG: number, targetUnit: UnitType): number => {
@@ -249,51 +249,6 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
       onGoHome={onGoHome}
       backgroundImage={backgroundImage}
     >
-      {/* Puzzle Instructions */}
-      {!puzzleComplete && (
-        <View className="bg-gray-900 p-4 rounded-lg mb-4">
-          <Text className="text-gray-400 text-sm font-mono mb-2">PUZZLE INSTRUCTIONS</Text>
-          <Text className="text-purple-400 text-sm font-mono mb-2">
-            Shake or move your device quickly to reach at least 15 m/s² acceleration
-          </Text>
-        </View>
-      )}
-      {/* Puzzle Complete Message */}
-      {puzzleComplete && (
-        <View className="bg-green-900 p-4 rounded-lg mb-4">
-          <Text className="text-green-400 text-center font-mono text-sm">
-            ✅ MOTION SYSTEMS ONLINE
-          </Text>
-        </View>
-      )}
-          <View className="flex flex-row justify-between">
-            {/* Unit Toggle Button */}
-            <View className="bg-gray-900 p-3 rounded-lg mb-4">
-              <Text className="text-gray-400 text-sm font-mono mb-2">UNITS</Text>
-              <TouchableOpacity 
-                onPress={toggleUnit}
-                className="bg-purple-600 px-4 py-2 rounded-lg"
-              >
-                <Text className="text-white font-mono text-center">
-                  {getUnitLabel(unitType)}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Normalized Graph Toggle */}
-            <View className="bg-gray-900 p-3 rounded-lg mb-4">
-              <Text className="text-gray-400 text-sm font-mono mb-2">GRAPH</Text>
-              <TouchableOpacity 
-                onPress={() => setNormalized(!normalized)}
-                className={`px-4 py-2 rounded-lg ${normalized ? 'bg-green-600' : 'bg-gray-600'}`}
-              >
-                <Text className="text-white font-mono text-center">
-                  {normalized ? 'NORM' : 'RAW'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
           <AccelerometerData
             currentAcceleration={convertToUnit(currentAcceleration, unitType)}
             maxAcceleration={convertToUnit(maxAcceleration, unitType)}
@@ -308,6 +263,8 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
             subscription={subscription}
             onToggleAccelerometer={toggleAccelerometer}
             onResetMaxAcceleration={resetMaxAcceleration}
+            unitType={getUnitLabel(unitType)}
+            onToggleUnit={toggleUnit}
           />
 
           {/* Speed Plot */}

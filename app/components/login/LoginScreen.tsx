@@ -58,7 +58,7 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const textAnim = useRef(new Animated.Value(1)).current;
   const verticalAnim = useRef(new Animated.Value(0)).current;
   
-  const { signIn, signUp, isLoading, completeAuth } = useAuth();
+  const { signIn, signUp, isLoading, completeAuth, guestSignIn } = useAuth();
 
   // Word cycling effect
   useEffect(() => {
@@ -99,7 +99,6 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     try {
       if (isSignUp) {
         await signUp(email, password, name);
-        completeAuth();
         setWelcomeType('signup');
         setWelcomeMessage(`Welcome, ${name}! Your account has been successfully created.`);
         setShowWelcome(true);
@@ -108,7 +107,6 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         }, 3000);
       } else {
         await signIn(email, password);
-        completeAuth();
         setWelcomeType('signin');
         setWelcomeMessage(`Welcome back! Authentication successful.`);
         setShowWelcome(true);
@@ -123,7 +121,6 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
 
   const handleGuestMode = () => {
     const username = generateGuestUsername();
-    completeAuth();
     setWelcomeType('guest');
     setWelcomeMessage(`Welcome, ${username}! You are now in guest mode.`);
     setShowWelcome(true);
@@ -172,30 +169,32 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             justifyContent: 'center', 
             alignItems: 'center', 
             paddingHorizontal: 50,
-            paddingTop: 50
+            paddingTop: 20
           }}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={{ marginBottom: 40 }}>
+          <View style={{ marginBottom: 20 }}>
             <View style={{
               shadowColor: '#000',
               shadowOffset: { width: 0, height: 4 },
               shadowOpacity: 0.8,
               shadowRadius: 8,
               elevation: 10,
+              alignItems: 'center',
+              justifyContent: 'center',
             }}>
               <GlitchText 
-                text="CORE_ACCESS"
-                fontSize={42}
-                width={400}
-                height={200}
+                text="CORE_DEFENDER"
+                fontSize={32}
+                width={300}
+                height={80}
                 animationSpeed={100}
-                animationInterval={1800}
+                animationInterval={3000}
                 primaryColor="#E5484D"
                 secondaryColor="#12A594"
                 baseColor="white"
                 opacity={0.9}
-
+                textAlign="center"
               />
             </View>
           </View>

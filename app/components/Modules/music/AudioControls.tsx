@@ -22,7 +22,7 @@ export default function AudioControls({
   onPauseResume,
   soundEffects
 }: AudioControlsProps) {
-  const currentTrackData = soundEffects.find(s => s.id === currentTrack)
+  const currentTrackData = soundEffects.find(s => s.name === currentTrack)
 
   return (
     <View className="space-y-4 mb-8">

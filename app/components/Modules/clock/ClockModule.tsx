@@ -22,10 +22,15 @@ export default function ClockModule({ onGoHome }: ClockModuleProps) {
   const { completePuzzle, getCompletedPuzzles } = usePuzzle();
   const completedPuzzles = getCompletedPuzzles();
   const backgroundImage = getModuleBackgroundImage('clock', completedPuzzles, false);
-
-  // Puzzle target time: 12:00
-  const TARGET_HOUR = 12;
-  const TARGET_MINUTE = 0;
+  
+  // Puzzle completion via sync button
+  const handleSync = () => {
+    if (!puzzleComplete) {
+      setPuzzleComplete(true);
+      completePuzzle('clock_sync');
+      playSound('puzzle_complete');
+    }
+  };
 
   useEffect(() => {
     // Check if puzzle is already completed
@@ -37,15 +42,6 @@ export default function ClockModule({ onGoHome }: ClockModuleProps) {
     const interval = setInterval(() => {
       const now = new Date();
       setCurrentTime(now);
-      
-      // Check if puzzle should be completed
-      if (!puzzleComplete && 
-          now.getHours() === TARGET_HOUR && 
-          now.getMinutes() === TARGET_MINUTE) {
-        setPuzzleComplete(true);
-        completePuzzle('clock_sync');
-        playSound('success');
-      }
     }, 1000);
 
     return () => clearInterval(interval);
@@ -56,25 +52,7 @@ export default function ClockModule({ onGoHome }: ClockModuleProps) {
     playSound('click');
   };
 
-  const getTimeUntilTarget = () => {
-    const now = new Date();
-    const target = new Date();
-    target.setHours(TARGET_HOUR, TARGET_MINUTE, 0, 0);
-    
-    // If target time has passed today, set it for tomorrow
-    if (now > target) {
-      target.setDate(target.getDate() + 1);
-    }
-    
-    const diff = target.getTime() - now.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-    
-    return { hours, minutes, seconds };
-  };
 
-  const timeUntilTarget = getTimeUntilTarget();
 
   return (
     <ScreenTemplate 
@@ -138,11 +116,16 @@ export default function ClockModule({ onGoHome }: ClockModuleProps) {
           <View className="bg-gray-900 p-6 rounded-lg">
             <Text className="text-gray-400 text-sm font-mono mb-2">PUZZLE INSTRUCTIONS</Text>
             <Text className="text-yellow-400 text-sm font-mono mb-2">
-              Synchronize system clock to {TARGET_HOUR.toString().padStart(2, '0')}:{TARGET_MINUTE.toString().padStart(2, '0')}
+              Synchronize system clock by pressing the sync button
             </Text>
-            <Text className="text-gray-300 text-xs font-mono mb-2">
-              Time until target: {timeUntilTarget.hours.toString().padStart(2, '0')}:{timeUntilTarget.minutes.toString().padStart(2, '0')}:{timeUntilTarget.seconds.toString().padStart(2, '0')}
-            </Text>
+            <TouchableOpacity
+              onPress={handleSync}
+              className="mt-4 p-4 bg-yellow-600 rounded-lg"
+            >
+              <Text className="text-white font-bold text-center font-mono">
+                🔄 SYNC CLOCK
+              </Text>
+            </TouchableOpacity>
           </View>
         )}
 
