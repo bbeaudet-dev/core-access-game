@@ -4,7 +4,7 @@ import { MusicTrackText } from '../../../utils/textUtils'
 interface MusicTracksProps {
   musicTracks: any[]
   currentTrack: string | null
-  onPlayTrack: (track: any) => void
+  onPlayTrack: (trackName: string) => void
   onStopMusic: () => void
 }
 
@@ -21,19 +21,19 @@ export default function MusicTracks({
       {musicTracks.map((track) => (
         <TouchableOpacity
           key={track.id}
-          onPress={() => onPlayTrack(track)}
+          onPress={() => onPlayTrack(track.name)}
           className={`p-3 rounded-lg border ${
-            currentTrack === track.id ? 'bg-purple-600 border-purple-400' : 'bg-gray-800 border-gray-600'
+            currentTrack === track.name ? 'bg-purple-600 border-purple-400' : 'bg-gray-800 border-gray-600'
           }`}
         >
-          <Text className={`font-bold mb-1 ${currentTrack === track.id ? 'text-purple-200' : 'text-purple-400'}`}>
+          <Text className={`font-bold mb-1 ${currentTrack === track.name ? 'text-purple-200' : 'text-purple-400'}`}>
             🎵 {track.name}
           </Text>
           <MusicTrackText
             name={track.name}
             description={track.description}
             artist={track.artist}
-            className={`text-xs ${currentTrack === track.id ? 'text-purple-300' : 'text-gray-400'}`}
+            className={`text-xs ${currentTrack === track.name ? 'text-purple-300' : 'text-gray-400'}`}
           />
         </TouchableOpacity>
       ))}

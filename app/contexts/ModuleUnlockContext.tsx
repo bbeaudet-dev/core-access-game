@@ -11,9 +11,15 @@ export type ModuleName =
   | 'camera' 
   | 'accelerometer'
   | 'wifi'
-  | 'logs'
-  | 'help'
+  | 'tutorial'
   | 'music'
+  | 'flashlight'
+  | 'battery'
+  | 'maps'
+  | 'calculator'
+  | 'weather'
+  | 'games'
+  | 'finalboss'
 
 export interface ModuleUnlock {
   name: ModuleName;
@@ -22,7 +28,6 @@ export interface ModuleUnlock {
   color: string;
   unlocked: boolean;
   unlockedAt?: Date;
-  requirement: string;
   order: number;
 }
 
@@ -33,23 +38,26 @@ interface ModuleUnlockContextType {
   isModuleUnlocked: (moduleName: ModuleName) => boolean;
   getNextUnlockableModule: () => ModuleUnlock | null;
   resetProgress: () => void;
-  showBugScuttle: boolean;
-  triggerBugScuttle: () => void;
 }
 
 const ModuleUnlockContext = createContext<ModuleUnlockContextType | undefined>(undefined);
 
-// TEMPORARY: All modules unlocked for testing - EASILY REVERSIBLE
-// To revert: change all "unlocked: true" back to "unlocked: false" except terminal, system, clock
 const DEFAULT_MODULES: ModuleUnlock[] = [
+  {
+    name: 'tutorial',
+    displayName: 'TUTORIAL',
+    icon: '❓',
+    color: 'bg-red-600',
+    unlocked: true, // Always unlocked
+    order: 1
+  },
   {
     name: 'terminal',
     displayName: 'TERMINAL',
     icon: '💻',
     color: 'bg-red-500',
     unlocked: true, // Always unlocked
-    requirement: 'Available from start',
-    order: 1
+    order: 2
   },
   {
     name: 'system',
@@ -57,104 +65,132 @@ const DEFAULT_MODULES: ModuleUnlock[] = [
     icon: '⚙️',
     color: 'bg-red-500',
     unlocked: true, // Always unlocked
-    requirement: 'Available from start',
-    order: 2
+    order: 3
   },
   {
     name: 'clock',
     displayName: 'CLOCK',
     icon: '🕐',
     color: 'bg-yellow-500',
-    unlocked: true, // Always unlocked
-    requirement: 'Available from start',
-    order: 3
+    unlocked: false,
+    order: 4
   },
   {
     name: 'gyro',
     displayName: 'GYRO',
     icon: '⚡',
     color: 'bg-red-500',
-    unlocked: true, // TEMPORARY: Unlocked for testing
-    requirement: 'Solve the clock puzzle (TBD)',
-    order: 4
+    unlocked: false,
+    order: 5
   },
   {
     name: 'compass',
     displayName: 'COMPASS',
     icon: '🧭',
     color: 'bg-red-500',
-    unlocked: true, // TEMPORARY: Unlocked for testing
-    requirement: 'Unlock gyroscope module',
-    order: 5
+    unlocked: false,
+    order: 6
   },
   {
     name: 'microphone',
     displayName: 'MICROPHONE',
     icon: '🎵',
     color: 'bg-red-500',
-    unlocked: true, // TEMPORARY: Unlocked for testing
-    requirement: 'Unlock compass module',
-    order: 6
+    unlocked: false,
+    order: 7
   },
   {
     name: 'camera',
     displayName: 'PHONE CAMERA',
     icon: '📷',
     color: 'bg-red-500',
-    unlocked: true, // TEMPORARY: Unlocked for testing
-    requirement: 'Unlock microphone module',
-    order: 7
+    unlocked: false,
+    order: 8
   },
   {
     name: 'accelerometer',
     displayName: 'ACCELEROMETER',
     icon: '📊',
     color: 'bg-purple-500',
-    unlocked: true, // TEMPORARY: Unlocked for testing
-    requirement: 'Unlock camera module',
-    order: 8
+    unlocked: false,
+    order: 9
   },
   {
     name: 'wifi',
     displayName: 'WIFI',
     icon: '📡',
     color: 'bg-blue-500',
-    unlocked: true, // TEMPORARY: Unlocked for testing
-    requirement: 'Unlock accelerometer module',
-    order: 9
-  },
-  {
-    name: 'logs',
-    displayName: 'LOGS',
-    icon: '📋',
-    color: 'bg-red-500',
-    unlocked: true, // TEMPORARY: Unlocked for testing
-    requirement: 'Unlock wifi module',
+    unlocked: false,
     order: 10
-  },
-  {
-    name: 'help',
-    displayName: 'HELP',
-    icon: '💡',
-    color: 'bg-blue-500',
-    unlocked: true, // TEMPORARY: Unlocked for testing
-    requirement: 'Unlock logs module',
-    order: 11
   },
   {
     name: 'music',
     displayName: 'MUSIC',
     icon: '🎶',
     color: 'bg-green-500',
-    unlocked: true, // TEMPORARY: Unlocked for testing
-    requirement: 'Unlock help module',
+    unlocked: false,
+    order: 11
+  },
+  {
+    name: 'flashlight',
+    displayName: 'FLASHLIGHT',
+    icon: '💡',
+    color: 'bg-yellow-500',
+    unlocked: false,
     order: 12
+  },
+  {
+    name: 'battery',
+    displayName: 'BATTERY',
+    icon: '🔋',
+    color: 'bg-purple-500',
+    unlocked: false,
+    order: 13
+  },
+  {
+    name: 'maps',
+    displayName: 'MAPS',
+    icon: '🗺️',
+    color: 'bg-blue-500',
+    unlocked: false,
+    order: 14
+  },
+  {
+    name: 'calculator',
+    displayName: 'CALCULATOR',
+    icon: '📐',
+    color: 'bg-green-500',
+    unlocked: false,
+    order: 15
+  },
+  {
+    name: 'weather',
+    displayName: 'WEATHER',
+    icon: '🌤️',
+    color: 'bg-yellow-500',
+    unlocked: false,
+    order: 16
+  },
+  {
+    name: 'games',
+    displayName: 'GAMES',
+    icon: '🎮',
+    color: 'bg-red-500',
+    unlocked: false,
+    order: 17
+  },
+  {
+    name: 'finalboss',
+    displayName: 'FINAL BOSS',
+    icon: '👑',
+    color: 'bg-purple-500',
+    unlocked: false,
+    order: 18
   }
 ];
 
 export function ModuleUnlockProvider({ children }: { children: React.ReactNode }) {
   const [modules, setModules] = useState<ModuleUnlock[]>(DEFAULT_MODULES);
-  const [showBugScuttle, setShowBugScuttle] = useState(false);
 
   const unlockedModules = modules
     .filter(module => module.unlocked)
@@ -168,13 +204,6 @@ export function ModuleUnlockProvider({ children }: { children: React.ReactNode }
           : module
       )
     );
-    // Trigger bug scuttle animation when unlocking a module
-    triggerBugScuttle();
-  };
-
-  const triggerBugScuttle = () => {
-    setShowBugScuttle(true);
-    setTimeout(() => setShowBugScuttle(false), 3000);
   };
 
   const isModuleUnlocked = (moduleName: ModuleName) => {
@@ -224,9 +253,7 @@ export function ModuleUnlockProvider({ children }: { children: React.ReactNode }
       unlockModule,
       isModuleUnlocked,
       getNextUnlockableModule,
-      resetProgress,
-      showBugScuttle,
-      triggerBugScuttle
+      resetProgress
     }}>
       {children}
     </ModuleUnlockContext.Provider>

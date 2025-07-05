@@ -1,10 +1,12 @@
 import * as Network from 'expo-network';
 import { useEffect, useState } from 'react';
-import { Platform, Text, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { usePuzzle } from '../../../contexts/PuzzleContext';
+import { playSound } from '../../../utils/soundManager';
+import { getModuleBackgroundImage } from '../../../utils/unlockSystem';
 import ScreenTemplate from '../../ui/ScreenTemplate';
 import ConnectionStatus from './ConnectionStatus';
 import NetworkList from './NetworkList';
-import NetworkScanner from './NetworkScanner';
 import NetworkStats from './NetworkStats';
 
 interface NetworkInfo {
@@ -19,6 +21,7 @@ interface ConnectionStatusType {
   isConnected: boolean;
   networkName: string;
   ipAddress: string;
+  connectionType: string;
   signalStrength: number;
 }
 
@@ -27,100 +30,150 @@ interface WifiModuleProps {
 }
 
 export default function WifiModule({ onGoHome }: WifiModuleProps) {
-  const [connection, setConnection] = useState<ConnectionStatusType>({
+  const [networks, setNetworks] = useState<NetworkInfo[]>([]);
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatusType>({
     isConnected: false,
     networkName: '',
     ipAddress: '',
-    signalStrength: 0
+    connectionType: '',
+    signalStrength: 0,
   });
   const [isScanning, setIsScanning] = useState(false);
-  const [availableNetworks, setAvailableNetworks] = useState<NetworkInfo[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [puzzleComplete, setPuzzleComplete] = useState(false);
+
+  const { completePuzzle, getCompletedPuzzles } = usePuzzle();
+  const completedPuzzles = getCompletedPuzzles();
+  const backgroundImage = getModuleBackgroundImage('wifi', completedPuzzles, false);
 
   useEffect(() => {
-    checkNetworkStatus();
+    checkConnectionStatus();
   }, []);
 
-  const checkNetworkStatus = async () => {
-    try {
-      if (Platform.OS === 'web') {
-        setError('Network info not available on web');
-        return;
-      }
+  useEffect(() => {
+    // Check if puzzle is already completed
+    if (completedPuzzles.includes('wifi_connect')) {
+      setPuzzleComplete(true);
+    }
+  }, [completedPuzzles]);
 
+  const checkConnectionStatus = async () => {
+    try {
       const networkState = await Network.getNetworkStateAsync();
-      const isConnected = networkState.isConnected || false;
+      const ipAddress = await Network.getIpAddressAsync();
       
-      if (isConnected) {
-        const ip = await Network.getIpAddressAsync();
-        const networkName = 'CORE_NETWORK_' + Math.floor(Math.random() * 1000);
-        const signalStrength = Math.floor(Math.random() * 40) + 60; // 60-100%
-        
-        setConnection({
-          isConnected,
-          networkName,
-          ipAddress: ip,
-          signalStrength
-        });
-      } else {
-        setConnection({
-          isConnected: false,
-          networkName: '',
-          ipAddress: '',
-          signalStrength: 0
-        });
-      }
-    } catch (err) {
-      setError('Failed to get network information');
+      setConnectionStatus({
+        isConnected: networkState.isConnected || false,
+        networkName: 'Unknown', // Network details not available in expo-network
+        ipAddress: ipAddress || 'Unknown',
+        connectionType: networkState.type || 'Unknown',
+        signalStrength: 75, // Default signal strength
+      });
+    } catch (error) {
+      console.error('Failed to get network status:', error);
     }
   };
 
   const scanNetworks = async () => {
     setIsScanning(true);
-    setError(null);
+    playSound('scan');
     
     try {
       // Simulate network scanning
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       const mockNetworks: NetworkInfo[] = [
-        { name: 'CORE_NETWORK_001', strength: 95, security: 'WPA2', frequency: '2.4GHz', channel: 6 },
-        { name: 'QUARANTINE_WIFI', strength: 87, security: 'WPA3', frequency: '5GHz', channel: 36 },
-        { name: 'EMERGENCY_BACKUP', strength: 72, security: 'WPA2', frequency: '2.4GHz', channel: 11 },
-        { name: 'SECURITY_CAM_01', strength: 65, security: 'WEP', frequency: '2.4GHz', channel: 1 },
-        { name: 'VAULT_ACCESS', strength: 58, security: 'WPA2', frequency: '5GHz', channel: 40 },
-        { name: 'SYSTEM_MAINT', strength: 45, security: 'Open', frequency: '2.4GHz', channel: 9 },
-        { name: 'GUEST_NETWORK', strength: 38, security: 'WPA2', frequency: '2.4GHz', channel: 3 },
-        { name: 'HIDDEN_NETWORK', strength: 25, security: 'WPA3', frequency: '5GHz', channel: 44 },
+        { name: 'HomeNetwork', strength: 85, security: 'WPA2', frequency: '2.4GHz', channel: 6 },
+        { name: 'OfficeWiFi', strength: 72, security: 'WPA3', frequency: '5GHz', channel: 36 },
+        { name: 'PublicHotspot', strength: 45, security: 'Open', frequency: '2.4GHz', channel: 11 },
+        { name: 'NeighborWiFi', strength: 38, security: 'WPA2', frequency: '2.4GHz', channel: 1 },
       ];
       
-      setAvailableNetworks(mockNetworks);
-    } catch (err) {
-      setError('Failed to scan networks');
+      setNetworks(mockNetworks);
+      
+      // Complete puzzle when networks are scanned
+      if (!puzzleComplete) {
+        setPuzzleComplete(true);
+        completePuzzle('wifi_connect');
+      }
+    } catch (error) {
+      console.error('Failed to scan networks:', error);
     } finally {
       setIsScanning(false);
     }
   };
 
   return (
-    <ScreenTemplate title="WIFI" titleColor="blue" onGoHome={onGoHome}>
-      {error && !connection.isConnected ? (
-        <View className="flex-1 justify-center items-center">
-          <Text className="text-red-400 text-center font-mono mb-4">
-            {error}
-          </Text>
-          <Text className="text-gray-400 text-center font-mono text-sm">
-            Try on a physical device
-          </Text>
+    <ScreenTemplate 
+      title="WIFI" 
+      titleColor="blue" 
+      onGoHome={onGoHome}
+      backgroundImage={backgroundImage}
+    >
+      <View className="flex flex-col space-y-4">
+        {/* Wifi Status */}
+        <View className="bg-gray-900 p-6 rounded-lg">
+          <Text className="text-gray-400 text-sm font-mono mb-4">WIFI STATUS</Text>
+          <View className="flex flex-row items-center justify-center">
+            <Text className="text-4xl mr-4">📡</Text>
+            <Text className={`text-xl font-mono ${connectionStatus.isConnected ? 'text-blue-400' : 'text-red-400'}`}>
+              {connectionStatus.isConnected ? 'CONNECTED' : 'DISCONNECTED'}
+            </Text>
+          </View>
+          
+          {/* Puzzle Status */}
+          {puzzleComplete && (
+            <View className="mt-4 p-3 bg-green-900 rounded-lg">
+              <Text className="text-green-400 text-center font-mono text-sm">
+                ✅ NETWORK SCANNING COMPLETE
+              </Text>
+            </View>
+          )}
         </View>
-      ) : (
-        <View className="space-y-4">
-          <ConnectionStatus connection={connection} />
-          <NetworkScanner isScanning={isScanning} onScan={scanNetworks} />
-          <NetworkList networks={availableNetworks} />
-          <NetworkStats networks={availableNetworks} />
+
+        {/* Puzzle Instructions */}
+        {!puzzleComplete && (
+          <View className="bg-gray-900 p-6 rounded-lg">
+            <Text className="text-gray-400 text-sm font-mono mb-2">PUZZLE INSTRUCTIONS</Text>
+            <Text className="text-blue-400 text-sm font-mono mb-2">
+              Test network scanning by discovering available WiFi networks
+            </Text>
+          </View>
+        )}
+
+        {/* Connection Status */}
+        <View className="bg-gray-900 p-6 rounded-lg">
+          <Text className="text-gray-400 text-sm font-mono mb-4">CONNECTION STATUS</Text>
+          <ConnectionStatus connection={connectionStatus} />
         </View>
-      )}
+
+        {/* Network Scanner */}
+        <View className="bg-gray-900 p-6 rounded-lg">
+          <Text className="text-gray-400 text-sm font-mono mb-4">NETWORK SCANNER</Text>
+          <TouchableOpacity
+            onPress={scanNetworks}
+            disabled={isScanning}
+            className={`p-4 rounded-lg ${isScanning ? 'bg-gray-600' : 'bg-blue-600'}`}
+          >
+            <Text className="text-center font-mono text-lg">
+              {isScanning ? 'SCANNING NETWORKS...' : 'SCAN FOR NETWORKS'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Network List */}
+        {networks.length > 0 && (
+          <View className="bg-gray-900 p-6 rounded-lg">
+            <Text className="text-gray-400 text-sm font-mono mb-4">AVAILABLE NETWORKS</Text>
+            <NetworkList networks={networks} />
+          </View>
+        )}
+
+        {/* Network Stats */}
+        <View className="bg-gray-900 p-6 rounded-lg">
+          <Text className="text-gray-400 text-sm font-mono mb-4">NETWORK STATISTICS</Text>
+          <NetworkStats networks={networks} />
+        </View>
+      </View>
     </ScreenTemplate>
   );
 } 

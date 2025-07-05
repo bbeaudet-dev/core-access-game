@@ -8,6 +8,11 @@
     "scheme": "nativeapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/rn_splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#000000"
+    },
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
@@ -19,24 +24,23 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/icon.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "image": "./assets/images/rn_splash.png",
+          "resizeMode": "cover",
+          "backgroundColor": "#000000"
         }
       ],
       "expo-audio"
@@ -48,6 +52,38 @@
       {
         "asset": "./assets/fonts/OCRA.ttf",
         "family": "OCR-A"
+      },
+      {
+        "asset": "./assets/fonts/Orbitron/Orbitron-VariableFont_wght.ttf",
+        "family": "Orbitron"
+      },
+      {
+        "asset": "./assets/fonts/Orbitron/static/Orbitron-Bold.ttf",
+        "family": "Orbitron-Bold"
+      },
+      {
+        "asset": "./assets/fonts/Orbitron/static/Orbitron-Regular.ttf",
+        "family": "Orbitron-Regular"
+      },
+      {
+        "asset": "./assets/fonts/Orbitron/static/Orbitron-Medium.ttf",
+        "family": "Orbitron-Medium"
+      },
+      {
+        "asset": "./assets/fonts/Orbitron/static/Orbitron-SemiBold.ttf",
+        "family": "Orbitron-SemiBold"
+      },
+      {
+        "asset": "./assets/fonts/Orbitron/static/Orbitron-ExtraBold.ttf",
+        "family": "Orbitron-ExtraBold"
+      },
+      {
+        "asset": "./assets/fonts/Orbitron/static/Orbitron-Black.ttf",
+        "family": "Orbitron-Black"
+      },
+      {
+        "asset": "./assets/fonts/SpaceMono-Regular.ttf",
+        "family": "SpaceMono"
       }
     ]
   }

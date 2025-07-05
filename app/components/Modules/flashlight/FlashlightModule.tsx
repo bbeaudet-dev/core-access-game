@@ -1,8 +1,9 @@
 import * as Brightness from 'expo-brightness';
-import * as Haptics from 'expo-haptics';
 import { useEffect, useRef, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { usePuzzle } from '../../../contexts/PuzzleContext';
 import { playSound } from '../../../utils/soundManager';
+import { getModuleBackgroundImage } from '../../../utils/unlockSystem';
 import ScreenTemplate from '../../ui/ScreenTemplate';
 
 interface FlashlightModuleProps {
@@ -11,234 +12,240 @@ interface FlashlightModuleProps {
 
 export default function FlashlightModule({ onGoHome }: FlashlightModuleProps) {
   const [isOn, setIsOn] = useState(false);
-  const [isPlayingMorse, setIsPlayingMorse] = useState(false);
-  const [morseMessage, setMorseMessage] = useState('SOS');
+  const [puzzleComplete, setPuzzleComplete] = useState(false);
+  const [isSequenceRunning, setIsSequenceRunning] = useState(false);
+  const [morseSequence, setMorseSequence] = useState<string[]>([]);
+  const [lastToggleTime, setLastToggleTime] = useState<number>(0);
   const originalBrightnessRef = useRef<number | null>(null);
+  const sequenceIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  
+  const { completePuzzle, getCompletedPuzzles } = usePuzzle();
+  const completedPuzzles = getCompletedPuzzles();
+  const backgroundImage = getModuleBackgroundImage('flashlight', completedPuzzles, false);
+
+  // Morse code pattern for SOS: ... --- ...
+  const SOS_PATTERN = ['short', 'short', 'short', 'long', 'long', 'long', 'short', 'short', 'short'];
 
   useEffect(() => {
-    // Store original brightness when component mounts
-    const storeOriginalBrightness = async () => {
-      try {
-        const brightness = await Brightness.getBrightnessAsync();
-        originalBrightnessRef.current = brightness;
-      } catch (error) {
-        console.error('Failed to get original brightness:', error);
-        originalBrightnessRef.current = 0.6; // Fallback
+    // Check if puzzle is already completed
+    if (completedPuzzles.includes('flashlight_morse')) {
+      setPuzzleComplete(true);
       }
-    };
-    storeOriginalBrightness();
-    
-    return () => {
-      // Restore original brightness when component unmounts
-      if (originalBrightnessRef.current !== null) {
-        Brightness.setBrightnessAsync(originalBrightnessRef.current);
-      }
-    };
-  }, []);
+  }, [completedPuzzles]);
 
   const toggleFlashlight = async () => {
-    playSound('ui_button_tap');
     try {
-      if (isOn) {
+      const newState = !isOn;
+      setIsOn(newState);
+      
+      if (newState) {
+        // Store original brightness and set to maximum
+        if (originalBrightnessRef.current === null) {
+          originalBrightnessRef.current = await Brightness.getBrightnessAsync();
+        }
+        await Brightness.setBrightnessAsync(1.0);
+        playSound('sensor_activate');
+      } else {
         // Restore original brightness
         if (originalBrightnessRef.current !== null) {
           await Brightness.setBrightnessAsync(originalBrightnessRef.current);
         }
-        setIsOn(false);
-      } else {
-        await Brightness.setBrightnessAsync(1.0);
-        setIsOn(true);
+        playSound('click');
+      }
+
+      // Record the toggle for Morse code detection
+      const currentTime = Date.now();
+      const timeSinceLastToggle = currentTime - lastToggleTime;
+      setLastToggleTime(currentTime);
+
+      if (timeSinceLastToggle > 100) { // Debounce rapid toggles
+        const duration = timeSinceLastToggle > 400 ? 'long' : 'short';
+        setMorseSequence(prev => {
+          const newSequence = [...prev, duration];
+          
+          // Keep only the last 9 elements (SOS pattern length)
+          const trimmedSequence = newSequence.slice(-9);
+          
+          // Check if the pattern matches SOS
+          if (trimmedSequence.length === 9 && 
+              trimmedSequence.every((item, index) => item === SOS_PATTERN[index])) {
+            if (!puzzleComplete) {
+              setPuzzleComplete(true);
+              completePuzzle('flashlight_morse');
+            }
+          }
+          
+          return trimmedSequence;
+        });
       }
     } catch (error) {
       console.error('Failed to toggle flashlight:', error);
     }
   };
 
-  const playMorseCode = async () => {
-    if (isPlayingMorse) return;
-    
-    playSound('ui_button_tap');
-    setIsPlayingMorse(true);
-    
-    // SOS pattern: ... --- ... (3 dots, 3 dashes, 3 dots)
-    const dotDuration = 200; // 200ms for dot
-    const dashDuration = 600; // 600ms for dash
-    const elementGap = 200; // 200ms between elements
-    const letterGap = 600; // 600ms between letters
-    const wordGap = 1400; // 1400ms between words
-    
-    // SOS pattern with alternating brightness
-    const sosPattern = [
-      // S: ... (3 dots)
-      { duration: dotDuration, brightness: 0.75 }, // High brightness
-      { duration: elementGap, brightness: 0.5 },   // Low brightness
-      { duration: dotDuration, brightness: 0.75 },
-      { duration: elementGap, brightness: 0.5 },
-      { duration: dotDuration, brightness: 0.75 },
-      { duration: letterGap, brightness: 0.5 },
-      
-      // O: --- (3 dashes)
-      { duration: dashDuration, brightness: 0.75 },
-      { duration: elementGap, brightness: 0.5 },
-      { duration: dashDuration, brightness: 0.75 },
-      { duration: elementGap, brightness: 0.5 },
-      { duration: dashDuration, brightness: 0.75 },
-      { duration: letterGap, brightness: 0.5 },
-      
-      // S: ... (3 dots)
-      { duration: dotDuration, brightness: 0.75 },
-      { duration: elementGap, brightness: 0.5 },
-      { duration: dotDuration, brightness: 0.75 },
-      { duration: elementGap, brightness: 0.5 },
-      { duration: dotDuration, brightness: 0.75 },
-      { duration: wordGap, brightness: 0.5 },
-    ];
-
-    try {
-      for (const step of sosPattern) {
-        await Brightness.setBrightnessAsync(step.brightness);
-        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        await new Promise(resolve => setTimeout(resolve, step.duration));
+  const startSOSSequence = async () => {
+    if (isSequenceRunning) {
+      // Stop the sequence
+      setIsSequenceRunning(false);
+      if (sequenceIntervalRef.current) {
+        clearInterval(sequenceIntervalRef.current);
+        sequenceIntervalRef.current = null;
       }
-      
-      // Restore original brightness
-      if (originalBrightnessRef.current !== null) {
-        await Brightness.setBrightnessAsync(originalBrightnessRef.current);
-      }
-    } catch (error) {
-      console.error('Failed to play SOS morse code:', error);
-    } finally {
-      setIsPlayingMorse(false);
-    }
-  };
-
-  const playCustomMorseCode = async () => {
-    if (isPlayingMorse) return;
-    
-    playSound('ui_button_tap');
-    setIsPlayingMorse(true);
-    const message = morseMessage;
-    
-    // Morse code timing (in milliseconds)
-    const dotDuration = 200;
-    const dashDuration = 600;
-    const elementGap = 200;
-    const letterGap = 600;
-    
-    const morseAlphabet: { [key: string]: string } = {
-      'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
-      'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
-      'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
-      'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
-      'Y': '-.--', 'Z': '--..', ' ': ' '
-    };
-
-    try {
-      for (let i = 0; i < message.length; i++) {
-        const char = message[i].toUpperCase();
-        const morse = morseAlphabet[char];
-        
-        if (morse && morse !== ' ') {
-          for (let j = 0; j < morse.length; j++) {
-            const symbol = morse[j];
-            
-            // Turn on flashlight with alternating brightness
-            const brightness = j % 2 === 0 ? 0.75 : 0.5;
-            await Brightness.setBrightnessAsync(brightness);
-            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            
-            // Wait for dot or dash duration
-            await new Promise(resolve => 
-              setTimeout(resolve, symbol === '.' ? dotDuration : dashDuration)
-            );
-            
-            // Turn off flashlight
-            if (originalBrightnessRef.current !== null) {
-              await Brightness.setBrightnessAsync(originalBrightnessRef.current);
-            }
-            
-            // Wait between elements
-            if (j < morse.length - 1) {
-              await new Promise(resolve => setTimeout(resolve, elementGap));
-            }
-          }
-          
-          // Wait between letters
-          if (i < message.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, letterGap));
-          }
+      // Turn off flashlight and restore brightness
+      if (isOn) {
+        setIsOn(false);
+        if (originalBrightnessRef.current !== null) {
+          await Brightness.setBrightnessAsync(originalBrightnessRef.current);
         }
       }
-    } catch (error) {
-      console.error('Failed to play morse code:', error);
-    } finally {
-      // Restore original brightness
-      if (originalBrightnessRef.current !== null) {
-        await Brightness.setBrightnessAsync(originalBrightnessRef.current);
-      }
-      setIsPlayingMorse(false);
+      return;
     }
+
+    // Start the sequence
+    setIsSequenceRunning(true);
+    setMorseSequence([]);
+    
+    // Store original brightness if not already stored
+    if (originalBrightnessRef.current === null) {
+      originalBrightnessRef.current = await Brightness.getBrightnessAsync();
+    }
+    
+    let step = 0;
+    // Morse code pattern for SOS: ... --- ...
+    // S = 3 short pulses, O = 3 long pulses
+    const sequenceSteps = [
+      { duration: 300, isOn: true },   // S: short on (300ms)
+      { duration: 300, isOn: false },  // S: short off (300ms)
+      { duration: 300, isOn: true },   // S: short on (300ms)
+      { duration: 300, isOn: false },  // S: short off (300ms)
+      { duration: 300, isOn: true },   // S: short on (300ms)
+      { duration: 700, isOn: false },  // S: long off (700ms)
+      { duration: 900, isOn: true },   // O: long on (900ms)
+      { duration: 300, isOn: false },  // O: short off (300ms)
+      { duration: 900, isOn: true },   // O: long on (900ms)
+      { duration: 300, isOn: false },  // O: short off (300ms)
+      { duration: 900, isOn: true },   // O: long on (900ms)
+      { duration: 700, isOn: false },  // O: long off (700ms)
+      { duration: 300, isOn: true },   // S: short on (300ms)
+      { duration: 300, isOn: false },  // S: short off (300ms)
+      { duration: 300, isOn: true },   // S: short on (300ms)
+      { duration: 300, isOn: false },  // S: short off (300ms)
+      { duration: 300, isOn: true },   // S: short on (300ms)
+      { duration: 1500, isOn: false }, // S: long off (1500ms)
+    ];
+
+    const runSequence = async () => {
+      if (step >= sequenceSteps.length) {
+        // Sequence complete, restart
+        step = 0;
+        return;
+      }
+
+      const currentStep = sequenceSteps[step];
+      
+      // Actually change the screen brightness
+      if (currentStep.isOn) {
+        setIsOn(true);
+        await Brightness.setBrightnessAsync(1.0);
+        playSound('sensor_activate');
+      } else {
+        setIsOn(false);
+        if (originalBrightnessRef.current !== null) {
+          await Brightness.setBrightnessAsync(originalBrightnessRef.current);
+        }
+        playSound('click');
+      }
+
+      step++;
+    };
+            
+    // Run initial step
+    await runSequence();
+            
+    // Set up interval for the sequence with proper timing
+    const runNextStep = async () => {
+      if (step < sequenceSteps.length) {
+        const currentStep = sequenceSteps[step];
+        await runSequence();
+        
+        // Schedule next step after the current duration
+        sequenceIntervalRef.current = setTimeout(runNextStep, currentStep.duration);
+      } else {
+        // Restart sequence after a pause
+        step = 0;
+        setTimeout(runNextStep, 2000);
+      }
+    };
+    
+    // Start the sequence with proper timing
+    sequenceIntervalRef.current = setTimeout(runNextStep, sequenceSteps[0].duration);
+  };
+
+  const resetMorseSequence = () => {
+    setMorseSequence([]);
   };
 
   return (
-    <ScreenTemplate title="FLASHLIGHT" titleColor="yellow" onGoHome={onGoHome}>
-      <View className="flex flex-col items-center justify-center">
+    <ScreenTemplate 
+      title="FLASHLIGHT" 
+      titleColor="yellow" 
+      onGoHome={onGoHome}
+      backgroundImage={backgroundImage}
+    >
+      <View className="flex flex-col space-y-4">
         {/* Flashlight Status */}
-        <View className="bg-gray-900 p-6 rounded-lg mb-8 w-full">
-          <Text className="text-gray-400 text-sm font-mono mb-2 text-center">FLASHLIGHT STATUS</Text>
-          <Text className={`text-2xl font-mono text-center ${isOn ? 'text-yellow-400' : 'text-gray-600'}`}>
-            {isOn ? '🔦 ON' : '🔦 OFF'}
+        <View className="bg-gray-900 p-6 rounded-lg">
+          <Text className="text-gray-400 text-sm font-mono mb-4">FLASHLIGHT STATUS</Text>
+          <View className="flex flex-row items-center justify-center">
+            <Text className="text-6xl mr-4">{isOn ? '💡' : '🔦'}</Text>
+            <Text className={`text-2xl font-mono ${isOn ? 'text-yellow-400' : 'text-gray-400'}`}>
+              {isOn ? 'ILLUMINATED' : 'DARKNESS'}
           </Text>
         </View>
 
-        {/* SOS Morse Code Section */}
-        <View className="bg-gray-900 p-6 rounded-lg mb-8 w-full">
-          <Text className="text-gray-400 text-sm font-mono mb-2 text-center">SOS EMERGENCY SIGNAL</Text>
-          <Text className="text-red-400 text-lg font-mono text-center mb-4">
-            Pattern: ... --- ... (75% ↔ 50% brightness)
-          </Text>
-          <TouchableOpacity
-            onPress={playMorseCode}
-            disabled={isPlayingMorse}
-            className={`px-6 py-3 rounded-lg mx-auto ${isPlayingMorse ? 'bg-gray-600' : 'bg-red-600'}`}
-          >
-            <Text className="text-white text-center font-mono">
-              {isPlayingMorse ? 'TRANSMITTING SOS...' : 'TRANSMIT SOS'}
-            </Text>
-          </TouchableOpacity>
+          {/* Puzzle Status */}
+          {puzzleComplete && (
+            <View className="mt-4 p-3 bg-green-900 rounded-lg">
+              <Text className="text-green-400 text-center font-mono text-sm">
+                ✅ SIGNAL TRANSMISSION COMPLETE
+              </Text>
+            </View>
+          )}
         </View>
 
-        {/* Custom Morse Code Section */}
-        <View className="bg-gray-900 p-6 rounded-lg mb-8 w-full">
-          <Text className="text-gray-400 text-sm font-mono mb-2 text-center">CUSTOM MORSE CODE</Text>
-          <Text className="text-yellow-400 text-lg font-mono text-center mb-4">
-            Message: {morseMessage}
-          </Text>
+        {/* Morse Code Interface */}
+        <View className="bg-gray-900 p-6 rounded-lg">
+          <Text className="text-gray-400 text-sm font-mono mb-4">MORSE CODE INTERFACE</Text>
+          
+          {/* Controls */}
+          <View className="space-y-3">
           <TouchableOpacity
-            onPress={playCustomMorseCode}
-            disabled={isPlayingMorse}
-            className={`px-6 py-3 rounded-lg mx-auto ${isPlayingMorse ? 'bg-gray-600' : 'bg-yellow-600'}`}
+              onPress={toggleFlashlight}
+              className={`p-4 rounded-lg ${isOn ? 'bg-red-600' : 'bg-green-600'}`}
           >
-            <Text className="text-white text-center font-mono">
-              {isPlayingMorse ? 'TRANSMITTING...' : 'TRANSMIT MORSE'}
+              <Text className="text-center font-mono text-lg text-white">
+                {isOn ? 'TURN OFF' : 'TURN ON'}
             </Text>
           </TouchableOpacity>
-        </View>
+            
+          <TouchableOpacity
+              onPress={startSOSSequence}
+              className={`p-4 rounded-lg ${isSequenceRunning ? 'bg-red-600' : 'bg-blue-600'}`}
+          >
+              <Text className="text-center font-mono text-lg text-white">
+                {isSequenceRunning ? 'STOP SEQUENCE' : 'START SEQUENCE'}
+            </Text>
+          </TouchableOpacity>
 
-        {/* Manual Control */}
-        <View className="bg-gray-900 p-6 rounded-lg mb-8 w-full">
-          <Text className="text-gray-400 text-sm font-mono mb-4 text-center">MANUAL CONTROL</Text>
           <TouchableOpacity
-            onPress={toggleFlashlight}
-            className={`w-24 h-24 rounded-full justify-center items-center mx-auto ${
-              isOn ? 'bg-yellow-500' : 'bg-gray-600'
-            }`}
-            activeOpacity={0.8}
+              onPress={resetMorseSequence}
+              className="p-3 bg-gray-700 rounded-lg"
           >
-            <Text className="text-white text-3xl">
-              {isOn ? '🔦' : '⚫'}
+              <Text className="text-center font-mono text-sm text-gray-300">
+                RESET SEQUENCE
             </Text>
           </TouchableOpacity>
+          </View>
         </View>
       </View>
     </ScreenTemplate>

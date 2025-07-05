@@ -21,22 +21,52 @@ export interface PuzzleState {
 }
 
 export const PUZZLE_TYPES = {
+  SYSTEM_SECURITY: 'system_security',
+  TERMINAL_ACCESS: 'terminal_access',
+  HELP_TUTORIAL: 'help_tutorial',
   BATTERY_CHARGE: 'battery_charge',
   FLASHLIGHT_MORSE: 'flashlight_morse',
-  BAROMETER_BLOW: 'barometer_blow',
   LOCATION_NAVIGATE: 'location_navigate',
   ACCELEROMETER_MOVEMENT: 'accelerometer_movement',
   GYROSCOPE_ROTATION: 'gyroscope_rotation',
-  GYROSCOPE_SPIN_COUNT: 'gyroscope_spin_count',
   MICROPHONE_LEVEL: 'microphone_level',
   COMPASS_ORIENTATION: 'compass_orientation',
   COMPASS_DIRECTION_HOLD: 'compass_direction_hold',
   CALCULATOR_PUZZLE: 'calculator_puzzle',
+  MUSIC_PLAY: 'music_play',
+  CAMERA_CAPTURE: 'camera_capture',
 } as const;
 
 export type PuzzleType = typeof PUZZLE_TYPES[keyof typeof PUZZLE_TYPES];
 
 export const DEFAULT_PUZZLES: Record<string, PuzzleConfig> = {
+  [PUZZLE_TYPES.SYSTEM_SECURITY]: {
+    id: PUZZLE_TYPES.SYSTEM_SECURITY,
+    name: 'System Security',
+    description: 'Bypass system security protocols',
+    moduleId: 'system',
+    targetAction: 'bypass_security',
+    isComplete: false,
+    color: 'red',
+  },
+  [PUZZLE_TYPES.TERMINAL_ACCESS]: {
+    id: PUZZLE_TYPES.TERMINAL_ACCESS,
+    name: 'Terminal Access',
+    description: 'Gain terminal access by solving access codes',
+    moduleId: 'terminal',
+    targetAction: 'solve_access_codes',
+    isComplete: false,
+    color: 'green',
+  },
+  [PUZZLE_TYPES.HELP_TUTORIAL]: {
+    id: PUZZLE_TYPES.HELP_TUTORIAL,
+    name: 'Tutorial',
+    description: 'Complete the tutorial to unlock system knowledge',
+    moduleId: 'tutorial',
+    targetAction: 'complete_tutorial',
+    isComplete: false,
+    color: 'blue',
+  },
   [PUZZLE_TYPES.BATTERY_CHARGE]: {
     id: PUZZLE_TYPES.BATTERY_CHARGE,
     name: 'Power Restoration',
@@ -55,15 +85,7 @@ export const DEFAULT_PUZZLES: Record<string, PuzzleConfig> = {
     isComplete: false,
     color: 'yellow',
   },
-  [PUZZLE_TYPES.BAROMETER_BLOW]: {
-    id: PUZZLE_TYPES.BAROMETER_BLOW,
-    name: 'Air Pressure Test',
-    description: 'Blow into the device to test pressure sensors',
-    moduleId: 'barometer',
-    targetAction: 'detect_blow',
-    isComplete: false,
-    color: 'blue',
-  },
+
   [PUZZLE_TYPES.LOCATION_NAVIGATE]: {
     id: PUZZLE_TYPES.LOCATION_NAVIGATE,
     name: 'Navigation System',
@@ -90,15 +112,6 @@ export const DEFAULT_PUZZLES: Record<string, PuzzleConfig> = {
     targetAction: 'detect_rotation',
     isComplete: false,
     color: 'orange',
-  },
-  [PUZZLE_TYPES.GYROSCOPE_SPIN_COUNT]: {
-    id: PUZZLE_TYPES.GYROSCOPE_SPIN_COUNT,
-    name: 'Spin Counter',
-    description: 'Spin the device 100 times to calibrate rotation sensors',
-    moduleId: 'gyro',
-    targetAction: 'count_spins',
-    isComplete: false,
-    color: 'green',
   },
   [PUZZLE_TYPES.MICROPHONE_LEVEL]: {
     id: PUZZLE_TYPES.MICROPHONE_LEVEL,
@@ -135,6 +148,24 @@ export const DEFAULT_PUZZLES: Record<string, PuzzleConfig> = {
     targetAction: 'solve_calculation',
     isComplete: false,
     color: 'orange',
+  },
+  [PUZZLE_TYPES.MUSIC_PLAY]: {
+    id: PUZZLE_TYPES.MUSIC_PLAY,
+    name: 'Audio Playback Test',
+    description: 'Play a music track to test audio systems',
+    moduleId: 'music',
+    targetAction: 'play_music',
+    isComplete: false,
+    color: 'purple',
+  },
+  [PUZZLE_TYPES.CAMERA_CAPTURE]: {
+    id: PUZZLE_TYPES.CAMERA_CAPTURE,
+    name: 'Visual Recording Test',
+    description: 'Take a photo to test camera functionality',
+    moduleId: 'camera',
+    targetAction: 'capture_photo',
+    isComplete: false,
+    color: 'purple',
   },
 };
 

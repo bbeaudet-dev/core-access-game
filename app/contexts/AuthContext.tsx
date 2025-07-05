@@ -20,6 +20,7 @@ interface AuthContextType extends AuthState {
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   signUp: (email: string, password: string, name?: string) => Promise<void>;
+  guestSignIn: (username: string) => void;
   completeAuth: () => void;
 }
 
@@ -62,7 +63,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setAuthState(prev => ({ ...prev, isLoading: true }));
     try {
       const user = await authApi.signup(email, password, name);
-      setAuthState({ user, isLoading: false, isAuthenticated: false });
+      setAuthState({ user, isLoading: false, isAuthenticated: true });
     } catch (error) {
       setAuthState(prev => ({ ...prev, isLoading: false, user: null }));
       throw error;
@@ -89,6 +90,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  // Guest sign in function (no API call needed)
+  const guestSignIn = (username: string) => {
+    const guestUser: User = {
+      id: 'guest',
+      email: 'guest@example.com',
+      name: username,
+    };
+    setAuthState({ user: guestUser, isLoading: false, isAuthenticated: true });
+  };
+
   // Complete authentication (called after user presses Continue to Game)
   const completeAuth = () => {
     setAuthState(prev => ({ ...prev, isAuthenticated: true }));
@@ -99,7 +110,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signIn,
     signOut,
     signUp,
-    completeAuth,
+    guestSignIn,
+    completeAuth: () => {}, // Keep for compatibility but make it a no-op
   };
 
   return (

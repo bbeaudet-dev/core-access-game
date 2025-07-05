@@ -15,8 +15,6 @@ export default function PuzzleOverview({ onPuzzlePress }: PuzzleOverviewProps) {
         return '🔋';
       case PUZZLE_TYPES.FLASHLIGHT_MORSE:
         return '🔦';
-      case PUZZLE_TYPES.BAROMETER_BLOW:
-        return '💨';
       case PUZZLE_TYPES.LOCATION_NAVIGATE:
         return '🗺️';
       case PUZZLE_TYPES.ACCELEROMETER_MOVEMENT:

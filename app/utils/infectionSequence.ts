@@ -14,37 +14,37 @@ export const INFECTION_STEPS: InfectionStep[] = [
   {
     glitchLevel: 2,
     terminalText: 'Booting in emergency mode...',
-    delay: 1000
+    delay: 500
   },
   {
     glitchLevel: 3,
     terminalText: 'Booting in emergency mode...\nDoing a self-analysis...',
-    delay: 2500
+    delay: 1000
   },
   {
     glitchLevel: 4,
     terminalText: 'Booting in emergency mode...\nDoing a self-analysis...\nSystem Status: INFECTED',
-    delay: 4000
+    delay: 1500
   },
   {
     glitchLevel: 5,
     terminalText: 'Booting in emergency mode...\n[SYSTEM] Self-analyzing...\n[SYSTEM] Status: INFECTED\nSeverity: CRITICAL',
-    delay: 5500
+    delay: 2000
   },
   {
     glitchLevel: 6,
     terminalText: 'Booting in emergency mode...\nDoing a self-analysis...\nSystem Status: INFECTED\nSeverity: CRITICAL\nSource: fake DOWNLOAD button, device infected with Spartan virus',
-    delay: 7000
+    delay: 2500
   },
   {
     glitchLevel: 0,
     terminalText: '',
-    delay: 8000,
+    delay: 3000,
     action: 'tower-defense'
   }
 ];
 
-export const TOTAL_INFECTION_TIME = 8000;
+export const TOTAL_INFECTION_TIME = 3000;
 
 export function startInfectionSequence(
   setGlitchLevel: (level: number) => void,

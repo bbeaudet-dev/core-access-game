@@ -1,22 +1,43 @@
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
-interface StopwatchProps {
-  isActive: boolean;
-  onToggle: () => void;
-  onReset: () => void;
-  onLap: () => void;
-  time: number;
-  laps: number[];
+export default function Stopwatch() {
+  const [isActive, setIsActive] = useState(false);
+  const [time, setTime] = useState(0);
+  const [laps, setLaps] = useState<number[]>([]);
+  const intervalRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (isActive) {
+      intervalRef.current = setInterval(() => {
+        setTime(prev => prev + 10);
+      }, 10);
+    } else if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
 }
 
-export default function Stopwatch({
-  isActive,
-  onToggle,
-  onReset,
-  onLap,
-  time,
-  laps
-}: StopwatchProps) {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isActive]);
+
+  const toggleStopwatch = () => {
+    setIsActive(!isActive);
+  };
+
+  const resetStopwatch = () => {
+    setIsActive(false);
+    setTime(0);
+    setLaps([]);
+  };
+
+  const lapStopwatch = () => {
+    if (isActive) {
+      setLaps(prev => [...prev, time]);
+    }
+  };
+
   const formatTime = (ms: number) => {
     const minutes = Math.floor(ms / 60000);
     const seconds = Math.floor((ms % 60000) / 1000);
@@ -37,7 +58,7 @@ export default function Stopwatch({
       <View className="flex-row justify-center space-x-2 mb-3">
         <TouchableOpacity
           className={`px-4 py-2 rounded-lg ${isActive ? 'bg-red-500' : 'bg-green-500'}`}
-          onPress={onToggle}
+          onPress={toggleStopwatch}
         >
           <Text className="text-white text-xs font-bold">
             {isActive ? 'STOP' : 'START'}
@@ -46,14 +67,14 @@ export default function Stopwatch({
         
         <TouchableOpacity
           className="px-4 py-2 bg-gray-600 rounded-lg"
-          onPress={onReset}
+          onPress={resetStopwatch}
         >
           <Text className="text-white text-sm font-bold">RESET</Text>
         </TouchableOpacity>
         
         <TouchableOpacity
           className="px-4 py-2 bg-blue-500 rounded-lg"
-          onPress={onLap}
+          onPress={lapStopwatch}
           disabled={!isActive}
         >
           <Text className="text-white text-sm font-bold">LAP</Text>

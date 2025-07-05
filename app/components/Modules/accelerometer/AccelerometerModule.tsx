@@ -1,8 +1,9 @@
 import { playSound } from '@/app/utils/soundManager';
 import { Accelerometer } from 'expo-sensors';
 import { useEffect, useState } from 'react';
-import { Platform, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 import { usePuzzle } from '../../../contexts/PuzzleContext';
+import { getModuleBackgroundImage } from '../../../utils/unlockSystem';
 import AccelerometerPlot from '../../ui/LiveDataPlot';
 import ScreenTemplate from '../../ui/ScreenTemplate';
 import AccelerometerControls from './AccelerometerControls';
@@ -28,13 +29,16 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
   const [accelerationHistory, setAccelerationHistory] = useState<number[]>([]); // For sparkline
   const [unitType, setUnitType] = useState<UnitType>('m/s²'); // Changed default to m/s²
   const [normalized, setNormalized] = useState(false); // Normalized graph toggle
+  const [puzzleComplete, setPuzzleComplete] = useState(false);
   
-  const { updatePuzzleProgress, completePuzzle } = usePuzzle();
+  const { updatePuzzleProgress, completePuzzle, getCompletedPuzzles } = usePuzzle();
+  const completedPuzzles = getCompletedPuzzles();
+  const backgroundImage = getModuleBackgroundImage('accelerometer', completedPuzzles);
 
   // Acceleration threshold to unlock puzzle (in m/s²)
-  const UNLOCK_THRESHOLD = 15; // 15 m/s²
+  const UNLOCK_THRESHOLD = 50; // 50 m/s²
   // Sparkline settings
-  const HISTORY_LENGTH = 200; // 20 seconds at 10Hz
+  const HISTORY_LENGTH = 50; // Reduced from 200 to prevent memory issues
 
   // Unit conversion functions
   const convertToUnit = (valueInG: number, targetUnit: UnitType): number => {
@@ -87,6 +91,12 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
     checkAccelerometerAvailability();
     return () => _unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (completedPuzzles.includes('accelerometer_movement') && !puzzleComplete) {
+      setPuzzleComplete(true);
+    }
+  }, [completedPuzzles, puzzleComplete]);
 
   const checkAccelerometerAvailability = async () => {
     try {
@@ -233,35 +243,12 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
   }
 
   return (
-    <ScreenTemplate title="ACCELEROMETER" titleColor="purple" onGoHome={onGoHome}>
-          <View className="flex flex-row justify-between">
-            {/* Unit Toggle Button */}
-            <View className="bg-gray-900 p-3 rounded-lg mb-4">
-              <Text className="text-gray-400 text-sm font-mono mb-2">UNITS</Text>
-              <TouchableOpacity 
-                onPress={toggleUnit}
-                className="bg-purple-600 px-4 py-2 rounded-lg"
-              >
-                <Text className="text-white font-mono text-center">
-                  {getUnitLabel(unitType)}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Normalized Graph Toggle */}
-            <View className="bg-gray-900 p-3 rounded-lg mb-4">
-              <Text className="text-gray-400 text-sm font-mono mb-2">GRAPH</Text>
-              <TouchableOpacity 
-                onPress={() => setNormalized(!normalized)}
-                className={`px-4 py-2 rounded-lg ${normalized ? 'bg-green-600' : 'bg-gray-600'}`}
-              >
-                <Text className="text-white font-mono text-center">
-                  {normalized ? 'NORM' : 'RAW'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
+    <ScreenTemplate 
+      title="ACCELEROMETER" 
+      titleColor="purple" 
+      onGoHome={onGoHome}
+      backgroundImage={backgroundImage}
+    >
           <AccelerometerData
             currentAcceleration={convertToUnit(currentAcceleration, unitType)}
             maxAcceleration={convertToUnit(maxAcceleration, unitType)}
@@ -276,6 +263,8 @@ export default function AccelerometerModule({ onGoHome }: AccelerometerModulePro
             subscription={subscription}
             onToggleAccelerometer={toggleAccelerometer}
             onResetMaxAcceleration={resetMaxAcceleration}
+            unitType={getUnitLabel(unitType)}
+            onToggleUnit={toggleUnit}
           />
 
           {/* Speed Plot */}

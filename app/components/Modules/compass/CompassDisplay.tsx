@@ -7,7 +7,7 @@ interface CompassDisplayProps {
 
 export default function CompassDisplay({ heading }: CompassDisplayProps) {
   const screenWidth = Dimensions.get('window').width;
-  const size = Math.min(400, Math.floor(screenWidth * 0.8));
+  const size = Math.min(350, Math.floor(screenWidth * 0.7));
   const center = size / 2;
   const radius = size / 2 - 20;
   const needleLength = radius - 20;

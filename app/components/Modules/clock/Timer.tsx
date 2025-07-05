@@ -1,36 +1,57 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-interface TimerProps {
-  isActive: boolean;
-  onToggle: () => void;
-  onReset: () => void;
-  onSetTime: (minutes: number, seconds: number) => void;
-  timeLeft: number;
-  totalTime: number;
-}
-
-export default function Timer({
-  isActive,
-  onToggle,
-  onReset,
-  onSetTime,
-  timeLeft,
-  totalTime
-}: TimerProps) {
+export default function Timer() {
+  const [isActive, setIsActive] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [totalTime, setTotalTime] = useState(0);
   const [minutes, setMinutes] = useState('0');
   const [seconds, setSeconds] = useState('0');
+  const intervalRef = useRef<number | null>(null);
 
-  const formatTime = (ms: number) => {
-    const minutes = Math.floor(ms / 60000);
-    const seconds = Math.floor((ms % 60000) / 1000);
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  useEffect(() => {
+    if (isActive && timeLeft > 0) {
+      intervalRef.current = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 10) {
+            setIsActive(false);
+            return 0;
+          }
+          return prev - 10;
+        });
+      }, 10);
+    } else if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isActive, timeLeft]);
+
+  const toggleTimer = () => {
+    setIsActive(!isActive);
+  };
+
+  const resetTimer = () => {
+    setIsActive(false);
+    setTimeLeft(totalTime);
   };
 
   const handleSetTime = () => {
     const mins = parseInt(minutes) || 0;
     const secs = parseInt(seconds) || 0;
-    onSetTime(mins, secs);
+    const totalMs = (mins * 60 + secs) * 1000;
+    setTimeLeft(totalMs);
+    setTotalTime(totalMs);
+    setIsActive(false);
+  };
+
+  const formatTime = (ms: number) => {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
   const progress = totalTime > 0 ? (timeLeft / totalTime) * 100 : 0;
@@ -85,7 +106,7 @@ export default function Timer({
       <View className="flex-row justify-center space-x-2">
         <TouchableOpacity
           className={`px-4 py-2 rounded-lg ${isActive ? 'bg-red-500' : 'bg-green-500'}`}
-          onPress={onToggle}
+          onPress={toggleTimer}
           disabled={timeLeft === 0}
         >
           <Text className="text-white text-sm font-bold">
@@ -95,7 +116,7 @@ export default function Timer({
         
         <TouchableOpacity
           className="px-4 py-2 bg-gray-600 rounded-lg"
-          onPress={onReset}
+          onPress={resetTimer}
         >
           <Text className="text-white text-sm font-bold">RESET</Text>
         </TouchableOpacity>

@@ -46,8 +46,12 @@ export default function BatteryIndicator() {
   };
 
   const getBatterySegments = () => {
-    const segments = Math.floor(batteryLevel * 5); // 5 segments = 20% each
-    return Math.min(segments, 5);
+    if (batteryLevel === 0) return 0; // No battery = no bars
+    if (batteryLevel < 0.2) return 1; // Under 20% = 1 bar
+    if (batteryLevel >= 0.8) return 5; // 80-100% = full bars
+    // 20-79% = proportional bars (2-4 bars)
+    const segments = Math.floor(batteryLevel * 5);
+    return Math.max(2, Math.min(segments, 4));
   };
 
   const renderBatteryBar = () => {
@@ -67,7 +71,7 @@ export default function BatteryIndicator() {
   };
 
   return (
-    <View className="flex-row items-center space-x-2">
+    <View className="flex-row items-center space-x-2 m-10 ml-16">
       <Text className="text-xs text-gray-400 font-mono"></Text>
       {isCharging && <Text className="text-sm">⚡</Text>}
       <View className="flex-row items-center">

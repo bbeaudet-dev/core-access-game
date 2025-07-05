@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { useInfection } from '../../../contexts/InfectionContext';
 import { usePuzzle } from '../../../contexts/PuzzleContext';
 import { playSound } from '../../../utils/soundManager';
 
 interface MemoryGameProps {
   onBackToMenu: () => void;
+  onComplete?: () => void;
 }
 
 interface MemoryState {
@@ -12,15 +14,20 @@ interface MemoryState {
   playerSequence: number[];
   level: number;
   showingSequence: boolean;
+  currentSequenceIndex: number;
+  highlightedButton: number | null;
 }
 
-export default function MemoryGame({ onBackToMenu }: MemoryGameProps) {
+export default function MemoryGame({ onBackToMenu, onComplete }: MemoryGameProps) {
   const { updatePuzzleProgress } = usePuzzle();
+  const { completePuzzle } = useInfection();
   const [gameState, setGameState] = useState<MemoryState>({
     sequence: [],
     playerSequence: [],
     level: 1,
     showingSequence: false,
+    currentSequenceIndex: 0,
+    highlightedButton: null,
   });
 
   const startGame = () => {
@@ -31,6 +38,8 @@ export default function MemoryGame({ onBackToMenu }: MemoryGameProps) {
       playerSequence: [],
       level: 1,
       showingSequence: true,
+      currentSequenceIndex: 0,
+      highlightedButton: null,
     });
     
     showSequence(sequence);
@@ -41,13 +50,30 @@ export default function MemoryGame({ onBackToMenu }: MemoryGameProps) {
       setGameState(prev => ({
         ...prev,
         showingSequence: false,
+        highlightedButton: null,
       }));
       return;
     }
 
+    // Highlight the current button in the sequence
+    setGameState(prev => ({
+      ...prev,
+      currentSequenceIndex: index,
+      highlightedButton: sequence[index],
+    }));
+
     setTimeout(() => {
-      showSequence(sequence, index + 1);
-    }, 1000);
+      // Clear the highlight
+      setGameState(prev => ({
+        ...prev,
+        highlightedButton: null,
+      }));
+      
+      // Show next button after a short delay
+      setTimeout(() => {
+        showSequence(sequence, index + 1);
+      }, 200);
+    }, 800);
   };
 
   const addToPlayerSequence = (number: number) => {
@@ -81,12 +107,16 @@ export default function MemoryGame({ onBackToMenu }: MemoryGameProps) {
         playerSequence: [],
         level: newLevel,
         showingSequence: true,
+        currentSequenceIndex: 0,
+        highlightedButton: null,
       });
       
       showSequence(newSequence);
       
       if (newLevel >= 5) {
         updatePuzzleProgress('games_memory', 100, true);
+        completePuzzle('memory_game'); // Update infection progress
+        onComplete?.(); // Call the onComplete callback
         Alert.alert('Congratulations!', 'You completed 5 levels!');
         setTimeout(() => {
           onBackToMenu();
@@ -96,7 +126,7 @@ export default function MemoryGame({ onBackToMenu }: MemoryGameProps) {
   };
 
   return (
-    <View className="flex-1 justify-center items-center p-4">
+    <View className="flex flex-col justify-center items-center p-4">
       <Text className="text-blue-400 text-lg mb-4">
         Level {gameState.level}
       </Text>
@@ -116,7 +146,11 @@ export default function MemoryGame({ onBackToMenu }: MemoryGameProps) {
             onPress={() => addToPlayerSequence(num)}
             disabled={gameState.showingSequence}
             className={`w-20 h-20 rounded-lg items-center justify-center ${
-              gameState.showingSequence ? 'bg-gray-600' : 'bg-blue-600'
+              gameState.showingSequence && gameState.highlightedButton === num
+                ? 'bg-yellow-500'
+                : gameState.showingSequence
+                ? 'bg-gray-600'
+                : 'bg-blue-600'
             }`}
           >
             <Text className="text-white text-2xl">{num}</Text>

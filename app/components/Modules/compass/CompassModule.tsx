@@ -2,6 +2,7 @@ import { Magnetometer } from 'expo-sensors';
 import { useEffect, useRef, useState } from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { usePuzzle } from '../../../contexts/PuzzleContext';
+import { getModuleBackgroundImage } from '../../../utils/unlockSystem';
 
 import { playSound } from '@/app/utils/soundManager';
 import ScreenTemplate from '../../ui/ScreenTemplate';
@@ -16,7 +17,7 @@ interface CompassModuleProps {
 
 export default function CompassModule({ onGoHome }: CompassModuleProps) {
   const [magnetometerData, setMagnetometerData] = useState({ x: 0, y: 0, z: 0 });
-  const [heading, setHeading] = useState(0);
+  const [heading, setHeading] = useState<number | null>(null);
   const [subscription, setSubscription] = useState<any>(null);
   const [isAvailable, setIsAvailable] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,11 +31,17 @@ export default function CompassModule({ onGoHome }: CompassModuleProps) {
   const [directionPuzzleComplete, setDirectionPuzzleComplete] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   
-  const { updatePuzzleProgress, completePuzzle } = usePuzzle();
+  const { updatePuzzleProgress, completePuzzle, getCompletedPuzzles } = usePuzzle();
+  const completedPuzzles = getCompletedPuzzles();
+  const backgroundImage = getModuleBackgroundImage('compass', completedPuzzles, false);
 
   // North direction tolerance (degrees)
   const NORTH_TOLERANCE = 10;
   const TARGET_TIME_IN_DIRECTION = 10000; // 10 seconds
+
+  // Check if puzzle is already completed
+  const [puzzleComplete, setPuzzleComplete] = useState(false);
+  const [northFound, setNorthFound] = useState(false);
 
   useEffect(() => {
     checkMagnetometerAvailability();
@@ -75,6 +82,19 @@ export default function CompassModule({ onGoHome }: CompassModuleProps) {
       }
     };
   }, [isDirectionPuzzleActive, currentDirection, targetDirection, directionPuzzleComplete]);
+
+  useEffect(() => {
+    if (heading !== null && !puzzleComplete) {
+      // Check if compass is pointing north (within 10 degrees)
+      const isNorth = Math.abs(heading) <= 10 || Math.abs(heading - 360) <= 10;
+      if (isNorth && !northFound) {
+        setNorthFound(true);
+        setPuzzleComplete(true);
+        completePuzzle('compass_north');
+        playSound('success');
+      }
+    }
+  }, [heading, puzzleComplete, northFound, completePuzzle]);
 
   const checkMagnetometerAvailability = async () => {
     try {
@@ -163,7 +183,8 @@ export default function CompassModule({ onGoHome }: CompassModuleProps) {
     }
   };
 
-  const direction = getDirection(heading);
+  // Use a fallback direction if heading is null
+  const direction = heading !== null ? getDirection(heading) : 'N';
 
   if (error) {
     return <CompassError error={error} onGoHome={onGoHome} />;
@@ -174,58 +195,19 @@ export default function CompassModule({ onGoHome }: CompassModuleProps) {
   }
 
   return (
-    <ScreenTemplate title="COMPASS" titleColor="blue" onGoHome={onGoHome}>
+    <ScreenTemplate 
+      title="COMPASS" 
+      titleColor="blue" 
+      onGoHome={onGoHome}
+      backgroundImage={backgroundImage}
+    >
       <View className="flex-col w-full items-center justify-center">
-        <CompassDisplay heading={heading} />
+        <CompassDisplay heading={heading ?? 0} />
         <CompassData 
           direction={direction}
-          heading={heading}
+          heading={heading ?? 0}
           magnetometerData={magnetometerData}
         />
-        
-        {/* Direction Timer Puzzle */}
-        <View className="bg-gray-900 p-4 rounded-lg m-4 w-full">
-          <Text className="text-gray-400 text-sm font-mono mb-2 text-center">DIRECTION TIMER PUZZLE</Text>
-          
-          {!isDirectionPuzzleActive ? (
-            <View className="space-y-2">
-              <Text className="text-blue-400 text-center font-mono">
-                Hold device facing a direction for 5 seconds
-              </Text>
-              <View className="flex-row justify-center space-x-2">
-                {['N', 'E', 'S', 'W'].map(dir => (
-                  <TouchableOpacity
-                    key={dir}
-                    onPress={() => startDirectionPuzzle(dir)}
-                    className="bg-blue-600 px-4 py-2 rounded-lg"
-                  >
-                    <Text className="text-white font-mono">{dir}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-          ) : (
-            <View className="space-y-2">
-              <Text className="text-yellow-400 text-center font-mono">
-                Target: {targetDirection} | Current: {currentDirection}
-              </Text>
-              <Text className="text-blue-400 text-center font-mono">
-                Time: {(timeInDirection / 1000).toFixed(1)}s / 5.0s
-              </Text>
-              {directionPuzzleComplete && (
-                <Text className="text-green-400 text-center font-mono font-bold">
-                  PUZZLE COMPLETE!
-                </Text>
-              )}
-              <TouchableOpacity
-                onPress={stopDirectionPuzzle}
-                className="bg-red-600 px-4 py-2 rounded-lg mx-auto"
-              >
-                <Text className="text-white font-mono text-center">STOP</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
       </View>
     </ScreenTemplate>
   );

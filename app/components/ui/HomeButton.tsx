@@ -98,7 +98,7 @@ export default function HomeButton({ active, onPress }: HomeButtonProps) {
             ${active ? isPressed ? 'bg-red-600' : 'bg-red-500' : 'bg-gray-500' } 
             justify-center items-center border-2 border-white
           `}
-          style={{ opacity: active ? 1 : 0.5 }}
+          style={{ opacity: active ? 0.9 : 0.5 }}
         >
           <Text className="text-white text-4xl font-bold">⌂</Text>
         </TouchableOpacity>

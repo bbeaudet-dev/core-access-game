@@ -1,7 +1,9 @@
 import { setAudioModeAsync } from 'expo-audio'
 import { useEffect, useState } from 'react'
-import { ScrollView, Text, View } from 'react-native'
-import { SOUND_EFFECTS, SoundManager, pauseBackgroundMusic, playBackgroundMusic, resumeBackgroundMusic, setSoundMuted, setSoundVolume, stopBackgroundMusic } from '../../../utils/soundManager'
+import { Text, View } from 'react-native'
+import { usePuzzle } from '../../../contexts/PuzzleContext'
+import { SOUND_EFFECTS, SoundManager, pauseBackgroundMusic, playBackgroundMusic, playSound, resumeBackgroundMusic, setSoundMuted, setSoundVolume } from '../../../utils/soundManager'
+import { getModuleBackgroundImage } from '../../../utils/unlockSystem'
 import ScreenTemplate from '../../ui/ScreenTemplate'
 import AudioControls from './AudioControls'
 import MusicTracks from './MusicTracks'
@@ -11,11 +13,16 @@ interface MusicModuleProps {
 }
 
 export default function MusicModule({ onGoHome }: MusicModuleProps) {
+  const { getCompletedPuzzles, completePuzzle } = usePuzzle();
+  const completedPuzzles = getCompletedPuzzles();
+  const backgroundImage = getModuleBackgroundImage('music', completedPuzzles, false);
+
   const [isMuted, setIsMuted] = useState(false)
   const [volume, setVolume] = useState(0.7)
   const [currentTrack, setCurrentTrack] = useState<string | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [hasPermission, setHasPermission] = useState<boolean | null>(null)
+  const [puzzleComplete, setPuzzleComplete] = useState(false);
 
   useEffect(() => {
     const setupAudio = async () => {
@@ -41,7 +48,12 @@ export default function MusicModule({ onGoHome }: MusicModuleProps) {
     setVolume(soundManager.getVolume())
     setCurrentTrack(soundManager.getCurrentMusicTrack())
     setIsPlaying(soundManager.isBackgroundMusicPlaying())
-  }, [])
+
+    // Check if puzzle is already completed
+    if (completedPuzzles.includes('music_play')) {
+      setPuzzleComplete(true);
+    }
+  }, [completedPuzzles]);
 
   const handleMuteToggle = () => {
     const newMutedState = !isMuted
@@ -54,23 +66,29 @@ export default function MusicModule({ onGoHome }: MusicModuleProps) {
     setSoundVolume(newVolume)
   }
 
-  const handlePlayTrack = async (track: typeof SOUND_EFFECTS[0]) => {
-    if (track.category === 'music') {
-      try {
-        // Use the local file directly
-        await playBackgroundMusic(track.id, track.file, true)
-        setCurrentTrack(track.id)
-        setIsPlaying(true)
-      } catch (error) {
-        console.error('Failed to play track:', error)
-      }
+  const handlePlayTrack = (trackName: string) => {
+    setCurrentTrack(trackName);
+    setIsPlaying(true);
+    playSound('sensor_activate');
+    
+    // Find the actual track data to play the music
+    const trackData = musicTracks.find(track => track.name === trackName);
+    if (trackData) {
+      // Play the background music with the track file
+      playBackgroundMusic(trackName, trackData.file, true);
+    }
+    
+    // Complete puzzle when any track is played
+    if (!puzzleComplete) {
+      setPuzzleComplete(true);
+      completePuzzle('music_play');
     }
   }
 
-  const handleStopMusic = async () => {
-    await stopBackgroundMusic()
-    setCurrentTrack(null)
-    setIsPlaying(false)
+  const handleStopTrack = () => {
+    setIsPlaying(false);
+    setCurrentTrack(null);
+    playSound('click');
   }
 
   const handlePauseResume = async () => {
@@ -86,20 +104,18 @@ export default function MusicModule({ onGoHome }: MusicModuleProps) {
   const musicTracks = SOUND_EFFECTS.filter(sound => sound.category === 'music')
 
   return (
-    <ScreenTemplate title="MUSIC" titleColor="purple" onGoHome={onGoHome}>
-          {hasPermission === null ? (
-            <View className="flex-1 p-5 justify-center">
-              <Text className="text-purple-400 text-center text-base mb-2">Requesting speaker permission...</Text>
-            </View>
-          ) : hasPermission === false ? (
-            <View className="flex-1 p-5 justify-center">
-              <Text className="text-purple-400 text-center text-base mb-2">Speaker access denied</Text>
-              <Text className="text-purple-400 text-center text-base mb-2">Please grant speaker permissions</Text>
-            </View>
-          ) : (
-            <ScrollView className="flex-col" showsVerticalScrollIndicator={false}>
-              <View className="p-5 space-y-6">
-                {/* Audio Controls */}
+    <ScreenTemplate 
+      title="MUSIC" 
+      titleColor="purple" 
+      onGoHome={onGoHome}
+      backgroundImage={backgroundImage}
+    >
+      <View className="flex flex-col space-y-4">
+        
+
+        {/* Music Controls */}
+        <View className="bg-gray-900 p-6 rounded-lg">
+          <Text className="text-gray-400 text-sm font-mono mb-4">MUSIC CONTROLS</Text>
                 <AudioControls
                   isMuted={isMuted}
                   volume={volume}
@@ -110,18 +126,19 @@ export default function MusicModule({ onGoHome }: MusicModuleProps) {
               onPauseResume={handlePauseResume}
                   soundEffects={SOUND_EFFECTS}
                 />
+        </View>
 
-                {/* Music */}
+        {/* Music Tracks */}
+        <View className="bg-gray-900 p-6 rounded-lg">
+          <Text className="text-gray-400 text-sm font-mono mb-4">MUSIC TRACKS</Text>
                 <MusicTracks
                   musicTracks={musicTracks}
                   currentTrack={currentTrack}
                   onPlayTrack={handlePlayTrack}
-                  onStopMusic={handleStopMusic}
+            onStopMusic={handleStopTrack}
                 />
-
+        </View>
               </View>
-            </ScrollView>
-          )}
     </ScreenTemplate>
   )
 } 

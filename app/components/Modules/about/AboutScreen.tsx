@@ -1,21 +1,25 @@
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
+import { usePuzzle } from '../../../contexts/PuzzleContext';
+import { getModuleBackgroundImage } from '../../../utils/unlockSystem';
+import ScreenTemplate from '../../ui/ScreenTemplate';
 
 interface AboutScreenProps {
   onGoBack: () => void;
 }
 
 export default function AboutScreen({ onGoBack }: AboutScreenProps) {
+  const { getCompletedPuzzles } = usePuzzle();
+  const completedPuzzles = getCompletedPuzzles();
+  const backgroundImage = getModuleBackgroundImage('system', completedPuzzles);
+
   return (
-    <View className="flex-1 bg-black">
-      <View className="p-5 pt-15 flex-row justify-between items-center">
-        <TouchableOpacity onPress={onGoBack}>
-          <Text className="text-red-500 text-lg font-bold">← Back</Text>
-        </TouchableOpacity>
-        <Text className="text-red-500 text-lg font-bold">About</Text>
-        <View className="w-12" />
-      </View>
-      
-      <ScrollView className="flex-1 p-5">
+    <ScreenTemplate 
+      title="ABOUT" 
+      titleColor="red" 
+      onGoHome={onGoBack}
+      backgroundImage={backgroundImage}
+    >
+      <ScrollView className="flex-1">
         <View className="mb-6">
           <Text className="text-red-500 text-lg font-bold mb-3">DEVICE INFO</Text>
           
@@ -136,6 +140,6 @@ export default function AboutScreen({ onGoBack }: AboutScreenProps) {
           </View>
         </View>
       </ScrollView>
-    </View>
+    </ScreenTemplate>
   );
 } 

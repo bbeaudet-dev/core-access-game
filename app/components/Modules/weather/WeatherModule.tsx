@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { usePuzzle } from '../../../contexts/PuzzleContext';
 import { playSound } from '../../../utils/soundManager';
+import { getModuleBackgroundImage } from '../../../utils/unlockSystem';
 import ScreenTemplate from '../../ui/ScreenTemplate';
 
 interface WeatherData {
@@ -20,176 +22,170 @@ interface WeatherModuleProps {
 
 export default function WeatherModule({ onGoHome }: WeatherModuleProps) {
   const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [forecast, setForecast] = useState<WeatherData[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [puzzleComplete, setPuzzleComplete] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  const { completePuzzle, getCompletedPuzzles } = usePuzzle();
+  const completedPuzzles = getCompletedPuzzles();
+  const backgroundImage = getModuleBackgroundImage('weather', completedPuzzles, false);
 
   useEffect(() => {
-    loadWeatherData();
-  }, []);
+    // Check if puzzle is already completed
+    if (completedPuzzles.includes('weather_check')) {
+      setPuzzleComplete(true);
+    }
+  }, [completedPuzzles]);
 
-  const loadWeatherData = async () => {
-    playSound('ui_button_tap');
-    setLoading(true);
-    setError(null);
+  const fetchWeatherData = async () => {
+    setIsLoading(true);
+    playSound('sensor_activate');
     
     try {
-      // Simulate weather data loading
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Simulate weather API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Mock weather data
-      const mockWeather: WeatherData = {
-        temperature: 22.5,
-        humidity: 65,
-        pressure: 1013.2,
-        condition: 'Partly Cloudy',
-        icon: '⛅',
-        feelsLike: 24.1,
-        windSpeed: 12.3,
-        visibility: 10.2
+      const mockWeatherData: WeatherData = {
+        temperature: Math.floor(Math.random() * 30) + 10, // 10-40°C
+        humidity: Math.floor(Math.random() * 40) + 40, // 40-80%
+        pressure: Math.floor(Math.random() * 50) + 1000, // 1000-1050 hPa
+        condition: ['Sunny', 'Cloudy', 'Rainy', 'Stormy'][Math.floor(Math.random() * 4)],
+        icon: ['☀️', '☁️', '🌧️', '⛈️'][Math.floor(Math.random() * 4)],
+        feelsLike: Math.floor(Math.random() * 30) + 10,
+        windSpeed: Math.floor(Math.random() * 20) + 5, // 5-25 km/h
+        visibility: Math.floor(Math.random() * 10) + 5, // 5-15 km
       };
       
-      const mockForecast: WeatherData[] = [
-        { ...mockWeather, temperature: 25.2, condition: 'Sunny', icon: '☀️' },
-        { ...mockWeather, temperature: 18.7, condition: 'Rainy', icon: '🌧️' },
-        { ...mockWeather, temperature: 20.1, condition: 'Cloudy', icon: '☁️' },
-        { ...mockWeather, temperature: 23.8, condition: 'Clear', icon: '🌙' },
-        { ...mockWeather, temperature: 21.4, condition: 'Partly Cloudy', icon: '⛅' }
-      ];
+      setWeather(mockWeatherData);
+      setLastUpdated(new Date());
       
-      setWeather(mockWeather);
-      setForecast(mockForecast);
-    } catch (err) {
-      setError('Failed to load weather data');
+      // Complete puzzle when weather data is fetched
+      if (!puzzleComplete) {
+        setPuzzleComplete(true);
+        completePuzzle('weather_check');
+        playSound('puzzle_complete');
+      }
+    } catch (error) {
+      console.error('Failed to fetch weather data:', error);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const getTemperatureColor = (temp: number) => {
-    if (temp >= 30) return 'text-red-400';
-    if (temp >= 20) return 'text-orange-400';
-    if (temp >= 10) return 'text-yellow-400';
-    if (temp >= 0) return 'text-blue-400';
-    return 'text-cyan-400';
-  };
-
-  const getHumidityColor = (humidity: number) => {
-    if (humidity >= 80) return 'text-blue-400';
-    if (humidity >= 60) return 'text-green-400';
-    if (humidity >= 40) return 'text-yellow-400';
-    return 'text-red-400';
+  const getWeatherColor = (condition: string) => {
+    switch (condition) {
+      case 'Sunny': return 'text-yellow-400';
+      case 'Cloudy': return 'text-gray-400';
+      case 'Rainy': return 'text-blue-400';
+      case 'Stormy': return 'text-purple-400';
+      default: return 'text-white';
+    }
   };
 
   return (
-    <ScreenTemplate title="WEATHER" titleColor="cyan" onGoHome={onGoHome}>
-      {loading ? (
-        <View className="flex-1 p-5 justify-center">
-          <Text className="text-cyan-400 text-center text-base mb-2">Loading weather data...</Text>
-        </View>
-      ) : error ? (
-        <View className="flex-1 p-5 justify-center">
-          <Text className="text-red-400 text-center text-base mb-2">{error}</Text>
-          <TouchableOpacity
-            onPress={loadWeatherData}
-            className="bg-cyan-600 px-4 py-2 rounded-lg mt-4 mx-auto"
-          >
-            <Text className="text-white text-center font-mono">Retry</Text>
-          </TouchableOpacity>
-        </View>
-      ) : weather ? (
-        <View className="flex flex-col space-y-4">
-          {/* Current Weather */}
-          <View className="bg-gray-900 p-6 rounded-lg">
-            <Text className="text-gray-400 text-sm font-mono mb-2">CURRENT WEATHER</Text>
-            <View className="flex flex-row items-center justify-between">
-              <View className="flex-1">
-                <Text className={`text-4xl font-mono ${getTemperatureColor(weather.temperature)}`}>
-                  {weather.temperature.toFixed(1)}°C
-                </Text>
-                <Text className="text-gray-300 text-sm font-mono">
-                  Feels like {weather.feelsLike.toFixed(1)}°C
-                </Text>
-              </View>
-              <View className="items-end">
-                <Text className="text-6xl mb-2">{weather.icon}</Text>
-                <Text className="text-cyan-400 text-sm font-mono text-center">
-                  {weather.condition}
-                </Text>
-              </View>
+      <ScreenTemplate 
+        title="WEATHER" 
+      titleColor="yellow" 
+        onGoHome={onGoHome}
+        backgroundImage={backgroundImage}
+      >
+      <View className="flex flex-col space-y-4">
+        {/* Weather Status */}
+        <View className="bg-gray-900 p-6 rounded-lg">
+          <Text className="text-gray-400 text-sm font-mono mb-4">WEATHER STATUS</Text>
+          <View className="flex flex-row items-center justify-center">
+            <Text className="text-4xl mr-4">🌤️</Text>
+            <Text className="text-xl font-mono text-yellow-400">
+              {weather ? 'ACTIVE' : 'STANDBY'}
+            </Text>
+          </View>
+          
+          {/* Puzzle Status */}
+          {puzzleComplete && (
+            <View className="mt-4 p-3 bg-green-900 rounded-lg">
+              <Text className="text-green-400 text-center font-mono text-sm">
+                ✅ WEATHER SYSTEMS ONLINE
+              </Text>
             </View>
+          )}
+        </View>
+
+        {/* Puzzle Instructions */}
+        {!puzzleComplete && (
+          <View className="bg-gray-900 p-6 rounded-lg">
+            <Text className="text-gray-400 text-sm font-mono mb-2">PUZZLE INSTRUCTIONS</Text>
+            <Text className="text-yellow-400 text-sm font-mono mb-2">
+              Test weather monitoring by fetching current weather data
+            </Text>
+          </View>
+        )}
+
+        {/* Weather Controls */}
+        <View className="bg-gray-900 p-6 rounded-lg">
+          <Text className="text-gray-400 text-sm font-mono mb-4">WEATHER CONTROLS</Text>
+            <TouchableOpacity
+            onPress={fetchWeatherData}
+            disabled={isLoading}
+            className={`p-4 rounded-lg ${isLoading ? 'bg-gray-600' : 'bg-yellow-600'}`}
+            >
+            <Text className="text-center font-mono text-lg">
+              {isLoading ? 'FETCHING WEATHER...' : 'FETCH WEATHER DATA'}
+            </Text>
+            </TouchableOpacity>
           </View>
 
-          {/* Weather Details */}
-          <View className="bg-gray-900 p-6 rounded-lg">
-            <Text className="text-gray-400 text-sm font-mono mb-4">WEATHER DETAILS</Text>
-            <View className="space-y-3">
-              <View className="flex flex-row justify-between">
-                <Text className="text-gray-300 font-mono">Humidity:</Text>
-                <Text className={`font-mono ${getHumidityColor(weather.humidity)}`}>
-                  {weather.humidity}%
-                </Text>
-              </View>
-              <View className="flex flex-row justify-between">
-                <Text className="text-gray-300 font-mono">Pressure:</Text>
-                <Text className="text-cyan-400 font-mono">
-                  {weather.pressure.toFixed(1)} hPa
-                </Text>
-              </View>
-              <View className="flex flex-row justify-between">
-                <Text className="text-gray-300 font-mono">Wind Speed:</Text>
-                <Text className="text-cyan-400 font-mono">
-                  {weather.windSpeed.toFixed(1)} km/h
-                </Text>
-              </View>
-              <View className="flex flex-row justify-between">
-                <Text className="text-gray-300 font-mono">Visibility:</Text>
-                <Text className="text-cyan-400 font-mono">
-                  {weather.visibility.toFixed(1)} km
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          {/* 5-Day Forecast */}
-          <View className="bg-gray-900 p-6 rounded-lg">
-            <Text className="text-gray-400 text-sm font-mono mb-4">5-DAY FORECAST</Text>
-            <View className="space-y-3">
-              {forecast.map((day, index) => (
-                <View key={index} className="flex flex-row justify-between items-center py-2 border-b border-gray-700">
-                  <View className="flex flex-row items-center">
-                    <Text className="text-2xl mr-3">{day.icon}</Text>
-                    <View>
-                      <Text className="text-gray-300 font-mono text-sm">
-                        Day {index + 1}
-                      </Text>
-                      <Text className="text-gray-500 font-mono text-xs">
-                        {day.condition}
-                      </Text>
-                    </View>
-                  </View>
-                  <Text className={`font-mono ${getTemperatureColor(day.temperature)}`}>
-                    {day.temperature.toFixed(1)}°C
+        {/* Weather Display */}
+        {weather && (
+            <View className="bg-gray-900 p-6 rounded-lg">
+            <Text className="text-gray-400 text-sm font-mono mb-4">CURRENT WEATHER</Text>
+            <View className="space-y-4">
+              {/* Main Weather Info */}
+              <View className="flex flex-row items-center justify-center">
+                <Text className="text-6xl mr-4">{weather.icon}</Text>
+                <View>
+                  <Text className="text-3xl font-mono text-yellow-400">
+                    {weather.temperature}°C
+                  </Text>
+                  <Text className={`text-lg font-mono ${getWeatherColor(weather.condition)}`}>
+                    {weather.condition}
                   </Text>
                 </View>
-              ))}
-            </View>
-          </View>
+              </View>
 
-          {/* Refresh Button */}
-          <View className="bg-gray-900 p-6 rounded-lg">
-            <Text className="text-gray-400 text-sm font-mono mb-2">CONTROLS</Text>
-            <View className="flex flex-row justify-center">
-              <TouchableOpacity
-                onPress={loadWeatherData}
-                className="bg-cyan-600 px-4 py-2 rounded-lg"
-              >
-                <Text className="text-white text-center font-mono">Refresh Weather</Text>
-              </TouchableOpacity>
+              {/* Weather Details */}
+              <View className="space-y-2">
+                <View className="flex flex-row justify-between">
+                  <Text className="text-gray-300 font-mono">Feels Like:</Text>
+                  <Text className="text-yellow-400 font-mono">{weather.feelsLike}°C</Text>
+            </View>
+                <View className="flex flex-row justify-between">
+                  <Text className="text-gray-300 font-mono">Humidity:</Text>
+                  <Text className="text-blue-400 font-mono">{weather.humidity}%</Text>
+                </View>
+                <View className="flex flex-row justify-between">
+                  <Text className="text-gray-300 font-mono">Pressure:</Text>
+                  <Text className="text-green-400 font-mono">{weather.pressure} hPa</Text>
+                </View>
+                <View className="flex flex-row justify-between">
+                  <Text className="text-gray-300 font-mono">Wind Speed:</Text>
+                  <Text className="text-purple-400 font-mono">{weather.windSpeed} km/h</Text>
+                </View>
+                <View className="flex flex-row justify-between">
+                  <Text className="text-gray-300 font-mono">Visibility:</Text>
+                  <Text className="text-cyan-400 font-mono">{weather.visibility} km</Text>
+                </View>
+              </View>
+
+              {/* Last Updated */}
+              {lastUpdated && (
+                <Text className="text-center text-gray-500 font-mono text-xs">
+                  Last updated: {lastUpdated.toLocaleTimeString()}
+                        </Text>
+              )}
             </View>
           </View>
-        </View>
-      ) : null}
-    </ScreenTemplate>
+        )}
+      </View>
+      </ScreenTemplate>
   );
 } 
